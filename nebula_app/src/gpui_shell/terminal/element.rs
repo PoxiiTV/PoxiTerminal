@@ -95,6 +95,7 @@ impl TerminalElement {
         usize,
         i64,
         bool,
+        Vec<super::view::MatchRun>,
     )> {
         let view = self.view.read(cx);
         let session = view.session.as_ref()?;
@@ -123,6 +124,13 @@ impl TerminalElement {
         let scrollback_floor = term.grid().scrolled_out();
         let image_anchor = scrollback_floor.saturating_add(history) as i64;
         let viewport_top_abs = image_anchor + i64::from(term.viewport_origin_for(rows).0);
+        let search_runs = view
+            .search
+            .as_ref()
+            .map(|search| {
+                search.matcher.visible_runs(&term, term.viewport_origin_for(rows), rows, cols)
+            })
+            .unwrap_or_default();
         Some((
             snapshot,
             prompt_line,
@@ -131,6 +139,7 @@ impl TerminalElement {
             scrollback_floor,
             viewport_top_abs,
             term.mode().contains(TermMode::ALT_SCREEN),
+            search_runs,
         ))
     }
 
@@ -317,6 +326,7 @@ impl Element for TerminalElement {
             scrollback_floor,
             viewport_top_abs,
             alternate_screen,
+            search_runs,
         )) = self.snapshot(layout.rows, layout.cols, cx)
         else {
             return;
@@ -515,6 +525,23 @@ impl Element for TerminalElement {
                 window.paint_quad(fill(
                     cell_rect(run.row as usize, visual.start, visual.len()),
                     selection_fill,
+                ));
+            }
+        }
+        // Coincidencias de la búsqueda (Ctrl+F): ámbar suave, más intenso en la
+        // enfocada. Van bajo el texto, como la selección.
+        for found in &search_runs {
+            let alpha = if found.focused { 0.75 } else { 0.32 };
+            let color = gpui::Rgba { r: 1.0, g: 0.706, b: 0.329, a: alpha };
+            for visual in math_frame.projected_runs(
+                found.row as usize,
+                found.start as usize..found.end as usize,
+                layout.cols,
+                false,
+            ) {
+                window.paint_quad(fill(
+                    cell_rect(found.row as usize, visual.start, visual.len()),
+                    color,
                 ));
             }
         }

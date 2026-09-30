@@ -21,6 +21,7 @@ mod output_tests;
 mod path_drop;
 mod pointer;
 mod runtime;
+mod search;
 mod startup;
 mod startup_command;
 #[cfg(all(test, feature = "gpui-test-support"))]
@@ -30,6 +31,7 @@ mod typography;
 
 pub use broadcast::TerminalInput;
 pub use runtime::InputOrigin;
+pub(super) use search::MatchRun;
 
 use gpui::{
     App, AppContext as _, Bounds, ClipboardItem, Context, EventEmitter, FocusHandle, Focusable,
@@ -268,6 +270,8 @@ pub struct TerminalView {
     pub(super) answers: crate::assistant_answer::AnswerInbox,
     confirmation: super::confirmation::ConfirmationState,
     pub(super) answer_reader: Option<gpui::Entity<super::answer_reader::AnswerReader>>,
+    /// Barra de búsqueda en el historial (Ctrl+F), si está abierta.
+    pub(super) search: Option<search::ScrollbackSearch>,
     pub pane_id: u64,
     pub session: Option<TerminalSession>,
     pub focus_handle: FocusHandle,
@@ -1087,8 +1091,27 @@ impl TerminalView {
         if self.marked_text.is_some() || keymap::is_native_window_shortcut(&event.keystroke) {
             return;
         }
+        // Con la barra de búsqueda abierta, las teclas que se escriben en ella
+        // suben hasta aquí: no son para el PTY.
+        if self.search.is_some() && !self.focus_handle.is_focused(window) {
+            return;
+        }
         let ks = &event.keystroke;
         let mods = &ks.modifiers;
+
+        // Ctrl+F busca en el historial, salvo en apps a pantalla completa
+        // (vim, nano, htop…), que usan Ctrl+F para lo suyo.
+        if mods.control
+            && !mods.shift
+            && !mods.alt
+            && !mods.platform
+            && ks.key == "f"
+            && !self.term_mode().contains(TermMode::ALT_SCREEN)
+        {
+            self.open_search(window, cx);
+            cx.stop_propagation();
+            return;
+        }
 
         // 终端惯例快捷键优先于编码器。
         if mods.control && mods.shift {
@@ -1440,6 +1463,9 @@ impl Render for TerminalView {
                         .text_sm()
                         .child(exited.clone()),
                 );
+            }
+            if let Some(bar) = self.render_search_bar(cx) {
+                root = root.child(bar);
             }
         }
         root.into_any_element()
