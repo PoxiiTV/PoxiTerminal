@@ -78,10 +78,54 @@ def decode(raw):
     return re.sub(r'\\(u\{[0-9a-fA-F]+\}|x[0-9a-fA-F]{2}|.)', one, raw)
 
 
+def block_end(text, open_brace):
+    """Índice justo después de la llave que cierra `text[open_brace]`, saltando
+    cadenas, caracteres y comentarios."""
+    depth, i, n = 0, open_brace, len(text)
+    while i < n:
+        c = text[i]
+        if text.startswith("//", i):
+            i = text.find("\n", i)
+            i = n if i < 0 else i
+            continue
+        if text.startswith("/*", i):
+            i = text.find("*/", i + 2)
+            i = n if i < 0 else i + 2
+            continue
+        raw = re.match(r'r(#*)"', text[i:i + 12]) if c == "r" and not text[i - 1].isalnum() else None
+        if raw:
+            end = text.find('"' + raw.group(1), i + len(raw.group(0)))
+            i = n if end < 0 else end + 1 + len(raw.group(1))
+            continue
+        if c == '"':
+            i += 1
+            while i < n and text[i] != '"':
+                i += 2 if text[i] == "\\" else 1
+            i += 1
+            continue
+        if c == "'":
+            m = re.match(r"'(\\.|\\u\{[0-9a-fA-F]+\}|[^\\'])'", text[i:])
+            i += len(m.group(0)) if m else 1
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return i + 1
+        i += 1
+    return n
+
+
 def production_source(path):
+    """El código sin los módulos `#[cfg(test)] mod x { … }`, estén donde estén."""
     text = path.read_text(encoding="utf-8")
-    cut = re.search(r"^#\[cfg\(test\)\]\s*\n\s*(pub(\(\w+\))? )?mod \w+", text, re.M)
-    return text[:cut.start()] if cut else text
+    pattern = re.compile(r"^[ \t]*#\[cfg\(test\)\]\s*\n\s*(pub(\(\w+\))? )?mod \w+\s*\{", re.M)
+    while (found := pattern.search(text)):
+        end = block_end(text, found.end() - 1)
+        # Se conservan los saltos de línea para que los números de línea no cambien.
+        text = text[:found.start()] + "\n" * text.count("\n", found.start(), end) + text[end:]
+    return text
 
 
 def files():
