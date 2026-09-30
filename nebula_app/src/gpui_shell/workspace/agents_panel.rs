@@ -9,20 +9,27 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-use gpui::{Animation, AnimationExt as _, pulsating_between};
+use gpui::{Animation, AnimationExt as _, StyledImage as _, img, pulsating_between};
 
 use super::*;
-use crate::ai_usage::{UsageSnapshot, UsageTracker};
+use crate::ai_usage::{SessionImage, UsageSnapshot, UsageTracker};
 use crate::display::side_panel::PanelView;
+use crate::gpui_shell::terminal::view::TerminalView;
 use crate::runtime_api::RuntimeTaskState;
 
 /// Cada cuánto se releen transcripts y ramas mientras el panel está abierto.
 const REFRESH: Duration = Duration::from_secs(2);
+/// Miniaturas por tarjeta.
+const THUMBS: usize = 6;
 
 #[derive(Default)]
 pub(crate) struct AgentsPanel {
     trackers: HashMap<u64, Arc<Mutex<UsageTracker>>>,
     usage: HashMap<u64, UsageSnapshot>,
+    /// Últimas imágenes de cada sesión (enviadas y leídas por la IA).
+    images: HashMap<u64, Vec<SessionImage>>,
+    /// Miniaturas ya convertidas, por puntero de los bytes.
+    thumbs: HashMap<usize, Arc<gpui::Image>>,
     /// Estado y desde cuándo, para «esperando hace 2 min».
     since: HashMap<u64, (RuntimeTaskState, Instant)>,
     /// Rama por carpeta (None = no es un repo).
@@ -35,7 +42,7 @@ struct AgentCard {
     name: String,
     state: RuntimeTaskState,
     cwd: String,
-    session_file: Option<String>,
+    view: Entity<TerminalView>,
 }
 
 impl NebulaWorkspace {
@@ -51,7 +58,7 @@ impl NebulaWorkspace {
                     name: agent.display_name,
                     state: view.runtime_task_state(),
                     cwd: view.cwd.clone(),
-                    session_file: view.agent_session_file(),
+                    view: pane.view.clone(),
                 });
             }
         }
@@ -107,35 +114,52 @@ impl NebulaWorkspace {
         let alive: std::collections::HashSet<u64> = cards.iter().map(|card| card.pane_id).collect();
         self.agents_panel.trackers.retain(|pane, _| alive.contains(pane));
         self.agents_panel.usage.retain(|pane, _| alive.contains(pane));
+        self.agents_panel.images.retain(|pane, _| alive.contains(pane));
+        let live: std::collections::HashSet<usize> = self
+            .agents_panel
+            .images
+            .values()
+            .flatten()
+            .map(|image| Arc::as_ptr(&image.bytes) as usize)
+            .collect();
+        self.agents_panel.thumbs.retain(|key, _| live.contains(key));
         self.agents_panel.since.retain(|pane, _| alive.contains(pane));
         for card in &cards {
-            if let Some(file) = &card.session_file {
-                // Solo transcripts accesibles desde Windows (los de WSL viven
-                // en rutas del invitado).
-                let path = std::path::PathBuf::from(file);
-                // try_lock: si el lector está ocupado (primera lectura de un
-                // transcript grande) no se bloquea la interfaz esperándolo.
-                let stale = self.agents_panel.trackers.get(&card.pane_id).is_none_or(|tracker| {
-                    tracker.try_lock().is_ok_and(|tracker| tracker.path() != path)
-                });
-                if stale && path.is_file() {
-                    self.agents_panel
-                        .trackers
-                        .insert(card.pane_id, Arc::new(Mutex::new(UsageTracker::new(path))));
-                }
+            // El lector es del propio panel: lo comparte con la vista previa de
+            // imágenes del terminal, así el transcript se lee una sola vez.
+            match card.view.update(cx, |view, _| view.session_tracker()) {
+                Some(tracker) => {
+                    self.agents_panel.trackers.insert(card.pane_id, tracker);
+                },
+                None => {
+                    self.agents_panel.trackers.remove(&card.pane_id);
+                },
             }
             if let Some(tracker) = self.agents_panel.trackers.get(&card.pane_id).cloned() {
                 let pane_id = card.pane_id;
                 let task = cx.background_executor().spawn(async move {
+                    // try_lock: si el lector está ocupado (primera lectura de un
+                    // transcript grande) se salta esta pasada sin esperar.
                     let mut tracker = tracker.try_lock().ok()?;
                     tracker.poll().ok()?;
-                    Some(tracker.snapshot().clone())
+                    let images = tracker.images();
+                    let recent = images[images.len().saturating_sub(THUMBS)..].to_vec();
+                    Some((tracker.snapshot().clone(), recent))
                 });
                 cx.spawn(async move |this, cx| {
-                    if let Some(snapshot) = task.await {
+                    if let Some((snapshot, images)) = task.await {
                         let _ = this.update(cx, |workspace, cx| {
-                            if workspace.agents_panel.usage.get(&pane_id) != Some(&snapshot) {
-                                workspace.agents_panel.usage.insert(pane_id, snapshot);
+                            let panel = &mut workspace.agents_panel;
+                            let same_images = panel.images.get(&pane_id).is_some_and(|old| {
+                                old.len() == images.len()
+                                    && old
+                                        .iter()
+                                        .zip(&images)
+                                        .all(|(a, b)| Arc::ptr_eq(&a.bytes, &b.bytes))
+                            });
+                            if panel.usage.get(&pane_id) != Some(&snapshot) || !same_images {
+                                panel.usage.insert(pane_id, snapshot);
+                                panel.images.insert(pane_id, images);
                                 cx.notify();
                             }
                         });
@@ -202,7 +226,34 @@ impl NebulaWorkspace {
             let usage = self.agents_panel.usage.get(&card.pane_id).cloned();
             let branch = self.agents_panel.branches.get(&card.cwd).cloned().flatten();
             let has_changes = self.has_turn_baseline(card.pane_id);
-            list = list.child(self.render_agent_card(card, since, usage, branch, has_changes, cx));
+            let images = self.agents_panel.images.get(&card.pane_id).cloned().unwrap_or_default();
+            let thumbs: Vec<(Arc<gpui::Image>, SessionImage)> = images
+                .into_iter()
+                .map(|image| {
+                    let key = Arc::as_ptr(&image.bytes) as usize;
+                    let thumb = self
+                        .agents_panel
+                        .thumbs
+                        .entry(key)
+                        .or_insert_with(|| {
+                            Arc::new(gpui::Image::from_bytes(
+                                image_format(&image.media_type),
+                                image.bytes.to_vec(),
+                            ))
+                        })
+                        .clone();
+                    (thumb, image)
+                })
+                .collect();
+            list = list.child(self.render_agent_card(
+                card,
+                since,
+                usage,
+                branch,
+                has_changes,
+                thumbs,
+                cx,
+            ));
         }
         list.into_any_element()
     }
@@ -214,6 +265,7 @@ impl NebulaWorkspace {
         usage: Option<UsageSnapshot>,
         branch: Option<String>,
         has_changes: bool,
+        thumbs: Vec<(Arc<gpui::Image>, SessionImage)>,
         cx: &mut Context<Self>,
     ) -> gpui::AnyElement {
         let language = crate::gpui_shell::config::ui_language(cx);
@@ -293,6 +345,45 @@ impl NebulaWorkspace {
         }
         if let Some(usage) = &usage {
             body = body.child(usage_row(usage, spanish, &theme, language));
+        }
+        if !thumbs.is_empty() {
+            let mut strip = h_flex().gap_1().pt_0p5();
+            for (index, (thumb, image)) in thumbs.into_iter().enumerate() {
+                let tooltip: SharedString = image
+                    .label
+                    .clone()
+                    .unwrap_or_else(|| match image.origin {
+                        crate::ai_usage::ImageOrigin::Sent => {
+                            language.pick("你发送的图片", "Image you sent").to_owned()
+                        },
+                        crate::ai_usage::ImageOrigin::Read => {
+                            language.pick("AI 读取的图片", "Image read by the AI").to_owned()
+                        },
+                    })
+                    .into();
+                strip = strip.child(
+                    div()
+                        .id(("agent-thumb", pane_id * 100 + index as u64))
+                        .size(px(44.0))
+                        .flex_shrink_0()
+                        .rounded_md()
+                        .overflow_hidden()
+                        .border_1()
+                        .border_color(theme.border)
+                        .cursor_pointer()
+                        .tooltip(move |window, cx| {
+                            gpui_component::tooltip::Tooltip::new(tooltip.clone()).build(window, cx)
+                        })
+                        .on_click(cx.listener(move |workspace, _, window, cx| {
+                            cx.stop_propagation();
+                            if let Some(path) = write_temp_image(pane_id, index, &image) {
+                                workspace.open_document_path(path, window, cx);
+                            }
+                        }))
+                        .child(img(thumb).size_full().object_fit(gpui::ObjectFit::Cover)),
+                );
+            }
+            body = body.child(strip);
         }
         let footer_text = elapsed.map(|elapsed| match card.state {
             RuntimeTaskState::Running => {
@@ -416,6 +507,35 @@ fn format_cost(cost: f64, spanish: bool) -> String {
     } else {
         format!("≈ ${cost:.2}")
     }
+}
+
+fn image_format(media_type: &str) -> gpui::ImageFormat {
+    match media_type {
+        "image/jpeg" | "image/jpg" => gpui::ImageFormat::Jpeg,
+        "image/gif" => gpui::ImageFormat::Gif,
+        "image/webp" => gpui::ImageFormat::Webp,
+        _ => gpui::ImageFormat::Png,
+    }
+}
+
+/// Vuelca una imagen de la sesión a un temporal para abrirla en una pestaña.
+fn write_temp_image(
+    pane_id: u64,
+    index: usize,
+    image: &SessionImage,
+) -> Option<std::path::PathBuf> {
+    let extension = match image.media_type.as_str() {
+        "image/jpeg" | "image/jpg" => "jpg",
+        "image/gif" => "gif",
+        "image/webp" => "webp",
+        _ => "png",
+    };
+    let path = std::env::temp_dir().join(format!(
+        "poxiterminal-{pane_id}-{index}-{:x}.{extension}",
+        Arc::as_ptr(&image.bytes) as usize
+    ));
+    std::fs::write(&path, image.bytes.as_slice()).ok()?;
+    Some(path)
 }
 
 /// Rama actual de la carpeta, o None si no es un repositorio.

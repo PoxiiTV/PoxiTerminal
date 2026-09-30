@@ -171,7 +171,7 @@ impl NebulaWorkspace {
     /// Markdown → 文档 tab（TextView 富渲染）；其余可读文本（txt/log/json
     /// 与源码）→ 代码 tab（行号 + 行级虚拟化，用户裁定 txt 同代码一样）；
     /// 都不认的交系统处理器。
-    pub(super) fn open_document_path(
+    pub(crate) fn open_document_path(
         &mut self,
         path: std::path::PathBuf,
         window: &mut Window,

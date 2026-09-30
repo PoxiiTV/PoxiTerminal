@@ -1253,6 +1253,24 @@ pub(crate) fn open_pane_changes(pane_id: u64, cx: &mut App) {
     }
 }
 
+/// Abre un archivo (p. ej. una imagen) en la ventana del panel indicado.
+pub(crate) fn open_path_for_pane(pane_id: u64, path: std::path::PathBuf, cx: &mut App) {
+    if !cx.has_global::<WindowRegistry>() {
+        return;
+    }
+    let entries = cx.global::<WindowRegistry>().entries.clone();
+    for entry in entries {
+        let Some(workspace) = entry.workspace.upgrade() else { continue };
+        if workspace.read(cx).tab_of_pane(pane_id).is_none() {
+            continue;
+        }
+        let _ = entry.handle.update(cx, move |_, window, cx| {
+            workspace.update(cx, |workspace, cx| workspace.open_document_path(path, window, cx));
+        });
+        return;
+    }
+}
+
 pub(crate) fn focus_notification(pane_id: Option<u64>, cx: &mut App) {
     if !cx.has_global::<WindowRegistry>() {
         return;

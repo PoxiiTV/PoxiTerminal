@@ -423,6 +423,15 @@ impl TerminalView {
             cx.notify();
             return;
         }
+        // Ctrl+clic sobre una miniatura de imagen: abrirla en grande.
+        if event.button == MouseButton::Left
+            && link_modifier(&event.modifiers)
+            && event.click_count == 1
+            && self.open_hovered_image(cx)
+        {
+            cx.stop_propagation();
+            return;
+        }
         if link_modifier(&event.modifiers) && event.click_count == 1 {
             self.update_link_hover(event.position, &event.modifiers, cx);
             if self.link_hover.is_some() {
@@ -580,6 +589,9 @@ impl TerminalView {
             return;
         }
         self.update_link_hover(event.position, &event.modifiers, cx);
+        if event.pressed_button.is_none() {
+            self.update_image_hover(event.position, cx);
+        }
     }
 
     pub(super) fn on_mouse_up(

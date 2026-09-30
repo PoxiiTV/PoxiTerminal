@@ -3,6 +3,7 @@
 #[cfg(all(test, feature = "gpui-test-support"))]
 mod activity_tests;
 mod agent_activity;
+mod ai_images;
 mod broadcast;
 mod completion;
 #[cfg(all(test, feature = "gpui-test-support"))]
@@ -272,6 +273,11 @@ pub struct TerminalView {
     pub(super) answer_reader: Option<gpui::Entity<super::answer_reader::AnswerReader>>,
     /// Barra de búsqueda en el historial (Ctrl+F), si está abierta.
     pub(super) search: Option<search::ScrollbackSearch>,
+    /// Lector del transcript de la IA del panel (uso de tokens e imágenes).
+    session_tracker: Option<std::sync::Arc<std::sync::Mutex<crate::ai_usage::UsageTracker>>>,
+    session_tracker_polling: bool,
+    /// Miniatura de imagen bajo el ratón (`[Image #N]` o ruta de imagen).
+    image_hover: Option<ai_images::ImageHover>,
     pub pane_id: u64,
     pub session: Option<TerminalSession>,
     pub focus_handle: FocusHandle,
@@ -1418,6 +1424,7 @@ impl Render for TerminalView {
             .on_hover(cx.listener(|this, hovered: &bool, _, cx| {
                 if !*hovered {
                     this.clear_link_hover(cx);
+                    this.clear_image_hover(cx);
                     if this.completion_viewport.hovered.take().is_some() {
                         cx.notify();
                     }
@@ -1466,6 +1473,9 @@ impl Render for TerminalView {
             }
             if let Some(bar) = self.render_search_bar(cx) {
                 root = root.child(bar);
+            }
+            if let Some(preview) = self.render_image_hover(cx) {
+                root = root.child(preview);
             }
         }
         root.into_any_element()
