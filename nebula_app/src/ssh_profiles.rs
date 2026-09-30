@@ -11,7 +11,10 @@ pub(crate) mod exchange;
 #[path = "ssh_profiles/organization.rs"]
 mod organization;
 pub(crate) use connection::validate_ssh_destination;
-pub use connection::{SshConnectionOptions, SshHostJumpMode, SshHostProxyMode};
+pub use connection::{
+    PortForward, PortForwardError, PortForwardKind, SshConnectionOptions, SshHostJumpMode,
+    SshHostProxyMode, validate_forwards,
+};
 pub(crate) use organization::{HostOrganization, merge_host_sources};
 
 const PROFILE_VERSION: u32 = 1;

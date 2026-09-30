@@ -195,6 +195,8 @@ pub enum TerminalViewEvent {
     /// 程序上报的任务进度（OSC 9;4）变了。宿主把 pane 级状态投到 tab badge，
     /// 并且只把当前聚焦 pane 投到窗口级任务栏。
     ProgressChanged(crate::taskbar::TaskProgress),
+    /// Aviso breve para el host, que tiene la ventana (p. ej. puerto de túnel ocupado).
+    Warning(String),
 }
 
 /// 会话种类：本地 shell 或 SSH 直连（russh，共享旧壳业务层）。
@@ -350,6 +352,8 @@ pub struct TerminalView {
     path_drop: path_drop::PathDropState,
     /// SSH 直连目的地（`user@host[:port]`）；本地会话为 None。
     pub ssh_destination: Option<String>,
+    /// Etiquetas de los túneles SSH abiertos por este pane (chip "⇄ N").
+    pub(crate) ssh_tunnels: Vec<String>,
     ssh_label: Option<String>,
     /// 创建本地 PTY 时冻结的受控环境，供独立 `pane.exec` child 复用。
     pub(crate) exec_context: Option<crate::runtime_exec::PaneExecContext>,
@@ -725,6 +729,7 @@ impl TerminalView {
 
     /// `Exited` 只对宿主发一次；重复的退出信号（ChildExit 之后必然跟 Exit）只更新文案。
     fn mark_exited(&mut self, message: String, cx: &mut Context<Self>) {
+        self.ssh_tunnels.clear();
         self.confirmation.invalidate();
         self.pending_runtime_submit = None;
         self.pending_shell_command = None;

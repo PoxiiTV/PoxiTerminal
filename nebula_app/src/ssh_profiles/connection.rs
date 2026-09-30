@@ -30,6 +30,76 @@ pub struct SshConnectionOptions {
     pub proxy_username: String,
     pub jump_mode: SshHostJumpMode,
     pub jump_host: String,
+    /// Túneles que se abren con cada pane conectado a este host.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub forwards: Vec<PortForward>,
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PortForwardKind {
+    /// `-L`: 127.0.0.1:local → remote_host:remote_port vía SSH.
+    #[default]
+    Local,
+    /// `-D`: proxy SOCKS5 en 127.0.0.1:local.
+    Dynamic,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PortForward {
+    #[serde(default)]
+    pub kind: PortForwardKind,
+    pub local_port: u16,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub remote_host: String,
+    #[serde(default)]
+    pub remote_port: u16,
+    #[serde(default = "enabled_by_default")]
+    pub enabled: bool,
+}
+
+fn enabled_by_default() -> bool {
+    true
+}
+
+impl PortForward {
+    /// "127.0.0.1:5432 → db:5432" / "SOCKS 127.0.0.1:1080".
+    pub fn label(&self) -> String {
+        match self.kind {
+            PortForwardKind::Local => {
+                format!("127.0.0.1:{} → {}:{}", self.local_port, self.remote_host, self.remote_port)
+            },
+            PortForwardKind::Dynamic => format!("SOCKS 127.0.0.1:{}", self.local_port),
+        }
+    }
+}
+
+/// Fallo de validación de un túnel; la UI lo traduce.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum PortForwardError {
+    /// Índice de fila con un puerto fuera de 1–65535.
+    Port(usize),
+    /// Índice de fila Local sin host remoto válido.
+    RemoteHost(usize),
+    /// Puerto local repetido.
+    Duplicate(u16),
+}
+
+pub fn validate_forwards(forwards: &[PortForward]) -> Result<(), PortForwardError> {
+    let mut seen = std::collections::HashSet::new();
+    for (index, forward) in forwards.iter().enumerate() {
+        let local = forward.kind == PortForwardKind::Local;
+        if forward.local_port == 0 || (local && forward.remote_port == 0) {
+            return Err(PortForwardError::Port(index));
+        }
+        if local && validate_host(forward.remote_host.trim_matches(['[', ']'])).is_err() {
+            return Err(PortForwardError::RemoteHost(index));
+        }
+        if !seen.insert(forward.local_port) {
+            return Err(PortForwardError::Duplicate(forward.local_port));
+        }
+    }
+    Ok(())
 }
 
 impl SshConnectionOptions {

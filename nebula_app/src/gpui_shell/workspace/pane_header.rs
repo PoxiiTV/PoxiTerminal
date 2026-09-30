@@ -201,6 +201,51 @@ fn broadcast_mark(side: f32, color: Hsla) -> impl IntoElement {
     .size(px(side))
 }
 
+/// Ancho reservado para el chip de túneles en la barra de pestañas superior.
+pub(super) const TUNNEL_CHIP_W: f32 = 44.0;
+
+/// Chip "⇄ N" con los túneles SSH activos del pane; `None` si no hay ninguno.
+pub(super) fn tunnel_chip(
+    id: impl Into<gpui::ElementId>,
+    view: &Entity<TerminalView>,
+    text_px: f32,
+    cx: &App,
+) -> Option<gpui::AnyElement> {
+    let tunnels = view.read(cx).ssh_tunnels.clone();
+    if tunnels.is_empty() {
+        return None;
+    }
+    let theme = cx.theme();
+    let title: SharedString =
+        crate::gpui_shell::config::ui_language(cx).pick("SSH 隧道", "SSH tunnels").into();
+    let count = tunnels.len();
+    Some(
+        div()
+            .id(id)
+            .flex_shrink_0()
+            .px(px(6.0))
+            .py(px(1.0))
+            .rounded(px(5.0))
+            .bg(theme.primary.opacity(0.14))
+            .text_color(theme.primary)
+            .text_size(px(text_px))
+            .font_weight(FontWeight::MEDIUM)
+            .whitespace_nowrap()
+            .child(SharedString::from(format!("⇄ {count}")))
+            .tooltip(move |window, cx| {
+                let (title, tunnels) = (title.clone(), tunnels.clone());
+                gpui_component::tooltip::Tooltip::element(move |_, _| {
+                    v_flex()
+                        .gap(px(2.0))
+                        .child(div().font_weight(FontWeight::MEDIUM).child(title.clone()))
+                        .children(tunnels.iter().map(|tunnel| div().child(tunnel.clone())))
+                })
+                .build(window, cx)
+            })
+            .into_any_element(),
+    )
+}
+
 /// 一个 pane 的标题信息：图标（AI 品牌图 / Nerd Font 字位）+ 一行标题。
 struct PaneTitle {
     logo: Option<std::sync::Arc<gpui::RenderImage>>,
@@ -232,6 +277,20 @@ impl NebulaWorkspace {
             (None, None) => SharedString::from(view.tab_label()),
         };
         PaneTitle { logo, logo_pending, glyph, text }
+    }
+
+    /// Chip de túneles del pane enfocado para la barra de título.
+    pub(super) fn render_active_tunnel_chip(&self, cx: &App) -> Option<gpui::AnyElement> {
+        if self.settings_open {
+            return None;
+        }
+        let tab = self.tabs.get(self.active)?;
+        // Con la pestaña dividida cada panel ya lleva su chip en la cabecera.
+        if matches!(tab, WorkspaceTab::Terminal { panes, .. } if panes.len() > 1) {
+            return None;
+        }
+        let view = tab.focused_view()?;
+        tunnel_chip("titlebar-tunnels", view, 12.0, cx)
     }
 
     /// 一个 pane 的标题条。左区整条是切焦点的命中区，右区三枚按钮各自
@@ -411,6 +470,12 @@ impl NebulaWorkspace {
                     .flex_shrink_0()
                     .items_center()
                     .gap(px(1.0))
+                    .children(tunnel_chip(
+                        ("pane-tunnels", pane_id as usize),
+                        view,
+                        title_px * 0.92,
+                        cx,
+                    ))
                     .child(
                         Button::new(("pane-broadcast", pane_id as usize))
                             .ghost()

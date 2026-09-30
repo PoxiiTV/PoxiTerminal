@@ -117,6 +117,14 @@ impl NebulaWorkspace {
                     self.deliver_pane_notification(pane_id, notification.clone(), window, cx);
                 }
             },
+            TerminalViewEvent::Warning(text) => {
+                crate::gpui_shell::toast::toast(
+                    window,
+                    cx,
+                    crate::display::ToastKind::Warning,
+                    text.clone(),
+                );
+            },
             TerminalViewEvent::SelectionContextMenuRequested { position, text } => {
                 if let Some((_, pane_id)) = self.locate_pane(view.entity_id()) {
                     self.open_terminal_selection_context_menu(

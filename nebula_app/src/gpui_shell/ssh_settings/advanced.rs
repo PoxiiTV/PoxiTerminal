@@ -1,6 +1,20 @@
 use super::editor::{editor_field, editor_hint, editor_input};
 use super::*;
-use crate::ssh_profiles::{SshConnectionOptions, SshHostJumpMode, SshHostProxyMode};
+use crate::ssh_profiles::{
+    PortForward, PortForwardError, PortForwardKind, SshConnectionOptions, SshHostJumpMode,
+    SshHostProxyMode,
+};
+use gpui::AppContext as _;
+
+/// Fila editable de un túnel. Los textos viven en sus propios `InputState`.
+#[derive(Clone)]
+pub(super) struct TunnelDraft {
+    kind: PortForwardKind,
+    enabled: bool,
+    local_port: Entity<InputState>,
+    remote_host: Entity<InputState>,
+    remote_port: Entity<InputState>,
+}
 
 fn same_proxy_endpoint(previous: &SshConnectionOptions, connection: &SshConnectionOptions) -> bool {
     previous.proxy_mode == connection.proxy_mode
@@ -287,6 +301,245 @@ impl SettingsPane {
         (!password.is_empty()).then(|| password.to_string())
     }
 
+    pub(super) fn new_tunnel_draft(
+        forward: Option<&PortForward>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> TunnelDraft {
+        let mut port_input = |value: u16, placeholder: &'static str| {
+            cx.new(|cx| {
+                InputState::new(window, cx)
+                    .placeholder(placeholder)
+                    .pattern(regex::Regex::new(r"^\d{0,5}$").expect("static regex"))
+                    .default_value(if value == 0 { String::new() } else { value.to_string() })
+            })
+        };
+        let local_port = port_input(forward.map_or(0, |forward| forward.local_port), "8080");
+        let remote_port = port_input(forward.map_or(0, |forward| forward.remote_port), "80");
+        let remote_host = forward.map(|forward| forward.remote_host.clone()).unwrap_or_default();
+        TunnelDraft {
+            kind: forward.map_or(PortForwardKind::Local, |forward| forward.kind),
+            enabled: forward.is_none_or(|forward| forward.enabled),
+            local_port,
+            remote_host: cx.new(|cx| {
+                InputState::new(window, cx).placeholder("localhost").default_value(remote_host)
+            }),
+            remote_port,
+        }
+    }
+
+    /// Lee y valida las filas de túneles del editor.
+    pub(super) fn ssh_forwards_from_draft(
+        &self,
+        cx: &gpui::App,
+    ) -> Result<Vec<PortForward>, String> {
+        let language = crate::gpui_shell::config::ui_language(cx);
+        let Some(editor) = self.ssh_editor.as_ref() else { return Ok(Vec::new()) };
+        let port =
+            |input: &Entity<InputState>| input.read(cx).value().trim().parse::<u16>().unwrap_or(0);
+        let forwards = editor
+            .tunnels
+            .iter()
+            .map(|draft| {
+                let local = draft.kind == PortForwardKind::Local;
+                let host = draft.remote_host.read(cx).value().trim().to_owned();
+                PortForward {
+                    kind: draft.kind,
+                    local_port: port(&draft.local_port),
+                    remote_host: match (local, host.is_empty()) {
+                        (false, _) => String::new(),
+                        (true, true) => "localhost".to_owned(),
+                        (true, false) => host,
+                    },
+                    remote_port: if local { port(&draft.remote_port) } else { 0 },
+                    enabled: draft.enabled,
+                }
+            })
+            .collect::<Vec<_>>();
+        crate::ssh_profiles::validate_forwards(&forwards).map_err(|error| match error {
+            PortForwardError::Port(index) => language
+                .pick(
+                    "隧道 {n}：端口需要是 1–65535 之间的数字",
+                    "Tunnel {n}: ports must be numbers from 1 to 65535",
+                )
+                .replace("{n}", &(index + 1).to_string()),
+            PortForwardError::RemoteHost(index) => language
+                .pick("隧道 {n}：请填写有效的远程主机", "Tunnel {n}: enter a valid remote host")
+                .replace("{n}", &(index + 1).to_string()),
+            PortForwardError::Duplicate(port) => language
+                .pick(
+                    "本地端口 {port} 被多个隧道使用",
+                    "Local port {port} is used by more than one tunnel",
+                )
+                .replace("{port}", &port.to_string()),
+        })?;
+        Ok(forwards)
+    }
+
+    fn ssh_editor_tunnels(&self, window: &Window, cx: &Context<Self>) -> gpui::Div {
+        let language = crate::gpui_shell::config::ui_language(cx);
+        let editor = self.ssh_editor.as_ref().expect("open SSH editor");
+        let mut rows = Vec::with_capacity(editor.tunnels.len());
+        for (index, draft) in editor.tunnels.iter().enumerate() {
+            let theme = cx.theme();
+            let kinds = [
+                ("ssh-tunnel-local", language.pick("本地", "Local"), PortForwardKind::Local),
+                ("ssh-tunnel-socks", "SOCKS", PortForwardKind::Dynamic),
+            ];
+            let kind_buttons = kinds.into_iter().map(|(id, label, kind)| {
+                let selected = draft.kind == kind;
+                Button::new((id, index))
+                    .label(label)
+                    .ghost()
+                    .xsmall()
+                    .h(px(26.0))
+                    .px_3()
+                    .toggled(selected)
+                    .when(selected, |button| button.bg(theme.popover).font_medium().shadow_sm())
+                    .when(!selected, |button| button.text_color(theme.muted_foreground))
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        if let Some(draft) = this
+                            .ssh_editor
+                            .as_mut()
+                            .and_then(|editor| editor.tunnels.get_mut(index))
+                        {
+                            draft.kind = kind;
+                        }
+                        this.touch_ssh_editor(cx);
+                    }))
+            });
+            let header = h_flex()
+                .items_center()
+                .gap_2()
+                .child(
+                    h_flex()
+                        .p(px(3.0))
+                        .gap(px(3.0))
+                        .rounded_lg()
+                        .bg(theme.input)
+                        .children(kind_buttons),
+                )
+                .child(div().flex_1())
+                .child(
+                    crate::gpui_shell::widgets::NebulaSwitch::new(format!(
+                        "ssh-tunnel-enabled-{index}"
+                    ))
+                    .checked(draft.enabled)
+                    .on_click(cx.listener(
+                        move |this, checked: &bool, _, cx| {
+                            if let Some(draft) = this
+                                .ssh_editor
+                                .as_mut()
+                                .and_then(|editor| editor.tunnels.get_mut(index))
+                            {
+                                draft.enabled = *checked;
+                            }
+                            this.touch_ssh_editor(cx);
+                        },
+                    )),
+                )
+                .child(
+                    Button::new(("ssh-tunnel-delete", index))
+                        .icon(Icon::new(Icon::empty()).path(crate::gpui_shell::assets::nav::TRASH))
+                        .ghost()
+                        .xsmall()
+                        .tooltip(language.pick("删除隧道", "Delete tunnel"))
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            if let Some(editor) = this.ssh_editor.as_mut()
+                                && index < editor.tunnels.len()
+                            {
+                                editor.tunnels.remove(index);
+                            }
+                            this.touch_ssh_editor(cx);
+                        })),
+                );
+            let port_field = |input: &Entity<InputState>, label: &'static str| {
+                div()
+                    .w(px(96.0))
+                    .flex_shrink_0()
+                    .child(editor_field(label, editor_input(input, label, window, cx)))
+            };
+            let mut fields = h_flex()
+                .gap_3()
+                .items_start()
+                .child(port_field(&draft.local_port, language.pick("本地端口", "Local port")));
+            if draft.kind == PortForwardKind::Local {
+                let host_label = language.pick("远程主机", "Remote host");
+                fields = fields
+                    .child(div().flex_1().min_w_0().child(editor_field(
+                        host_label,
+                        editor_input(&draft.remote_host, host_label, window, cx),
+                    )))
+                    .child(port_field(
+                        &draft.remote_port,
+                        language.pick("远程端口", "Remote port"),
+                    ));
+            } else {
+                let port = draft.local_port.read(cx).value().trim().to_owned();
+                let port = if port.is_empty() { "…".to_owned() } else { port };
+                fields = fields.child(
+                    div().flex_1().min_w_0().pt(px(28.0)).child(editor_hint(
+                        language
+                            .pick(
+                                "SOCKS5 代理：127.0.0.1:{port}",
+                                "SOCKS5 proxy at 127.0.0.1:{port}",
+                            )
+                            .replace("{port}", &port),
+                        cx,
+                    )),
+                );
+            }
+            rows.push(
+                v_flex()
+                    .p_3()
+                    .gap_3()
+                    .rounded_md()
+                    .border_1()
+                    .border_color(theme.border)
+                    .when(!draft.enabled, |row| row.opacity(0.6))
+                    .child(header)
+                    .child(fields),
+            );
+        }
+        let theme = cx.theme();
+        v_flex()
+            .mt_5()
+            .pt_5()
+            .gap_3()
+            .border_t_1()
+            .border_color(theme.border)
+            .child(
+                h_flex()
+                    .justify_between()
+                    .items_center()
+                    .child(div().text_xs().font_medium().child(language.pick("隧道", "Tunnels")))
+                    .child(
+                        Button::new("ssh-tunnel-add")
+                            .ghost()
+                            .xsmall()
+                            .icon(IconName::Plus)
+                            .label(language.pick("添加隧道", "Add tunnel"))
+                            .on_click(cx.listener(|this, _, window, cx| {
+                                let draft = Self::new_tunnel_draft(None, window, cx);
+                                let focus = draft.local_port.clone();
+                                if let Some(editor) = this.ssh_editor.as_mut() {
+                                    editor.tunnels.push(draft);
+                                }
+                                focus.update(cx, |input, cx| input.focus(window, cx));
+                                this.touch_ssh_editor(cx);
+                            })),
+                    ),
+            )
+            .child(editor_hint(
+                language.pick(
+                    "连接此主机的终端打开时自动启动、关闭时停止；只监听 127.0.0.1。",
+                    "They open when a terminal connects to this host and close with it. They listen on 127.0.0.1 only.",
+                ),
+                cx,
+            ))
+            .children(rows)
+    }
+
     pub(super) fn ssh_editor_advanced(&self, window: &Window, cx: &mut Context<Self>) -> gpui::Div {
         let language = crate::gpui_shell::config::ui_language(cx);
         let editor = self.ssh_editor.as_ref().expect("open SSH editor");
@@ -517,6 +770,7 @@ impl SettingsPane {
                         "The network proxy connects to the first SSH host; the jump host forwards to the target.",
                     ), cx).mt_3()),
             )
+            .child(self.ssh_editor_tunnels(window, cx))
             .child(
                 v_flex().mt_5().p_3().gap_2().rounded_md().bg(theme.group_box)
                     .child(div().text_xs().font_medium().child(language.pick("连接规则预览", "Connection rule preview")))

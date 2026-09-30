@@ -6,7 +6,7 @@ use nebula_terminal::event::Event as TermEvent;
 
 pub(super) fn attach(
     mut rx: super::event_mailbox::EventReceiver,
-    mut stage_rx: futures::channel::mpsc::UnboundedReceiver<crate::ssh_session::SshStage>,
+    mut stage_rx: futures::channel::mpsc::UnboundedReceiver<super::session::SshSignal>,
     is_ssh: bool,
     cx: &mut Context<TerminalView>,
 ) {
@@ -43,10 +43,13 @@ pub(super) fn attach(
         // SSH 连接阶段泵：横幅数据源（与旧壳连接卡片同一
         // 上报流，350ms 门槛之类的视觉策略交给渲染端）。
         cx.spawn(async move |this, cx| {
-            while let Some(stage) = stage_rx.next().await {
+            while let Some(signal) = stage_rx.next().await {
                 if this
-                    .update(cx, |view: &mut TerminalView, cx| {
-                        view.apply_ssh_stage(stage, cx);
+                    .update(cx, |view: &mut TerminalView, cx| match signal {
+                        super::session::SshSignal::Stage(stage) => view.apply_ssh_stage(stage, cx),
+                        super::session::SshSignal::Tunnels(report) => {
+                            view.apply_ssh_tunnels(report, cx)
+                        },
                     })
                     .is_err()
                 {

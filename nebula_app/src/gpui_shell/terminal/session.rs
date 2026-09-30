@@ -17,6 +17,12 @@ use nebula_terminal::term::Config;
 use nebula_terminal::tty;
 use nebula_terminal::tty::EventedPty as _;
 
+/// Señales del transporte SSH hacia el pane: fase de conexión o túneles.
+pub enum SshSignal {
+    Stage(crate::ssh_session::SshStage),
+    Tunnels(crate::ssh_session::TunnelReport),
+}
+
 /// 把 PTY/SSH 线程发出的终端事件转投到 GPUI 前台的异步通道。本地与 SSH
 /// 会话共用同一形状：`stages` 只有 SSH 业务层会写（连接阶段横幅的数据
 /// 源），本地会话的这条通道保持沉默——统一类型让 `Term<EventProxy>` 在
@@ -24,7 +30,7 @@ use nebula_terminal::tty::EventedPty as _;
 #[derive(Clone)]
 pub struct EventProxy {
     events: super::event_mailbox::EventSender,
-    stages: UnboundedSender<crate::ssh_session::SshStage>,
+    stages: UnboundedSender<SshSignal>,
     remote_reader: Arc<std::sync::Mutex<Option<crate::ssh_session::TranscriptReader>>>,
 }
 
@@ -41,7 +47,10 @@ impl crate::ssh_session::SshEventHost for EventProxy {
         }
     }
     fn ssh_stage(&self, stage: crate::ssh_session::SshStage) {
-        let _ = self.stages.unbounded_send(stage);
+        let _ = self.stages.unbounded_send(SshSignal::Stage(stage));
+    }
+    fn ssh_tunnels(&self, report: crate::ssh_session::TunnelReport) {
+        let _ = self.stages.unbounded_send(SshSignal::Tunnels(report));
     }
 }
 
@@ -112,11 +121,8 @@ pub(super) fn test_session_with_events() -> (
 
 /// 一次会话 spawn 的完整出口：会话句柄 + 终端事件流 + SSH 阶段流
 /// （本地会话的阶段流永远安静，接收端可以直接丢弃）。
-pub type SpawnedSession = (
-    TerminalSession,
-    super::event_mailbox::EventReceiver,
-    UnboundedReceiver<crate::ssh_session::SshStage>,
-);
+pub type SpawnedSession =
+    (TerminalSession, super::event_mailbox::EventReceiver, UnboundedReceiver<SshSignal>);
 
 /// 启动一个本地 shell 会话。尺寸随后由首帧 prepaint 按真实布局重设；
 /// `term_config` 携带运行时设置（默认光标形状/闪烁等）。

@@ -135,6 +135,9 @@ impl NebulaWorkspace {
     ) -> gpui::AnyElement {
         let row_height = super::tab_scroll::tab_row_height(self.density);
         let language = crate::gpui_shell::config::ui_language(cx);
+        let tunnel_chip = self.render_active_tunnel_chip(cx);
+        let tunnel_chip_w =
+            if tunnel_chip.is_some() { super::pane_header::TUNNEL_CHIP_W } else { 0.0 };
         let theme = cx.theme();
         let muted = theme.muted_foreground;
         let active_bg = theme.sidebar_accent;
@@ -150,7 +153,8 @@ impl NebulaWorkspace {
         let symbol_family: SharedString = crate::font_install::REQUIRED_FONT_FAMILY.into();
         let label_px = settings.map(|settings| settings.ui_font_size_px).unwrap_or(15.0);
         let tab_capacity_w =
-            (f32::from(window.viewport_size().width) - TOP_TAB_RESERVED_W).max(TOP_TAB_MIN_W);
+            (f32::from(window.viewport_size().width) - TOP_TAB_RESERVED_W - tunnel_chip_w)
+                .max(TOP_TAB_MIN_W);
         let tab_w = tab_width(tab_capacity_w, self.top_tab_count());
         let strip_w = tab_strip_width(tab_w, self.top_tab_count());
         // 溢出时两端各让出一枚翻页按钮。这个反馈是单调的：`tab_w` 已被
@@ -692,6 +696,7 @@ impl NebulaWorkspace {
             .child(
                 title_bar_panel_controls()
                     .gap(px(8.0))
+                    .children(tunnel_chip)
                     .child(
                         toolbar_button(
                             "top-toggle-command-manager",

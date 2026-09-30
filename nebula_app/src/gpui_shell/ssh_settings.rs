@@ -151,6 +151,7 @@ pub(super) struct SshEditorState {
     pub(super) advanced: bool,
     pub(super) connection: crate::ssh_profiles::SshConnectionOptions,
     pub(super) original_connection: crate::ssh_profiles::SshConnectionOptions,
+    pub(super) tunnels: Vec<advanced::TunnelDraft>,
     pub(super) clear_proxy_password: bool,
     pub(super) jump_picker_open: bool,
     pub(super) jump_choices: Vec<(String, String)>,
@@ -175,6 +176,7 @@ impl SshEditorState {
             advanced: false,
             connection: crate::ssh_profiles::SshConnectionOptions::default(),
             original_connection: crate::ssh_profiles::SshConnectionOptions::default(),
+            tunnels: Vec::new(),
             clear_proxy_password: false,
             jump_picker_open: false,
             jump_choices: Vec::new(),
@@ -422,6 +424,12 @@ impl SettingsPane {
             editor.private_keys = profile.private_keys.clone();
             editor.connection = profile.connection.clone();
             editor.original_connection = profile.connection.clone();
+            editor.tunnels = profile
+                .connection
+                .forwards
+                .iter()
+                .map(|forward| Self::new_tunnel_draft(Some(forward), window, cx))
+                .collect();
         }
         let organization =
             profiles.organization(editor.original_destination.as_deref().unwrap_or_default());
@@ -668,7 +676,11 @@ impl SettingsPane {
                 return;
             },
         };
-        let connection = match self.ssh_connection_from_draft(&destination, cx) {
+        let connection = self.ssh_connection_from_draft(&destination, cx).and_then(|connection| {
+            let forwards = self.ssh_forwards_from_draft(cx)?;
+            Ok(crate::ssh_profiles::SshConnectionOptions { forwards, ..connection })
+        });
+        let connection = match connection {
             Ok(connection) => connection,
             Err(error) => {
                 if let Some(editor) = self.ssh_editor.as_mut() {

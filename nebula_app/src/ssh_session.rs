@@ -28,10 +28,12 @@ use crate::proxy_test::{ProxyTestFailure, ProxyTestOutcome, ProxyTestResult, Pro
 mod agent;
 mod config;
 mod exec;
+mod forward;
 mod integration;
 mod lifecycle;
 mod route;
 mod transcript;
+pub use forward::TunnelReport;
 pub(crate) use integration::setup_cli as setup_ai_cli;
 use route::{ResolvedRoute, RouteTransport};
 pub use transcript::TranscriptReader;
@@ -77,6 +79,9 @@ pub trait SshEventHost:
     fn ssh_stage(&self, stage: SshStage) {
         let _ = stage;
     }
+
+    /// Túneles del pane abiertos (o vaciados al terminar la sesión). Por defecto se ignora.
+    fn ssh_tunnels(&self, _report: TunnelReport) {}
 }
 
 #[cfg(feature = "legacy-shell")]

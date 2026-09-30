@@ -877,6 +877,7 @@ impl NebulaWorkspace {
         let settings_active_fg = cx.theme().sidebar_accent_foreground;
         let sidebar_visible = !self.sidebar_collapsed && !self.reader_focus_active(cx);
         let language = crate::gpui_shell::config::ui_language(cx);
+        let tunnel_chip = self.render_active_tunnel_chip(cx);
         h_flex()
             .size_full()
             .items_center()
@@ -923,6 +924,7 @@ impl NebulaWorkspace {
             .child(
                 title_bar_panel_controls()
                     .gap(px(8.0))
+                    .children(tunnel_chip)
                     .child(
                         toolbar_button(
                             "toggle-command-manager",

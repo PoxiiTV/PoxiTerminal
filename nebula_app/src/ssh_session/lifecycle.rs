@@ -199,6 +199,13 @@ pub(super) async fn run<H: SshEventHost>(
             super::transcript::TranscriptScope::new(&acquired.session);
         event_proxy.ssh_transcript_reader(Some(reader));
         super::report_stage(Some(&event_proxy), SshStage::Ready);
+        // Los túneles viven en este future: salir del pump, fallar o cancelar
+        // el pane los suelta y aborta listeners y conexiones.
+        let (_tunnels, report) =
+            super::forward::open_tunnels(&acquired.session, &profile.connection.forwards).await;
+        if report != super::TunnelReport::default() {
+            event_proxy.ssh_tunnels(report);
+        }
         let result =
             pump(&mut channel, hook_token, initial_size, &terminal, &event_proxy, &mut input).await;
         if result.is_err() || acquired.session.is_closed() {
@@ -229,6 +236,7 @@ fn finish<H: SshEventHost>(
     event_proxy: &H,
 ) {
     event_proxy.ssh_transcript_reader(None);
+    event_proxy.ssh_tunnels(super::TunnelReport::default());
     match result {
         Ok(()) => terminal.lock().exit(),
         Err(error) => {

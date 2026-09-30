@@ -207,3 +207,61 @@ fn jump_dependents_preserves_order_and_excludes_self_aliases_and_inactive_drafts
     assert_eq!(profiles.jump_dependents("bastion"), vec!["root@second", "root@first"]);
     assert!(profiles.jump_dependents("missing").is_empty());
 }
+
+fn tunnel(kind: super::PortForwardKind, local: u16, host: &str, remote: u16) -> super::PortForward {
+    super::PortForward {
+        kind,
+        local_port: local,
+        remote_host: host.to_owned(),
+        remote_port: remote,
+        enabled: true,
+    }
+}
+
+#[test]
+fn forwards_round_trip_and_old_profiles_still_load() {
+    use super::PortForwardKind::{Dynamic, Local};
+    let mut profiles = SshProfiles::default();
+    let mut profile = profiles.for_destination("root@host");
+    profile.connection.forwards =
+        vec![tunnel(Local, 5432, "db", 5432), tunnel(Dynamic, 1080, "", 0)];
+    profile.connection.forwards[1].enabled = false;
+    profiles.upsert(profile.clone());
+    let serialized = serde_json::to_string(&profiles).unwrap();
+    let restored: SshProfiles = serde_json::from_str(&serialized).unwrap();
+    assert_eq!(restored.for_destination("root@host"), profile);
+
+    let old: SshProfiles = serde_json::from_str(
+        r#"{"version":1,"profiles":[{"destination":"root@host","connection":{"proxy_mode":"direct"}}]}"#,
+    )
+    .unwrap();
+    let connection = old.for_destination("root@host").connection;
+    assert!(connection.forwards.is_empty());
+    assert!(!serde_json::to_string(&connection).unwrap().contains("forwards"));
+
+    let minimal: super::PortForward = serde_json::from_str(r#"{"local_port":8080}"#).unwrap();
+    assert_eq!(minimal.kind, Local);
+    assert!(minimal.enabled);
+}
+
+#[test]
+fn forward_validation_rejects_bad_ports_hosts_and_duplicates() {
+    use super::PortForwardError as E;
+    use super::PortForwardKind::{Dynamic, Local};
+    use super::validate_forwards as check;
+    assert_eq!(
+        check(&[tunnel(Local, 8080, "localhost", 80), tunnel(Dynamic, 1080, "", 0)]),
+        Ok(())
+    );
+    assert_eq!(check(&[tunnel(Local, 0, "localhost", 80)]), Err(E::Port(0)));
+    assert_eq!(check(&[tunnel(Dynamic, 1, "", 0), tunnel(Local, 2, "x", 0)]), Err(E::Port(1)));
+    assert_eq!(check(&[tunnel(Local, 8080, "  ", 80)]), Err(E::RemoteHost(0)));
+    assert_eq!(check(&[tunnel(Local, 8080, "a b", 80)]), Err(E::RemoteHost(0)));
+    assert_eq!(check(&[tunnel(Local, 8080, "::1", 80)]), Ok(()));
+    assert_eq!(
+        check(&[tunnel(Local, 8080, "db", 80), tunnel(Dynamic, 8080, "", 0)]),
+        Err(E::Duplicate(8080))
+    );
+    assert_eq!(tunnel(Local, 5432, "db", 5432).label(), "127.0.0.1:5432 → db:5432");
+    assert_eq!(tunnel(Dynamic, 1080, "", 0).label(), "SOCKS 127.0.0.1:1080");
+}

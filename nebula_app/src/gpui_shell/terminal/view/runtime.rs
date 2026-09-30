@@ -111,6 +111,7 @@ impl TerminalView {
         );
         self.ssh_connect_last_step = std::time::Instant::now();
         if matches!(stage, crate::ssh_session::SshStage::Failed(_)) {
+            self.ssh_tunnels.clear();
             self.pending_runtime_submit = None;
             self.pending_shell_command = None;
             self.command_running = false;
@@ -118,6 +119,29 @@ impl TerminalView {
             self.confirmation.invalidate();
             self.answer_reader = None;
         }
+        cx.emit(TerminalViewEvent::TitleChanged);
+        cx.notify();
+    }
+
+    /// Túneles abiertos por la sesión; cada puerto que no se pudo abrir avisa al host.
+    pub(in crate::gpui_shell::terminal) fn apply_ssh_tunnels(
+        &mut self,
+        report: crate::ssh_session::TunnelReport,
+        cx: &mut Context<Self>,
+    ) {
+        let language = crate::gpui_shell::config::ui_language(cx);
+        for (port, error) in &report.failed {
+            let text = language
+                .pick(
+                    "无法在端口 {port} 打开 SSH 隧道：{error}",
+                    "Could not open the SSH tunnel on port {port}: {error}",
+                )
+                .replace("{port}", &port.to_string())
+                .replace("{error}", error);
+            cx.emit(TerminalViewEvent::Warning(text));
+        }
+        self.ssh_tunnels = report.active;
+        // El chip "⇄ N" lo pinta el workspace.
         cx.emit(TerminalViewEvent::TitleChanged);
         cx.notify();
     }
