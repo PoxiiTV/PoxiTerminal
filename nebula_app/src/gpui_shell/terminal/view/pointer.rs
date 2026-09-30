@@ -556,6 +556,11 @@ impl TerminalView {
                 return;
             }
         }
+        // La vista previa de imágenes no consume el evento: funciona aunque la
+        // app (Claude Code, vim…) tenga el ratón capturado.
+        if event.pressed_button.is_none() {
+            self.update_image_hover(event.position, cx);
+        }
         if self.mouse_mode_active(&event.modifiers) {
             self.clear_link_hover(cx);
             // 鼠标模式的移动上报：拖动 = 按钮码+32（需 DRAG 或 MOTION 任一），
@@ -589,9 +594,6 @@ impl TerminalView {
             return;
         }
         self.update_link_hover(event.position, &event.modifiers, cx);
-        if event.pressed_button.is_none() {
-            self.update_image_hover(event.position, cx);
-        }
     }
 
     pub(super) fn on_mouse_up(

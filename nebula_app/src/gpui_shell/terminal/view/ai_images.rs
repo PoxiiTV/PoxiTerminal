@@ -289,7 +289,11 @@ impl TerminalView {
         .detach();
     }
 
-    fn poll_session_tracker(&mut self, tracker: Arc<Mutex<UsageTracker>>, cx: &mut Context<Self>) {
+    pub(super) fn poll_session_tracker(
+        &mut self,
+        tracker: Arc<Mutex<UsageTracker>>,
+        cx: &mut Context<Self>,
+    ) {
         if self.session_tracker_polling {
             return;
         }

@@ -4,6 +4,7 @@
 mod activity_tests;
 mod agent_activity;
 mod ai_images;
+mod session_thumbs;
 mod broadcast;
 mod completion;
 #[cfg(all(test, feature = "gpui-test-support"))]
@@ -283,6 +284,8 @@ pub struct TerminalView {
     /// Clave de la imagen que se está leyendo de disco para la miniatura.
     image_loading: Option<String>,
     image_mouse: gpui::Point<gpui::Pixels>,
+    /// Miniaturas fijas junto a `[Image #N]` / `Read(foto.png)`.
+    session_thumbs: session_thumbs::InlineImageCache,
     pub pane_id: u64,
     pub session: Option<TerminalSession>,
     pub focus_handle: FocusHandle,
@@ -1443,6 +1446,7 @@ impl Render for TerminalView {
             root = root.child(div().p_4().text_color(gpui::red()).child(error.clone()));
         } else {
             root = root.child(TerminalElement::new(cx.entity()));
+            root = root.children(self.render_inline_images(cx));
             // SSH 连接卡片（旧壳 `display::ssh_connect` 的 GPUI 形态）：
             // 状态机/文案/常量直接复用，卡片遮罩盖住空 grid。350ms 显示
             // 门槛由 `visible()` 决定；动画帧驱动粒子与进度插值。

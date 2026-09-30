@@ -268,6 +268,7 @@ impl TerminalView {
             image_hover: None,
             image_loading: None,
             image_mouse: gpui::Point::default(),
+            session_thumbs: Default::default(),
             confirmation: super::super::confirmation::ConfirmationState::default(),
             font: mono_font(&families[0], FontWeight::NORMAL, FontStyle::Normal, ligatures),
             font_bold: mono_font(&families[1], FontWeight::BOLD, FontStyle::Normal, ligatures),
