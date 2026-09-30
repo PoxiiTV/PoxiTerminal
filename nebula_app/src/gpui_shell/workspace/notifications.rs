@@ -142,13 +142,15 @@ impl NebulaWorkspace {
                     confirmation,
                 );
             } else {
-                crate::gpui_shell::toast::banner_for_pane(
+                let offer_changes = self.has_turn_baseline(pane_id);
+                crate::gpui_shell::toast::banner_for_pane_with(
                     window,
                     cx,
                     kind,
                     text,
                     pane_id,
                     &notification,
+                    offer_changes,
                 );
             }
         }

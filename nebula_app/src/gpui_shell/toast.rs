@@ -213,6 +213,22 @@ pub(crate) fn banner_for_pane(
     pane_id: u64,
     source: &crate::notify::Notification,
 ) {
+    banner_for_pane_with(window, cx, kind, text, pane_id, source, false);
+}
+
+/// Como [`banner_for_pane`]; `offer_changes` añade «Ver cambios» al fin de
+/// turno de una IA. Lo decide quien llama (el workspace, que ya sabe si hay
+/// foto del turno): consultarlo aquí leería el workspace mientras se está
+/// actualizando, y GPUI lo aborta.
+pub(crate) fn banner_for_pane_with(
+    window: &mut Window,
+    cx: &mut App,
+    kind: ToastKind,
+    text: impl Into<String>,
+    pane_id: u64,
+    source: &crate::notify::Notification,
+    offer_changes: bool,
+) {
     let ai_toast = source.is_ai();
     let text = text.into();
     if text.trim().is_empty()
@@ -232,7 +248,7 @@ pub(crate) fn banner_for_pane(
     });
     // Fin de turno de una IA en un repo Git: botón para ver qué ha tocado.
     if matches!(source, crate::notify::Notification::AiTurn { attention: false, .. })
-        && super::workspace::windowing::pane_has_turn_changes(pane_id, cx)
+        && offer_changes
     {
         let label = super::config::ui_language(cx).pick("查看更改", "View changes").to_owned();
         notification = notification.content(move |_, _, cx| {
