@@ -1,248 +1,95 @@
 <p align="center">
-  <img src="extra/logo/nebula.png" alt="Pebrel Titanium icon" width="148" height="148" />
+  <img src="extra/logo/nebula.png" alt="Icono de PoxiTerminal" width="128" height="128" />
 </p>
 
-<h1 align="center">Pebrel</h1>
+<h1 align="center">PoxiTerminal</h1>
 
 <p align="center">
-  <strong>A GPU-accelerated terminal, SSH workspace, and home for your AI CLI sessions.</strong>
-</p>
-
-<p align="center">
-  Built with Rust and GPUI for Windows, macOS, and Linux.<br />
-  Split terminals · SSH &amp; SFTP · Claude Code &amp; Codex workflows · Native document reader
+  <strong>Terminal acelerado por GPU para Windows, en castellano.</strong><br />
+  Pestañas y paneles divididos · SSH y SFTP · Sesiones de Claude Code y Codex · Lector de documentos
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Rust-2024_edition-CE412B?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
-  <img src="https://img.shields.io/badge/OpenGL-ES_2.0%2B-5586A4?style=for-the-badge&logo=opengl&logoColor=white" alt="OpenGL ES 2.0+" />
-  <img src="https://img.shields.io/badge/Windows-10_%2F_11-0078D6?style=for-the-badge&logo=windows11&logoColor=white" alt="Windows 10 and 11" />
-  <img src="https://img.shields.io/badge/macOS-14%2B-000000?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 14+" />
-  <img src="https://img.shields.io/badge/Linux-glibc_2.35%2B-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux glibc 2.35+" />
-  <img src="https://img.shields.io/badge/PowerShell-Pebrel_prompt-5391FE?style=for-the-badge&logo=powershell&logoColor=white" alt="PowerShell" />
-  <img src="https://img.shields.io/badge/License-GPL--3.0-1f6feb?style=for-the-badge" alt="GPL-3.0 license" />
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/github/stars/Kuddev/pebrel?style=flat-square&color=ffd33d&logo=github" alt="Stars" />
-  <img src="https://img.shields.io/github/forks/Kuddev/pebrel?style=flat-square&color=8957e5&logo=github" alt="Forks" />
-  <img src="https://img.shields.io/github/last-commit/Kuddev/pebrel?style=flat-square&color=3fb950" alt="Last commit" />
-  <a href="https://discord.gg/VFn4rcxmhn"><img src="https://img.shields.io/badge/Discord-join-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord" /></a>
-  <a href="https://linux.do"><img src="https://img.shields.io/badge/%E5%8F%8B%E9%93%BE-linux.do-ffb003?style=flat-square&logo=discourse&logoColor=white" alt="linux.do" /></a>
-</p>
-
-<p align="center">
-  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
+  <strong>Español</strong> · <a href="#english">English</a>
 </p>
 
 ---
 
-<p align="center">
-  <img src="docs/screenshots/nebula-top-tabs.png" alt="Terminal tabs in Pebrel" width="1040" />
-</p>
+## Español
 
-<p align="center">
-  <img src="docs/screenshots/nebula-claude-session.png" alt="Claude Code running in Pebrel" width="1040" />
-</p>
+PoxiTerminal es un terminal para Windows hecho en Rust con GPUI. Está basado en
+[pebrel](https://github.com/Kuddev/pebrel) de Kuddev y tiene toda la interfaz en castellano:
+menús, ajustes, avisos, notificaciones e instalador.
 
-<p align="center">
-  <img src="docs/screenshots/split-ai-workflows.png" alt="OpenCode, Claude Code, and Codex in split panes" width="1040" />
-</p>
+### Características
 
-## 💖 Sponsors
+- **Terminal rápido por GPU**, con pestañas, paneles divididos y temas.
+- **SSH y SFTP** integrados, con perfiles, túneles y explorador de archivos remoto.
+- **Sesiones de IA** (Claude Code, Codex…) con avisos cuando terminan o piden aprobación.
+- **Lector de documentos** (Markdown, fórmulas matemáticas y más).
+- **Copias de seguridad y sincronización** de la configuración (WebDAV, S3…).
+- **Actualizaciones automáticas** desde las releases de este repositorio.
 
-<table>
-  <tr>
-    <td align="center" width="240">
-      <a href="https://fluxionai.space/register?source=github&campaign=pebrel&promo=pebrel"><img src="extra/logo/sponsor_fluxionai.png" alt="Fluxion AI" width="200" /></a><br />
-      <a href="https://fluxionai.space/register?source=github&campaign=pebrel&promo=pebrel"><strong>Fluxion AI</strong></a>
-    </td>
-    <td>
-      Thanks to Fluxion AI for sponsoring this project! Fluxion AI is one entry point for accessing and managing the world's leading AI models. It serves individual developers, technical teams and enterprises with a unified API; dynamic multi-route scheduling improves availability, and model performance, response time and cost stay transparent. Depending on the model and route, API calls can cost 40%–98% less than official or benchmark prices. <a href="https://fluxionai.space/register?source=github&campaign=pebrel&promo=pebrel">Sign up via this link</a> to receive $3 in API credit.
-    </td>
-  </tr>
-</table>
+### Instalación
 
-## One Workspace
+Descarga el instalador o el ZIP portable desde
+[Releases](https://github.com/PoxiiTV/PoxiTerminal/releases).
+Requiere Windows 10 (1809) o superior.
 
-Pebrel (formerly Nebula) brings local shells, remote hosts, files, and AI command-line
-tools into a native desktop workspace. Arrange terminals in tabs and splits, follow
-each agent's activity, and read its output without leaving the application.
+La configuración se guarda en `%APPDATA%\PoxiTerminal`, así que puede convivir con pebrel.
 
-### Terminals and Sessions
+### Compilar desde el código
 
-- Sidebar or top tabs, draggable split panes, and per-pane working directories.
-- Saved workspace layouts and optional AI conversation restoration. On WSL and
-  Linux, Codex session metadata can supply an ID when its hook has not reported one.
-- On Windows, optional background residency keeps running sessions alive when you
-  close the window. Restoring a conversation after the process exits is a separate
-  feature and requires a supported CLI and a usable session identity.
-- Context-aware and history completions, configurable keybindings, and integrated shell prompts.
+Requisitos: [Rust](https://rustup.rs/), Visual Studio Build Tools (C++) e
+[Inno Setup 6](https://jrsoftware.org/isinfo.php) (solo para el instalador).
 
-### Intelligent Completion
+| Script | Qué hace |
+|---|---|
+| `start.bat` | Compila y arranca PoxiTerminal en modo desarrollo. |
+| `build.bat` | Genera el ZIP portable y el instalador en `dist\`. |
 
-Get suggestions from your current Git repository, project scripts, SSH config,
-and filesystem—even when you have never run the command before. On Windows,
-Pebrel also completes registered WSL distributions. These candidates come from
-Pebrel's own completion engine, without a shell completion plugin or an AI request.
+### Créditos y licencia
 
-Five commands in a real Windows/PowerShell terminal: Git branches, npm scripts,
-SSH aliases, WSL distributions, and a quoted filename with `cat`. Typed one
-character at a time with the built-in Powerline prompt.
+PoxiTerminal es un trabajo derivado de [pebrel](https://github.com/Kuddev/pebrel) (© Kuddev)
+y se distribuye bajo la misma licencia, [GPL-3.0](LICENSE). Las licencias de terceros están en
+[`THIRD-PARTY-NOTICES`](THIRD-PARTY-NOTICES) y en [`licenses/`](licenses/).
 
-<p align="center">
-  <img src="docs/screenshots/intelligent-completion.gif" alt="First-use completion for Git, npm, SSH, WSL, and cat in Pebrel" width="960" />
-</p>
+---
 
-Choose **Inline** (Tab accepts the suggestion), **List** (Tab accepts the selected
-candidate), or **Hybrid** (→ accepts the inline suggestion; Tab opens the list)
-in Settings.
+## English
 
-<details>
-<summary>How history completion differs</summary>
+PoxiTerminal is a GPU-accelerated Windows terminal built with Rust and GPUI. It is based on
+[pebrel](https://github.com/Kuddev/pebrel) by Kuddev, with the whole interface translated to
+Spanish (English is still available in the settings).
 
-History completion recalls a command you have already executed. Here, `echo dep`
-recalls `echo deployment finished` after its first run. The five examples above
-discover candidates from the current environment without matching prior commands.
+### Features
 
-<p align="center">
-  <img src="docs/screenshots/history-completion.gif" alt="Recalling a previously executed command with history completion" width="960" />
-</p>
+- **GPU-accelerated terminal** with tabs, split panes and themes.
+- **Built-in SSH and SFTP** with profiles, tunnels and a remote file browser.
+- **AI sessions** (Claude Code, Codex…) with notifications when they finish or need approval.
+- **Document reader** (Markdown, math and more).
+- **Settings backup and sync** (WebDAV, S3…).
+- **Automatic updates** from this repository's releases.
 
-</details>
+### Install
 
-### SSH and Files
+Download the installer or the portable ZIP from
+[Releases](https://github.com/PoxiiTV/PoxiTerminal/releases). Requires Windows 10 (1809) or later.
 
-- Saved hosts, SSH config aliases, proxy and jump-host options, private-key and
-  keyboard-interactive authentication, and host-key verification.
-- SFTP browsing, uploads and downloads, folder transfers, progress, and cancellation.
-- Local file browsing and Git actions alongside your terminals.
-- Duplicated WSL and SSH tabs retain their known working directory.
+Settings live in `%APPDATA%\PoxiTerminal`, so it can run side by side with pebrel.
 
-<p align="center">
-  <img src="docs/screenshots/ssh.gif" alt="Native SSH session" width="1040" />
-</p>
+### Build from source
 
-### AI CLI Workflows
+Requirements: [Rust](https://rustup.rs/), Visual Studio Build Tools (C++) and
+[Inno Setup 6](https://jrsoftware.org/isinfo.php) (installer only).
 
-- Claude Code, Codex, and other recognized CLIs have their own icons and activity
-  states. Supported hook events provide more precise progress and attention signals.
-- Notifications follow their source pane; clicking one returns you to that terminal.
-- Captured Claude Code and Codex answers open in a reader with Markdown, formulas,
-  source text, and local image previews.
-- Clipboard images are saved as PNG files and their paths inserted into local,
-  WSL, or SSH sessions. Inline terminal images require the CLI to emit the supported
-  OSC 1337 protocol; image attachment previews depend on the CLI itself.
+| Script | What it does |
+|---|---|
+| `start.bat` | Builds and runs PoxiTerminal in development mode. |
+| `build.bat` | Produces the portable ZIP and the installer in `dist\`. |
 
-<p align="center">
-  <img src="docs/screenshots/ai-sidebar.png" alt="AI activity sidebar" width="300" />
-</p>
+### Credits and license
 
-### A Native, Configurable Interface
-
-- GPU-accelerated GPUI interface, light and dark themes, backgrounds, and opacity controls.
-- Application icon palettes and eleven UI language choices with English fallback
-  for untranslated text.
-- Searchable settings, a command palette, and Lua configuration with validation and
-  live reload. Existing TOML configuration remains supported.
-- Markdown document tabs and native mathematical typesetting without a WebView.
-
-<p align="center">
-  <img src="docs/screenshots/native-math-rendering.png" alt="Native formula rendering" width="1040" />
-</p>
-
-<p align="center">
-  <img src="docs/screenshots/themes.png" alt="Application themes" width="1040" />
-</p>
-
-## Download
-
-Choose a package from the **[latest release](https://github.com/Kuddev/pebrel/releases/latest)**.
-
-| System | Architecture | Packages |
-| --- | --- | --- |
-| Windows 10 1809+ / 11 | x64 | Installer `.exe`, portable `.zip` |
-| Linux Preview, glibc 2.35+ | x64 | `.AppImage`, `.deb`, portable `.tar.gz` |
-| macOS Preview, deployment target 14+ | Apple Silicon / arm64 | `.dmg` |
-| macOS Preview, deployment target 14+ | Intel / x64 | `.dmg` |
-
-Package names follow `Pebrel-v<version>-<system>-<architecture>`. Windows offers
-stable installers ending in `-setup.exe` and portable ZIPs. Linux and macOS are
-Preview builds, marked `-preview` before the extension. A legacy-named Windows
-installer is also supplied for older automatic-update clients.
-
-On Windows, run the installer or extract the ZIP and launch `pebrel.exe`, keeping
-the bundled directories together. On Linux, install the DEB or make the AppImage
-executable. On macOS, open the matching DMG and drag Pebrel into Applications.
-Ad-hoc-signed macOS builds may require **Open Anyway** in **System Settings >
-Privacy & Security** on first launch. Native macOS CI runs on macOS 15; the
-deployment target alone does not establish validation on every older OS version.
-
-Pebrel 2.1 connects native tray actions, quick-terminal shortcuts, login startup,
-and local AI-hook setup on Windows, macOS, and Linux. Linux tray integration uses
-a status notifier, and Wayland shortcuts use the desktop portal. Windows and
-macOS provide native update installation; Linux upgrades use its package manager
-or a new package. See [installation details](INSTALL.md) for platform requirements
-and upgrading an existing Nebula installation.
-
-## Configure
-
-```sh
-pebrel config init --language en-US
-pebrel config check
-```
-
-The generated Lua configuration uses `require 'pebrel'` and
-`pebrel.config_builder()`. Invalid reloads retain the last valid configuration.
-See the [Lua configuration guide](docs/lua-configuration.md) for settings and examples.
-
-In **Settings → Terminal → Alerts**, **Notification duration** selects **Use defaults**,
-5, 10, 30, or 90 seconds, or **Until dismissed**. The default preserves existing
-lifetimes: short toasts last 5 seconds, message banners 90 seconds, and update
-notices remain until dismissed. The saved preference applies to all newly shown
-or refreshed in-app cards, independently of the AI-toast visibility switch.
-Only the latest three cards are retained; newer cards replace older ones without
-performing their actions, including in persistent mode.
-Hiding a card never approves or rejects a request or changes task state; requests
-remain available in their terminals and updates in Settings. System notifications
-are unchanged. The persisted key is `notification_duration`, with values `default`,
-`5`, `10`, `30`, `90`, or `persistent`.
-See the [notification duration menu](docs/screenshots/notification-duration.png).
-
-## Build
-
-With the pinned Rust toolchain and the platform dependencies installed:
-
-```sh
-cargo build --release --locked -p nebula --bin pebrel --features gpui-shell
-```
-
-The internal Cargo package is still named `nebula`; the application and command
-are `pebrel`. GPUI is the product interface. The older renderer is available only
-through the explicit `legacy-shell` feature.
-
-## Contact
-
-For business cooperation or sponsorship, contact: [fickleheartedkeys@163.com](mailto:fickleheartedkeys@163.com)
-
-Discord: [discord.gg/VFn4rcxmhn](https://discord.gg/VFn4rcxmhn)
-
-## Acknowledgements
-
-Pebrel includes third-party terminal, interface and font components. Their
-provenance, copyright and license notices are preserved in
-[THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES) and [licenses/](licenses/).
-
-## Community
-
-- **[linux.do](https://linux.do)** - A thriving developer community.
-
-## ⭐ Star History
-
-<a href="https://star-history.com/#Kuddev/pebrel&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Kuddev/pebrel&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Kuddev/pebrel&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Kuddev/pebrel&type=Date" />
-  </picture>
-</a>
+PoxiTerminal is a derivative work of [pebrel](https://github.com/Kuddev/pebrel) (© Kuddev) and is
+distributed under the same license, [GPL-3.0](LICENSE). Third-party licenses are listed in
+[`THIRD-PARTY-NOTICES`](THIRD-PARTY-NOTICES) and [`licenses/`](licenses/).
