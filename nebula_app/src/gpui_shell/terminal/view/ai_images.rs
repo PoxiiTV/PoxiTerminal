@@ -88,6 +88,12 @@ fn image_ref_at(line: &str, col: usize) -> Option<ImageRef> {
     IMAGE_EXTENSIONS.contains(&extension.as_str()).then(|| ImageRef::Path(word.to_owned()))
 }
 
+/// Solo discos locales: nada de rutas UNC (\\servidor\…, //servidor/…).
+fn is_local_path(path: &Path) -> bool {
+    let text = path.to_string_lossy();
+    !(text.starts_with("\\\\") || text.starts_with("//") || text.starts_with("\\/"))
+}
+
 fn image_format(media_type: &str) -> gpui::ImageFormat {
     match media_type {
         "image/jpeg" | "image/jpg" => gpui::ImageFormat::Jpeg,
@@ -139,6 +145,7 @@ impl TerminalView {
 
     /// Actualiza la miniatura según lo que haya bajo el ratón.
     pub(super) fn update_image_hover(&mut self, position: Point<Pixels>, cx: &mut Context<Self>) {
+        self.image_mouse = position;
         let (point, _) = self.grid_point(position);
         let found = self
             .grid_line_text(point)
@@ -160,9 +167,21 @@ impl TerminalView {
             },
             (None, None) => {},
         }
+        // Si el ratón ya no está sobre la imagen que se estaba leyendo, se olvida.
+        if self.image_hover.is_none() {
+            let (point, _) = self.grid_point(position);
+            let still = self
+                .grid_line_text(point)
+                .and_then(|line| image_ref_at(&line, point.column.0))
+                .is_some();
+            if !still {
+                self.image_loading = None;
+            }
+        }
     }
 
     pub(super) fn clear_image_hover(&mut self, cx: &mut Context<Self>) {
+        self.image_loading = None;
         if self.image_hover.take().is_some() {
             cx.notify();
         }
@@ -172,6 +191,11 @@ impl TerminalView {
         match found {
             ImageRef::Attached(number) => {
                 let label = format!("Image #{number}");
+                if let Some(current) = &self.image_hover {
+                    if current.key == label {
+                        return Some(current.clone());
+                    }
+                }
                 let tracker = self.session_tracker()?;
                 let image: Option<SessionImage> = tracker.try_lock().ok().and_then(|tracker| {
                     tracker
@@ -205,32 +229,64 @@ impl TerminalView {
                 if path.is_relative() {
                     path = self.local_cwd()?.join(path);
                 }
+                // Rutas de red (\\servidor\… o //servidor/…): ni se tocan. Abrirlas
+                // al pasar el ratón conectaría por SMB (y congelaría la ventana).
+                if !is_local_path(&path) {
+                    return None;
+                }
                 let key = path.to_string_lossy().into_owned();
                 if let Some(current) = &self.image_hover {
                     if current.key == key {
                         return Some(current.clone());
                     }
                 }
-                let metadata = std::fs::metadata(&path).ok()?;
-                if !metadata.is_file() || metadata.len() > MAX_PREVIEW_BYTES {
-                    return None;
+                if self.image_loading.as_deref() != Some(key.as_str()) {
+                    self.load_image_path(key, path, cx);
                 }
-                let bytes = Arc::new(std::fs::read(&path).ok()?);
-                let media_type = media_type_for(&path).to_owned();
-                Some(ImageHover {
-                    key,
-                    label: path.file_name()?.to_string_lossy().into_owned(),
-                    image: Arc::new(gpui::Image::from_bytes(
-                        image_format(&media_type),
-                        bytes.to_vec(),
-                    )),
-                    path: Some(path),
-                    bytes,
-                    media_type,
-                    position: Point::default(),
-                })
+                None
             },
         }
+    }
+
+    /// Lee la imagen en segundo plano; si el ratón sigue encima al terminar,
+    /// aparece la miniatura.
+    fn load_image_path(&mut self, key: String, path: PathBuf, cx: &mut Context<Self>) {
+        self.image_loading = Some(key.clone());
+        let task = cx.background_executor().spawn(async move {
+            let metadata = std::fs::metadata(&path).ok()?;
+            if !metadata.is_file() || metadata.len() > MAX_PREVIEW_BYTES {
+                return None;
+            }
+            let bytes = std::fs::read(&path).ok()?;
+            let media_type = media_type_for(&path).to_owned();
+            let image = Arc::new(gpui::Image::from_bytes(image_format(&media_type), bytes.clone()));
+            let label = path.file_name()?.to_string_lossy().into_owned();
+            Some(ImageHover {
+                key,
+                label,
+                image,
+                path: Some(path),
+                bytes: Arc::new(bytes),
+                media_type,
+                position: Point::default(),
+            })
+        });
+        cx.spawn(async move |this, cx| {
+            let loaded = task.await;
+            let _ = this.update(cx, |view, cx| {
+                let Some(mut hover) = loaded else {
+                    view.image_loading = None;
+                    return;
+                };
+                if view.image_loading.as_deref() == Some(hover.key.as_str()) {
+                    view.image_loading = None;
+                    hover.position = view.image_mouse;
+                    view.image_hover = Some(hover);
+                    cx.notify();
+                }
+            });
+        })
+        .detach();
     }
 
     fn poll_session_tracker(&mut self, tracker: Arc<Mutex<UsageTracker>>, cx: &mut Context<Self>) {
@@ -345,6 +401,14 @@ mod tests {
             Some(ImageRef::Attached(3))
         );
         assert_eq!(image_ref_at(line, 2), None);
+    }
+
+    #[test]
+    fn network_paths_are_never_previewed() {
+        assert!(!is_local_path(Path::new(r"\\attacker\share\x.png")));
+        assert!(!is_local_path(Path::new("//attacker/share/x.png")));
+        assert!(is_local_path(Path::new(r"C:\tmp\x.png")));
+        assert!(is_local_path(Path::new("docs/x.png")));
     }
 
     #[test]

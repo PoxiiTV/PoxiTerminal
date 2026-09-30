@@ -66,30 +66,43 @@ impl NebulaWorkspace {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let baseline = pane.and_then(|pane| self.turn_baselines.0.get(&pane).cloned());
-        let location = match &baseline {
-            Some(baseline) => baseline.location.clone(),
-            None => {
-                let location = pane
-                    .and_then(|pane| self.pane_git_location(pane, cx))
-                    .or_else(|| self.side_panel.git_location());
-                let Some(location) = location else { return };
-                // Sin foto hay que subir hasta la raíz del repo; es rápido
-                // (un `rev-parse`) y evita abrir un visor vacío en una subcarpeta.
-                match git::repo_root(&location) {
-                    Ok(root) => root,
-                    Err(error) => {
-                        crate::gpui_shell::toast::toast(
-                            window,
-                            cx,
-                            crate::gpui_shell::toast::ToastKind::Warning,
-                            error,
-                        );
-                        return;
-                    },
-                }
-            },
-        };
+        if let Some(baseline) = pane.and_then(|pane| self.turn_baselines.0.get(&pane).cloned()) {
+            self.show_changes_tab(baseline.location, Some(baseline.tree), preselect, window, cx);
+            return;
+        }
+        let location = pane
+            .and_then(|pane| self.pane_git_location(pane, cx))
+            .or_else(|| self.side_panel.git_location());
+        let Some(location) = location else { return };
+        // Sin foto hay que subir hasta la raíz del repo. Es un proceso git (o
+        // wsl.exe, que puede tardar si la distro está parada): en segundo plano.
+        let task = cx.background_executor().spawn(async move { git::repo_root(&location) });
+        let window_handle = window.window_handle();
+        cx.spawn(async move |this, cx| {
+            let result = task.await;
+            let _ = window_handle.update(cx, |_, window, cx| {
+                let _ = this.update(cx, |workspace, cx| match result {
+                    Ok(root) => workspace.show_changes_tab(root, None, preselect, window, cx),
+                    Err(error) => crate::gpui_shell::toast::toast(
+                        window,
+                        cx,
+                        crate::gpui_shell::toast::ToastKind::Warning,
+                        error,
+                    ),
+                });
+            });
+        })
+        .detach();
+    }
+
+    fn show_changes_tab(
+        &mut self,
+        location: GitLocation,
+        tree: Option<String>,
+        preselect: Option<String>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
         let root_key = match &location {
             GitLocation::Local { root } => root.clone(),
             GitLocation::Wsl { distro, root } => {
@@ -103,7 +116,6 @@ impl NebulaWorkspace {
         }) {
             self.close_tab(ix, window, cx);
         }
-        let tree = baseline.map(|baseline| baseline.tree);
         let view = cx.new(|cx| {
             crate::gpui_shell::code_tab::CodeTabView::new_diff(
                 location, tree, preselect, window, cx,

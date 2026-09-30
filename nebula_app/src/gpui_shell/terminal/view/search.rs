@@ -39,9 +39,39 @@ pub(in crate::gpui_shell::terminal) struct SearchMatcher {
     /// El DFA necesita `&mut` para sus cachés, pero el elemento de pintado solo
     /// tiene acceso de lectura a la vista.
     regex: RefCell<Option<RegexSearch>>,
-    focused: Option<Match>,
+    /// Coincidencia enfocada en líneas **absolutas** (no cambian cuando entra
+    /// salida nueva y el historial se desplaza).
+    focused: Option<AbsMatch>,
     /// (posición de la coincidencia enfocada empezando en 1, total contado).
     position: Option<(usize, usize)>,
+}
+
+/// Coincidencia en líneas absolutas: (línea, columna) de inicio y de fin.
+type AbsMatch = ((i64, usize), (i64, usize));
+
+/// Línea absoluta de la línea 0 de la rejilla: todo lo que ya salió del
+/// historial más lo que queda en él.
+fn anchor<T>(term: &Term<T>) -> i64 {
+    (term.grid().scrolled_out() + term.history_size()) as i64
+}
+
+fn to_abs<T>(m: &Match, term: &Term<T>) -> AbsMatch {
+    let base = anchor(term);
+    (
+        (base + i64::from(m.start().line.0), m.start().column.0),
+        (base + i64::from(m.end().line.0), m.end().column.0),
+    )
+}
+
+/// Vuelve a coordenadas de la rejilla; None si ya salió del historial.
+fn from_abs<T>(m: &AbsMatch, term: &Term<T>) -> Option<Match> {
+    let base = anchor(term);
+    let line = |abs: i64| i32::try_from(abs - base).ok().map(Line);
+    let (start, end) = (line(m.0.0)?, line(m.1.0)?);
+    if start < term.topmost_line() || end > term.bottommost_line() {
+        return None;
+    }
+    Some(Point::new(start, Column(m.0.1))..=Point::new(end, Column(m.1.1)))
 }
 
 /// Una coincidencia recortada a una fila visible.
@@ -138,7 +168,8 @@ impl SearchMatcher {
         let found = {
             let mut regex = self.regex.borrow_mut();
             let Some(regex) = regex.as_mut() else { return };
-            let origin = match (&self.focused, direction) {
+            let focused = self.focused.as_ref().and_then(|m| from_abs(m, term));
+            let origin = match (&focused, direction) {
                 (Some(m), Direction::Right) => m.end().add(&*term, Boundary::Grid, 1),
                 (Some(m), Direction::Left) => m.start().sub(&*term, Boundary::Grid, 1),
                 (None, Direction::Right) => Point::new(term.topmost_line(), Column(0)),
@@ -150,7 +181,7 @@ impl SearchMatcher {
         if let Some(m) = &found {
             term.scroll_to_point(*m.start());
         }
-        self.focused = found;
+        self.focused = found.as_ref().map(|m| to_abs(m, term));
         self.position = self.count_and_position(term);
     }
 
@@ -173,7 +204,8 @@ impl SearchMatcher {
             .skip_while(|m| m.end().line < top)
             .take_while(|m| m.start().line <= bottom)
             .collect();
-        match_runs(&matches, self.focused.as_ref(), origin, rows, cols)
+        let focused = self.focused.as_ref().and_then(|m| from_abs(m, term));
+        match_runs(&matches, focused.as_ref(), origin, rows, cols)
     }
 
     fn count_and_position<T>(&self, term: &Term<T>) -> Option<(usize, usize)> {
@@ -185,7 +217,7 @@ impl SearchMatcher {
         let mut position = 0;
         for m in RegexIter::new(start, end, Direction::Right, term, regex) {
             total += 1;
-            if Some(&m) == self.focused.as_ref() {
+            if Some(to_abs(&m, term)) == self.focused {
                 position = total;
             }
             if total > MAX_COUNTED {
@@ -392,6 +424,37 @@ mod tests {
         assert_eq!(matcher.position, Some((3, 3)));
         matcher.step(&mut term, Direction::Right);
         assert_eq!(matcher.position, Some((1, 3)));
+    }
+
+    #[test]
+    fn focused_match_survives_new_output() {
+        let mut term = term_with(
+            "uno error(x)
+dos
+tres",
+        );
+        let mut matcher = SearchMatcher::default();
+        matcher.set_query("error(x)");
+        matcher.step(&mut term, Direction::Left);
+        assert_eq!(matcher.position, Some((1, 1)));
+        // Entra salida nueva (como una IA escribiendo): la enfocada sigue siendo la misma.
+        let mut parser: ansi::Processor = ansi::Processor::new();
+        parser.advance(
+            &mut term,
+            b"
+cuatro
+cinco
+seis
+siete error(x)",
+        );
+        let focused = from_abs(matcher.focused.as_ref().unwrap(), &term).unwrap();
+        let text: String = (focused.start().column.0..=focused.end().column.0)
+            .map(|col| term.grid()[focused.start().line][Column(col)].c)
+            .collect();
+        assert_eq!(text, "error(x)");
+        assert_eq!(focused.start().column.0, 4, "sigue apuntando a «uno error(x)»");
+        matcher.step(&mut term, Direction::Right);
+        assert_eq!(matcher.position, Some((2, 2)));
     }
 
     #[test]

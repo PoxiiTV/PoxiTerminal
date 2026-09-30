@@ -30,7 +30,13 @@ pub(crate) enum DiffMode {
 
 enum LoadState {
     Loading,
-    Ready { base: String, files: Vec<FileDiff> },
+    /// `mode` y `base` son los de esta carga: descartar se calcula con ellos,
+    /// nunca con el modo actual (que puede haber cambiado mientras cargaba).
+    Ready {
+        mode: DiffMode,
+        base: String,
+        files: Vec<FileDiff>,
+    },
     Error(String),
 }
 
@@ -46,6 +52,8 @@ pub(crate) struct DiffView {
     preselect: Option<String>,
     notice: Option<String>,
     scroll: UniformListScrollHandle,
+    /// Sube en cada recarga; las cargas viejas que terminen tarde se ignoran.
+    generation: u64,
 }
 
 impl DiffView {
@@ -66,6 +74,7 @@ impl DiffView {
             preselect,
             notice: None,
             scroll: UniformListScrollHandle::new(),
+            generation: 0,
         };
         view.reload(cx);
         view
@@ -88,6 +97,9 @@ impl DiffView {
     fn reload(&mut self, cx: &mut Context<Self>) {
         self.state = LoadState::Loading;
         self.confirm_discard = None;
+        self.generation += 1;
+        let generation = self.generation;
+        let mode = self.mode;
         let location = self.location.clone();
         let base = match self.mode {
             DiffMode::Turn => self.turn_base.clone(),
@@ -102,6 +114,9 @@ impl DiffView {
         cx.spawn(async move |this, cx| {
             let loaded = task.await;
             let _ = this.update(cx, |view, cx| {
+                if view.generation != generation {
+                    return;
+                }
                 view.state = match loaded {
                     Ok((base, files)) => {
                         if let Some(path) = view.preselect.take() {
@@ -109,7 +124,7 @@ impl DiffView {
                                 files.iter().position(|file| file.path == path).unwrap_or(0);
                         }
                         view.selected = view.selected.min(files.len().saturating_sub(1));
-                        LoadState::Ready { base, files }
+                        LoadState::Ready { mode, base, files }
                     },
                     Err(error) => LoadState::Error(error),
                 };
@@ -129,7 +144,7 @@ impl DiffView {
     }
 
     fn discard_selected(&mut self, cx: &mut Context<Self>) {
-        let LoadState::Ready { base, files } = &self.state else { return };
+        let LoadState::Ready { mode, base, files } = &self.state else { return };
         let Some(file) = files.get(self.selected).cloned() else { return };
         if self.confirm_discard.as_deref() != Some(file.path.as_str()) {
             self.confirm_discard = Some(file.path.clone());
@@ -139,7 +154,7 @@ impl DiffView {
         self.confirm_discard = None;
         let location = self.location.clone();
         let base = base.clone();
-        let unstage = self.mode == DiffMode::Uncommitted;
+        let unstage = *mode == DiffMode::Uncommitted;
         let task = cx.background_executor().spawn(async move {
             git::discard(&location, &base, &file, unstage).map(|()| file.path)
         });

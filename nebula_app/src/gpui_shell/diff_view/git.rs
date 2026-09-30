@@ -66,6 +66,7 @@ fn git(location: &GitLocation, env: &[(&str, &str)], args: &[&str]) -> Result<Ou
                 .arg(format!("safe.directory={}", root.display()))
                 .arg("-c")
                 .arg("core.quotepath=false")
+                .arg("--literal-pathspecs")
                 .arg("--no-optional-locks")
                 .arg("-C")
                 .arg(root);
@@ -76,11 +77,21 @@ fn git(location: &GitLocation, env: &[(&str, &str)], args: &[&str]) -> Result<Ou
         },
         GitLocation::Wsl { distro, root } => {
             let mut command = Command::new("wsl.exe");
-            command.args(["-d", distro, "--", "env"]);
+            // `--exec`: sin shell intermedio; con `--` WSL expandiría `$…` y `;`
+            // de las rutas (inyección) y perdería los argumentos posicionales.
+            command.args(["-d", distro, "--exec", "env"]);
             for (key, value) in env {
                 command.arg(format!("{key}={value}"));
             }
-            command.args(["git", "-c", "core.quotepath=false", "--no-optional-locks", "-C", root]);
+            command.args([
+                "git",
+                "-c",
+                "core.quotepath=false",
+                "--literal-pathspecs",
+                "--no-optional-locks",
+                "-C",
+                root,
+            ]);
             command
         },
     };
@@ -141,7 +152,7 @@ GIT_INDEX_FILE="$t" git add -A >/dev/null
 GIT_INDEX_FILE="$t" git write-tree"#;
             let mut command = Command::new("wsl.exe");
             let output = crate::platform::process::hidden_command(&mut command)
-                .args(["-d", distro, "--", "sh", "-c", script, "poxiterminal", root])
+                .args(["-d", distro, "--exec", "sh", "-c", script, "poxiterminal", root])
                 .output()
                 .map_err(|error| format!("No se pudo ejecutar git en WSL: {error}"))?;
             if !output.status.success() {
@@ -264,7 +275,7 @@ dest="$d/$n"
 mv -- "$1/$2" "$dest""#;
             let mut command = Command::new("wsl.exe");
             let output = crate::platform::process::hidden_command(&mut command)
-                .args(["-d", distro, "--", "sh", "-c", script, "poxiterminal", root, relative])
+                .args(["-d", distro, "--exec", "sh", "-c", script, "poxiterminal", root, relative])
                 .output()
                 .map_err(|error| format!("No se pudo mover a la papelera en WSL: {error}"))?;
             if output.status.success() {

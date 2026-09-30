@@ -189,6 +189,9 @@ impl NebulaWorkspace {
     }
 
     pub(super) fn render_agents_panel(&mut self, cx: &mut Context<Self>) -> gpui::AnyElement {
+        // El panel puede abrirse por muchos caminos (atajo, pestaña, reabrir el
+        // lateral…): el propio render garantiza que el refresco está en marcha.
+        self.start_agents_polling(cx);
         let language = crate::gpui_shell::config::ui_language(cx);
         let cards = self.agent_cards(cx);
         let now = Instant::now();
@@ -530,10 +533,15 @@ fn write_temp_image(
         "image/webp" => "webp",
         _ => "png",
     };
-    let path = std::env::temp_dir().join(format!(
-        "poxiterminal-{pane_id}-{index}-{:x}.{extension}",
-        Arc::as_ptr(&image.bytes) as usize
-    ));
+    // Nombre estable por contenido: abrir la misma imagen no crea copias nuevas.
+    let digest = {
+        use std::hash::{Hash as _, Hasher as _};
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        image.bytes.hash(&mut hasher);
+        hasher.finish()
+    };
+    let _ = (pane_id, index);
+    let path = std::env::temp_dir().join(format!("poxiterminal-img-{digest:016x}.{extension}"));
     std::fs::write(&path, image.bytes.as_slice()).ok()?;
     Some(path)
 }

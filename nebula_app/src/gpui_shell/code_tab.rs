@@ -698,7 +698,7 @@ fn read_worktree_file(key: &MergeKey) -> Result<Vec<u8>, String> {
             let path = join_guest_path(root, &key.relative_path);
             let mut command = Command::new("wsl.exe");
             let output = crate::platform::process::hidden_command(&mut command)
-                .args(["-d", distro, "--", "cat", "--", path.as_str()])
+                .args(["-d", distro, "--exec", "cat", "--", path.as_str()])
                 .output()
                 .map_err(|error| format!("No se pudo leer el archivo en conflicto desde WSL: {error}"))?;
             if output.status.success() { Ok(output.stdout) } else { Ok(Vec::new()) }
@@ -720,7 +720,7 @@ fn write_conflict_result(key: &MergeKey, result: String) -> Result<(), String> {
             let path = join_guest_path(root, &key.relative_path);
             let mut command = Command::new("wsl.exe");
             let mut child = crate::platform::process::hidden_command(&mut command)
-                .args(["-d", distro, "--", "sh", "-c", "cat > \"$1\"", "nebula", path.as_str()])
+                .args(["-d", distro, "--exec", "sh", "-c", "cat > \"$1\"", "nebula", path.as_str()])
                 .stdin(Stdio::piped())
                 .stdout(Stdio::null())
                 .stderr(Stdio::piped())
@@ -763,7 +763,7 @@ fn git_command(location: &GitLocation, args: &[&str]) -> Result<std::process::Ou
         },
         GitLocation::Wsl { distro, root } => {
             let mut command = Command::new("wsl.exe");
-            command.args(["-d", distro, "--", "git", "-C", root, "--no-optional-locks"]);
+            command.args(["-d", distro, "--exec", "git", "-C", root, "--no-optional-locks"]);
             command
         },
     };

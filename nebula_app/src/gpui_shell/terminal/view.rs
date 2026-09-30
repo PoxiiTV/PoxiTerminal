@@ -280,6 +280,9 @@ pub struct TerminalView {
     session_tracker_polling: bool,
     /// Miniatura de imagen bajo el ratón (`[Image #N]` o ruta de imagen).
     image_hover: Option<ai_images::ImageHover>,
+    /// Clave de la imagen que se está leyendo de disco para la miniatura.
+    image_loading: Option<String>,
+    image_mouse: gpui::Point<gpui::Pixels>,
     pub pane_id: u64,
     pub session: Option<TerminalSession>,
     pub focus_handle: FocusHandle,

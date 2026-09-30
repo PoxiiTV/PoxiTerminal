@@ -321,7 +321,8 @@ impl SidePanel {
             let mut guest_args: Vec<OsString> = [
                 "-d",
                 located.distro.as_str(),
-                "--",
+                // `--exec`: las rutas de los archivos no pasan por el shell.
+                "--exec",
                 "git",
                 "-C",
                 located.guest.as_str(),
@@ -829,7 +830,7 @@ pub(crate) fn read_git_wsl(located: &crate::shell_detect::WslCwd) -> Option<GitI
     let location = format!("{}:{}", located.distro, located.guest);
     collect_git_info(|args| {
         let mut cmd = Command::new("wsl.exe");
-        cmd.args(["-d", &located.distro, "--", "git", "-C", &located.guest, "--no-optional-locks"])
+        cmd.args(["-d", &located.distro, "--exec", "git", "-C", &located.guest, "--no-optional-locks"])
             .args(args);
         run_git(cmd, args, &location, Some(WSL_COMMAND_TIMEOUT))
     })
