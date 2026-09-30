@@ -13,7 +13,7 @@ Only this script is required. Reports, fixtures and screenshots belong in tmp/.
 Run editing in a dedicated desktop session. Losing foreground focus stops the
 edit run; screenshots capture only the owned window, including when occluded.
 .EXAMPLE
-./scripts/markdown-memory-stress.ps1 -Executable D:/build/pebrel.exe -BuildProfile release
+./scripts/markdown-memory-stress.ps1 -Executable D:/build/poxiterminal.exe -BuildProfile release
 .EXAMPLE
 ./scripts/markdown-memory-stress.ps1 -GenerateOnly -OutputDirectory D:/temp/markdown-fixture
 #>

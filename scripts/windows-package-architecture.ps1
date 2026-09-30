@@ -6,8 +6,8 @@ function Assert-WindowsPackageArchitecture {
         [string] $RuntimeDirectory = $Root
     )
     $machine = if ($Architecture -eq 'arm64') { 0xAA64 } else { 0x8664 }
-    foreach ($name in @('pebrel.exe', 'pebrel-hook.exe', 'conpty.dll', 'OpenConsole.exe')) {
-        $directory = if ($name -eq 'pebrel.exe') { $Root } else { $RuntimeDirectory }
+    foreach ($name in @('poxiterminal.exe', 'pebrel-hook.exe', 'conpty.dll', 'OpenConsole.exe')) {
+        $directory = if ($name -eq 'poxiterminal.exe') { $Root } else { $RuntimeDirectory }
         $path = Join-Path $directory $name
         $stream = [IO.File]::OpenRead($path)
         $reader = [IO.BinaryReader]::new($stream)

@@ -14,7 +14,7 @@ $root = 'D:\temp_build\.probe-ssh'
 
 if ($Kill) {
     Get-Process pebrel -ErrorAction SilentlyContinue |
-        Where-Object { $_.Path -like '*\target\debug\pebrel.exe' } |
+        Where-Object { $_.Path -like '*\target\debug\poxiterminal.exe' } |
         Stop-Process -Force
     return
 }
@@ -45,6 +45,6 @@ $env:CODEX_HOME = "$root\home\.codex"
 $env:XDG_CONFIG_HOME = "$root\home\.config"
 $env:NEBULA_DEBUG_LOG = '1'
 
-$exe = 'D:\temp_build\nebula\target\debug\pebrel.exe'
+$exe = 'D:\temp_build\nebula\target\debug\poxiterminal.exe'
 $proc = Start-Process -FilePath $exe -PassThru
 Write-Output ("pid=" + $proc.Id)

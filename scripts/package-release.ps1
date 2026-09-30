@@ -24,7 +24,7 @@ param(
     # repo's own `target/`.
     #
     # Windows refuses to overwrite a running exe, so packaging while a Pebrel
-    # instance is live out of `target/release/pebrel.exe` dies with a bare
+    # instance is live out of `target/release/poxiterminal.exe` dies with a bare
     # "拒绝访问 (os error 5)" that names the linker, not the real cause. Point
     # this at a separate directory to build a package without touching — let
     # alone killing — the instance the user is working in.
@@ -58,7 +58,7 @@ $manifest = [ordered]@{
     'runtime/pebrel-hook.exe'                        = Join-Path $targetRoot 'pebrel-hook.exe'
     'runtime/conpty.dll'                             = Join-Path $targetRoot 'conpty.dll'
     'runtime/OpenConsole.exe'                        = Join-Path $targetRoot 'OpenConsole.exe'
-    # 1.1.0 起 zip 不再附带 20MB 字体副本：pebrel.exe 内嵌同一份字节，
+    # 1.1.0 起 zip 不再附带 20MB 字体副本：poxiterminal.exe 内嵌同一份字节，
     # 「安装字体」提示会把它落盘（font_install::ensure_bundled_font_on_disk）。
     # 安装包仍带 ttf——Inno 的 FontInstall 任务需要真实文件。
     'docs/INSTALL.md'                                = Join-Path $repo 'INSTALL.md'

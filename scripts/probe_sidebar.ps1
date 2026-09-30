@@ -18,7 +18,7 @@ if (Test-Path $pidFile) {
     $oldPid = (Get-Content $pidFile | Select-Object -First 1) -as [int]
     if ($oldPid) {
         $old = Get-CimInstance Win32_Process -Filter "ProcessId=$oldPid" -ErrorAction SilentlyContinue
-        if ($old -and $old.Name -eq 'pebrel.exe' -and $old.CommandLine -like '*--working-directory*') {
+        if ($old -and $old.Name -eq 'poxiterminal.exe' -and $old.CommandLine -like '*--working-directory*') {
             Stop-Process -Id $oldPid -Force -ErrorAction SilentlyContinue
         }
     }
@@ -58,7 +58,7 @@ Set-Content -Path (Join-Path $dir 'pebrel_settings.txt') -Value $settings -Encod
 
 $env:APPDATA = Join-Path $Root 'appdata'
 $env:USERPROFILE = Join-Path $Root 'home'
-$proc = Start-Process -FilePath 'D:\temp_build\nebula\target\debug\pebrel.exe' `
+$proc = Start-Process -FilePath 'D:\temp_build\nebula\target\debug\poxiterminal.exe' `
     -ArgumentList '--working-directory', 'D:\temp_build\nebula' -PassThru
 # Remember the pid so the next run can kill exactly this probe and nothing else.
 Set-Content -Path $pidFile -Value $proc.Id

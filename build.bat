@@ -4,7 +4,8 @@ rem Requisitos: Rust (rustup), Visual Studio Build Tools e Inno Setup 6.
 setlocal
 cd /d "%~dp0"
 
-for /f "usebackq delims=" %%v in (`powershell -NoProfile -Command "(Select-String -Path nebula_app\Cargo.toml -Pattern '^version = \"(.+)\"' | Select-Object -First 1).Matches[0].Groups[1].Value"`) do set VERSION=%%v
+set VERSION=
+for /f "tokens=3" %%v in ('findstr /b /c:"version = " nebula_app\Cargo.toml') do if not defined VERSION set VERSION=%%~v
 echo === PoxiTerminal v%VERSION% ===
 
 echo [1/3] Preparando runtime de ConPTY...

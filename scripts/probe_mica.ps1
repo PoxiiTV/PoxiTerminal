@@ -45,7 +45,7 @@ $env:XDG_CONFIG_HOME = "$root\appdata"
 
 # An explicit command bypasses single-instance handoff, so a stale isolated
 # runtime.port can never turn this visual probe into a headless resident.
-$proc = Start-Process -FilePath "$Build\pebrel.exe" `
+$proc = Start-Process -FilePath "$Build\poxiterminal.exe" `
     -ArgumentList '--working-directory', 'D:\temp_build\nebula', '-e', 'powershell.exe', '-NoLogo' `
     -PassThru
 Start-Sleep -Seconds 7
