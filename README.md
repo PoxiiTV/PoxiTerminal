@@ -4,7 +4,7 @@
 
 <br />
 
-![Versión](https://img.shields.io/badge/versión-0.1.0-4fd1ff?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-0.2.0-4fd1ff?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/Windows-10%20%7C%2011-a06bff?style=flat-square)
 ![Instalador](https://img.shields.io/badge/instalador-32%20MB-34e0a1?style=flat-square)
 ![Idioma](https://img.shields.io/badge/idioma-castellano-ffb454?style=flat-square)
@@ -40,8 +40,8 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 
 | Archivo | Para qué |
 |---|---|
-| `PoxiTerminal-v0.1.0-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
-| `PoxiTerminal-v0.1.0-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
+| `PoxiTerminal-v0.2.0-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
+| `PoxiTerminal-v0.2.0-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
 
 > 🤝 **Convive con pebrel.** Usa su propia carpeta de ajustes (`%APPDATA%\PoxiTerminal`),
 > sus propias credenciales y sus propias integraciones de IA. Puedes tener los dos
@@ -51,6 +51,11 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 
 | | |
 |---|---|
+| 🧠 **Centro de control de IA** | Una tarjeta por agente (Claude Code, Codex…): si trabaja o te espera, carpeta y rama, % de contexto, tokens, coste estimado e imágenes de la sesión. `Ctrl` + `Shift` + `A` |
+| 🧾 **¿Qué ha tocado la IA?** | Al terminar cada turno, «Ver cambios» te enseña solo lo que la IA cambió en esa respuesta, archivo por archivo, y puedes descartar lo que no quieras |
+| 🖼️ **Imágenes de la IA** | Pasa el ratón por `[Image #3]` o por la ruta de una imagen y verás la miniatura; `Ctrl` + clic la abre en grande |
+| 🔍 **Buscar en el historial** | `Ctrl` + `F` con contador, resaltado y salto entre coincidencias |
+| 🚇 **Túneles SSH** | Reenvía puertos (local o SOCKS) de cada host guardado; se abren al conectar y se cierran solos |
 | ⚡ **Acelerado por GPU** | Interfaz nativa con GPUI: desplazamiento suave, temas, transparencia y fondos |
 | 🗂️ **Pestañas y paneles** | Pestañas en barra lateral o arriba, paneles divididos que se arrastran y cada uno con su carpeta |
 | 🔐 **SSH integrado** | Hosts guardados, alias de `~/.ssh/config`, proxys, saltos, claves privadas y verificación del host |
@@ -68,6 +73,8 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 | Acción | Tecla |
 |---|---|
 | Paleta de comandos | `Ctrl` + `Shift` + `P` |
+| Buscar en el historial | `Ctrl` + `F` (Intro / Mayús + Intro para saltar) |
+| Centro de control de IA | `Ctrl` + `Shift` + `A` |
 | Salto rápido (pestañas, paneles, carpetas, SSH) | `Ctrl` + `Shift` + `O` |
 | Elegir shell o perfil | `Ctrl` + `K` |
 | Nueva pestaña / cerrar pestaña | `Ctrl` + `Shift` + `T` / `Ctrl` + `Shift` + `W` |
@@ -84,6 +91,8 @@ Todos se pueden cambiar en **Configuración → Atajos de teclado**.
 
 | | |
 |---|---|
+| 🎯 **Descarta solo lo que sobra** | En «Ver cambios», *Descartar* devuelve un archivo a como estaba antes del turno; los archivos nuevos van a la Papelera, nunca se borran del todo |
+| 🖱️ **Doble clic en el panel de Git** | Abre ese archivo directamente en el visor de cambios |
 | 🔍 **Busca en español** | La paleta de comandos y la configuración entienden «nueva pestaña», «fuente», «transparencia», «copia de seguridad»… |
 | 🖱️ **Clic derecho en una carpeta** | En el Explorador de Windows: *Abrir en PoxiTerminal* (también en WSL) |
 | 🔔 **Las notificaciones te llevan al panel** | Pulsa el aviso de «Turno terminado» y saltas al terminal donde está esa IA |
@@ -141,6 +150,10 @@ fork of [pebrel](https://github.com/Kuddev/pebrel) with the whole interface tran
 Spanish (English remains available in the settings).
 
 - ⚡ Native GPU rendering, tabs, split panes, themes and backgrounds.
+- 🧠 AI control center: one card per agent with live state, branch, context %, tokens, estimated cost and session images.
+- 🧾 "What did the AI change?": per-turn diff viewer with per-file discard.
+- 🖼️ Hover `[Image #N]` or an image path to preview it.
+- 🔍 Scrollback search (`Ctrl+F`) and SSH tunnels (local and SOCKS).
 - 🔐 Built-in SSH and SFTP with saved hosts, proxies and jump hosts.
 - 🤖 Claude Code, Codex and other AI CLIs with per-turn status and notifications.
 - 🔄 Automatic updates from this repository's releases.
