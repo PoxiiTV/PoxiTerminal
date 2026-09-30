@@ -53,7 +53,7 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 |---|---|
 | 🧠 **Centro de control de IA** | Una tarjeta por agente (Claude Code, Codex…): si trabaja o te espera, carpeta y rama, % de contexto, tokens, coste estimado e imágenes de la sesión. `Ctrl` + `Shift` + `A` |
 | 🧾 **¿Qué ha tocado la IA?** | Al terminar cada turno, «Ver cambios» te enseña solo lo que la IA cambió en esa respuesta, archivo por archivo, y puedes descartar lo que no quieras |
-| 🖼️ **Imágenes de la IA** | Pasa el ratón por `[Image #3]` o por la ruta de una imagen y verás la miniatura; `Ctrl` + clic la abre en grande |
+| 🖼️ **Imágenes de la IA** | Las imágenes que le mandas (`[Image #3]`) y las que lee Claude (`Read 2 files`) se ven en miniatura dentro del terminal, sin tapar nada; un clic las abre en grande |
 | 🔍 **Buscar en el historial** | `Ctrl` + `F` con contador, resaltado y salto entre coincidencias |
 | 🚇 **Túneles SSH** | Reenvía puertos (local o SOCKS) de cada host guardado; se abren al conectar y se cierran solos |
 | ⚡ **Acelerado por GPU** | Interfaz nativa con GPUI: desplazamiento suave, temas, transparencia y fondos |
@@ -152,7 +152,7 @@ Spanish (English remains available in the settings).
 - ⚡ Native GPU rendering, tabs, split panes, themes and backgrounds.
 - 🧠 AI control center: one card per agent with live state, branch, context %, tokens, estimated cost and session images.
 - 🧾 "What did the AI change?": per-turn diff viewer with per-file discard.
-- 🖼️ Hover `[Image #N]` or an image path to preview it.
+- 🖼️ Images you send and images the AI reads show as thumbnails inside the terminal; click to enlarge.
 - 🔍 Scrollback search (`Ctrl+F`) and SSH tunnels (local and SOCKS).
 - 🔐 Built-in SSH and SFTP with saved hosts, proxies and jump hosts.
 - 🤖 Claude Code, Codex and other AI CLIs with per-turn status and notifications.
