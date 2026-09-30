@@ -80,9 +80,9 @@ try {
         'pebrel.exe'
         'runtime/OpenConsole.exe'
         'runtime/conpty.dll'
-        'runtime/pebrel-hook.exe'
-        'skills/pebrel-runtime/SKILL.md'
-        'skills/pebrel-runtime/agents/openai.yaml'
+        'runtime/poxiterminal-hook.exe'
+        'skills/poxiterminal-runtime/SKILL.md'
+        'skills/poxiterminal-runtime/agents/openai.yaml'
     ) | Sort-Object
 
     $difference = @(Compare-Object -ReferenceObject $expected -DifferenceObject $actual)

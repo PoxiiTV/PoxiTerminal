@@ -10,7 +10,7 @@ fn snapshot() -> Snapshot {
         "pi",
         "manifest",
         "disabled",
-        "pebrel-hook",
+        "poxiterminal-hook",
         "bridge.py",
         "shell.py",
         "bashrc",
@@ -206,7 +206,7 @@ fn wsl_replaces_the_legacy_windows_helper_without_chaining_a_dead_executable() {
     put(
         &mut snapshot,
         "codex_config",
-        "notify = ['D:/Program Files/Nebula Terminal/runtime/nebula-hook.exe', 'codex']\n",
+        "notify = ['D:/Program Files/PoxiTerminal/runtime/poxiterminal-hook.exe', 'codex']\n",
     );
     let edits = snapshot.plan(Action::Install).unwrap().unwrap();
     apply(&mut snapshot, edits);

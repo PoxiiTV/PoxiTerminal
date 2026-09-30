@@ -72,8 +72,7 @@ function Wait-RuntimeHelperFiles {
     # application exits. Check before setup copies any file. Old stuck helpers
     # remain a visible failure; never terminate processes by their image name.
     $deadline = [DateTime]::UtcNow.AddSeconds(5)
-    $helpers = @('runtime\pebrel-hook.exe', 'pebrel-hook.exe',
-        'runtime\nebula-hook.exe', 'nebula-hook.exe')
+    $helpers = @('runtime\poxiterminal-hook.exe', 'poxiterminal-hook.exe')
     while ($true) {
         $busy = $null
         foreach ($relative in $helpers) {

@@ -105,7 +105,7 @@ Name: "autostart"; Description: "{cm:AutoStart}"; GroupDescription: "{cm:Additio
 [Files]
 Source: "{#BuildRoot}\poxiterminal.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#RepoRoot}\README.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#BuildRoot}\pebrel-hook.exe"; DestDir: "{app}\runtime"; Flags: ignoreversion
+Source: "{#BuildRoot}\poxiterminal-hook.exe"; DestDir: "{app}\runtime"; Flags: ignoreversion
 Source: "{#BuildRoot}\conpty.dll"; DestDir: "{app}\runtime"; Flags: ignoreversion
 Source: "{#BuildRoot}\OpenConsole.exe"; DestDir: "{app}\runtime"; Flags: ignoreversion
 Source: "{#RepoRoot}\assets\fonts\MapleMonoNormal-NF-CN-Regular.ttf"; DestDir: "{app}\fonts"; Flags: ignoreversion
@@ -116,8 +116,8 @@ Source: "{#RepoRoot}\INSTALL.md"; DestDir: "{app}\docs"; Flags: ignoreversion
 Source: "{#RepoRoot}\docs\lua-configuration.md"; DestDir: "{app}\docs"; Flags: ignoreversion
 Source: "{#RepoRoot}\docs\runtime-control-api.md"; DestDir: "{app}\docs"; Flags: ignoreversion
 Source: "{#RepoRoot}\docs\runtime-api-v1.schema.json"; DestDir: "{app}\docs"; Flags: ignoreversion
-Source: "{#RepoRoot}\docs\skills\pebrel-runtime\SKILL.md"; DestDir: "{app}\skills\pebrel-runtime"; Flags: ignoreversion
-Source: "{#RepoRoot}\docs\skills\pebrel-runtime\agents\openai.yaml"; DestDir: "{app}\skills\pebrel-runtime\agents"; Flags: ignoreversion
+Source: "{#RepoRoot}\docs\skills\poxiterminal-runtime\SKILL.md"; DestDir: "{app}\skills\poxiterminal-runtime"; Flags: ignoreversion
+Source: "{#RepoRoot}\docs\skills\poxiterminal-runtime\agents\openai.yaml"; DestDir: "{app}\skills\poxiterminal-runtime\agents"; Flags: ignoreversion
 Source: "{#RepoRoot}\LICENSE"; DestDir: "{app}\licenses"; Flags: ignoreversion
 Source: "{#RepoRoot}\licenses\LICENSE-LUA"; DestDir: "{app}\licenses"; Flags: ignoreversion
 Source: "{#RepoRoot}\licenses\LICENSE-MLUA"; DestDir: "{app}\licenses"; Flags: ignoreversion

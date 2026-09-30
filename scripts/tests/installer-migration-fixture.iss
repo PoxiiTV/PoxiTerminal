@@ -104,14 +104,14 @@ begin
   WriteFixtureFile(OldDir, 'nebula.exe');
   WriteFixtureFile(OldDir, 'runtime\nebula-hook.exe');
   WriteFixtureFile(OldDir, 'pebrel.exe');
-  WriteFixtureFile(OldDir, 'runtime\pebrel-hook.exe');
+  WriteFixtureFile(OldDir, 'runtime\poxiterminal-hook.exe');
   WriteFixtureFile(OldDir, 'runtime\conpty.dll');
   WriteFixtureFile(OldDir, 'docs\CHANGELOG.md');
   WriteFixtureFile(OldDir, 'unins000.dat');
   RemoveLegacyPayload(OldDir, OldDir, OldDir + '\unins000.exe');
   Check(not FileExists(OldDir + '\nebula.exe'), 'in-place rename removes old executable');
   Check(FileExists(OldDir + '\pebrel.exe'), 'in-place rename preserves new executable');
-  Check(FileExists(OldDir + '\runtime\pebrel-hook.exe'), 'in-place rename preserves new helper');
+  Check(FileExists(OldDir + '\runtime\poxiterminal-hook.exe'), 'in-place rename preserves new helper');
   Check(FileExists(OldDir + '\runtime\conpty.dll'), 'in-place rename preserves shared runtime');
   Check(FileExists(OldDir + '\docs\CHANGELOG.md'), 'in-place rename preserves current documentation');
   Check(FileExists(OldDir + '\unins000.dat'), 'in-place upgrade keeps the appended uninstall log');

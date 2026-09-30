@@ -48,7 +48,7 @@ fn owned(command: &str) -> bool {
         return false;
     }
     let filename = helper.rsplit(['/', '\\']).next().unwrap_or("");
-    ["pebrel-hook.exe", "nebula-hook.exe"].iter().any(|name| filename.eq_ignore_ascii_case(name))
+    filename.eq_ignore_ascii_case("poxiterminal-hook.exe")
         && EVENTS.iter().any(|(_, event)| tail == format!("cursor --event {event}"))
 }
 
@@ -139,7 +139,7 @@ pub(super) fn apply_at(path: &Path, helper: &str, enabled: bool) -> io::Result<(
 #[cfg(test)]
 mod tests {
     use super::*;
-    const HELPER: &str = "C:/Program Files/用户's Tools/pebrel-hook.exe";
+    const HELPER: &str = "C:/Program Files/用户's Tools/poxiterminal-hook.exe";
 
     #[test]
     fn preserves_foreign_hooks_and_migrates_old_helpers_without_duplicates() {
@@ -148,7 +148,7 @@ mod tests {
         let original =
             r#"{"version":1,"custom":true,"hooks":{"stop":[{"command":"foreign-hook"}]}}"#;
         std::fs::write(&path, original).unwrap();
-        apply_at(&path, "C:/old/nebula-hook.exe", true).unwrap();
+        apply_at(&path, "C:/old/poxiterminal-hook.exe", true).unwrap();
         assert!(installed_at(&path).unwrap());
         assert!(!current(&std::fs::read_to_string(&path).unwrap(), HELPER).unwrap());
         apply_at(&path, HELPER, true).unwrap();
@@ -195,10 +195,10 @@ mod tests {
     fn edited_commands_are_not_claimed_by_filename_substring() {
         assert!(owned(&command(HELPER, "done")));
         for script in [
-            "echo 'pebrel-hook.exe'",
-            "& 'C:/pebrel-hook.exe' cursor --event done; echo custom",
+            "echo 'poxiterminal-hook.exe'",
+            "& 'C:/poxiterminal-hook.exe' cursor --event done; echo custom",
             "& 'C:/other.exe' cursor --event done",
-            "& 'C:/pebrel-hook.exe' other --event done",
+            "& 'C:/poxiterminal-hook.exe' other --event done",
         ] {
             assert!(!owned(&super::super::extended::encoded_powershell(script)));
         }

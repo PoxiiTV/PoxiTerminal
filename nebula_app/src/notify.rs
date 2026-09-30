@@ -101,7 +101,7 @@ pub enum Notification {
     /// channel is `iterm2`/`iterm2_with_bell`. Carries the tracked program
     /// name so the toast is titled "claude" instead of "PoxiTerminal".
     Text { body: String, program: Option<String> },
-    /// Typed AI-CLI turn event delivered through the `pebrel-hook` pipe
+    /// Typed AI-CLI turn event delivered through the `poxiterminal-hook` pipe
     /// (claude hooks / codex notify — see `ai_hook`). `attention` means the
     /// CLI needs the user NOW (permission prompt / idle reminder) rather
     /// than "turn finished".

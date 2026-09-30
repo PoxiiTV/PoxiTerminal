@@ -136,7 +136,7 @@ pub(crate) fn ssh_destination_words(words: &[String]) -> Option<String> {
     // `ssh.exe`); `nebula ssh …` counts too — same wrapper, same semantics.
     let executable = tokens.next()?.rsplit(['/', '\\']).next()?;
     let mut program = crate::display::extract_program(executable)?;
-    if matches!(program.as_str(), "pebrel" | "nebula") {
+    if matches!(program.as_str(), "poxiterminal" | "pebrel" | "nebula") {
         if tokens.next() != Some("ssh") {
             return None;
         }
@@ -341,7 +341,7 @@ fn config_forces_passthrough(ssh: &str, args: &[String]) -> bool {
     let mut command = std::process::Command::new(ssh);
     // 这是个非交互探针（`-G` 只解析配置、不连接），和 `ssh_session.rs` 里那条
     // 同源：不压掉就会从无控制台的 GUI 进程里闪出一个新控制台（见
-    // `platform::process`）。`pebrel ssh <host>` 的**交互会话**是另一回事，它
+    // `platform::process`）。`poxiterminal ssh <host>` 的**交互会话**是另一回事，它
     // 靠 `AttachConsole` 继承父控制台，绝不能压。
     crate::platform::process::hidden_command(&mut command);
     let out = command.arg("-G").args(args).output();
@@ -714,7 +714,7 @@ pub fn run(mut args: Vec<String>) -> i32 {
     ) {
         Ok(profiles) => profiles,
         Err(error) => {
-            eprintln!("pebrel ssh: failed to load host profiles: {error}");
+            eprintln!("poxiterminal ssh: failed to load host profiles: {error}");
             return 1;
         },
     };
@@ -774,7 +774,7 @@ pub fn run(mut args: Vec<String>) -> i32 {
     let result = match cmd.status() {
         Ok(status) => status.code().unwrap_or(1),
         Err(e) => {
-            eprintln!("pebrel ssh: failed to launch ssh: {e}");
+            eprintln!("poxiterminal ssh: failed to launch ssh: {e}");
             1
         },
     };
@@ -887,7 +887,7 @@ mod tests {
         );
         assert_eq!(d(r#"ssh -o 'ProxyCommand=ssh -W %h:%p jump' host"#), Some("host".into()));
         assert_eq!(d("nebula ssh host"), Some("host".into()));
-        assert_eq!(d("pebrel ssh host"), Some("host".into()));
+        assert_eq!(d("poxiterminal ssh host"), Some("host".into()));
         assert_eq!(d("pebrel.exe ssh -- user@host"), Some("user@host".into()));
         assert_eq!(d("ssh -i key -t user@host"), Some("user@host".into()));
         assert_eq!(d("ssh -J jump user@host"), Some("user@host".into()));

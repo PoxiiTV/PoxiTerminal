@@ -4,10 +4,11 @@ use std::path::{Path, PathBuf};
 
 // ─── Runtime skill (Codex + Claude Code) ───────────────────────────────
 
-const RUNTIME_SKILL_MD: &str = include_str!("../../../../docs/skills/pebrel-runtime/SKILL.md");
+const RUNTIME_SKILL_MD: &str =
+    include_str!("../../../../docs/skills/poxiterminal-runtime/SKILL.md");
 const RUNTIME_SKILL_OPENAI_YAML: &str =
-    include_str!("../../../../docs/skills/pebrel-runtime/agents/openai.yaml");
-const RUNTIME_SKILL_MARKER: &str = ".pebrel-managed";
+    include_str!("../../../../docs/skills/poxiterminal-runtime/agents/openai.yaml");
+const RUNTIME_SKILL_MARKER: &str = ".poxiterminal-managed";
 const LEGACY_RUNTIME_SKILL_MARKER: &str = ".nebula-managed";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -29,11 +30,11 @@ pub(super) fn runtime_skill_candidates() -> Vec<(&'static str, PathBuf)> {
     if let Some(profile) = crate::platform::dirs::home_dir() {
         targets.push((
             "codex",
-            PathBuf::from(profile).join(".agents").join("skills").join("pebrel-runtime"),
+            PathBuf::from(profile).join(".agents").join("skills").join("poxiterminal-runtime"),
         ));
     }
     if let Some(claude) = claude_config_dir() {
-        targets.push(("claude", claude.join("skills").join("pebrel-runtime")));
+        targets.push(("claude", claude.join("skills").join("poxiterminal-runtime")));
     }
     targets
 }
@@ -197,7 +198,7 @@ mod runtime_skill_tests {
     #[test]
     fn managed_skill_installs_idempotently_and_removes_its_own_files() {
         let temp = tempfile::tempdir().unwrap();
-        let dir = temp.path().join("pebrel-runtime");
+        let dir = temp.path().join("poxiterminal-runtime");
 
         assert_eq!(ensure_runtime_skill(&dir).unwrap(), ManagedSkillInstall::Installed);
         assert_eq!(ensure_runtime_skill(&dir).unwrap(), ManagedSkillInstall::Current);
@@ -209,7 +210,7 @@ mod runtime_skill_tests {
     #[test]
     fn managed_skill_never_overwrites_an_unmanaged_same_name() {
         let temp = tempfile::tempdir().unwrap();
-        let dir = temp.path().join("pebrel-runtime");
+        let dir = temp.path().join("poxiterminal-runtime");
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("SKILL.md"), "user-owned\n").unwrap();
 
@@ -221,7 +222,7 @@ mod runtime_skill_tests {
     #[test]
     fn managed_skill_preserves_user_edits_during_update_and_remove() {
         let temp = tempfile::tempdir().unwrap();
-        let dir = temp.path().join("pebrel-runtime");
+        let dir = temp.path().join("poxiterminal-runtime");
         assert_eq!(ensure_runtime_skill(&dir).unwrap(), ManagedSkillInstall::Installed);
         std::fs::write(dir.join("SKILL.md"), "edited after install\n").unwrap();
 
@@ -250,7 +251,7 @@ mod runtime_skill_tests {
         let temp = tempfile::tempdir().unwrap();
         let legacy = legacy_skill(temp.path());
         std::fs::write(legacy.join("notes.txt"), "user notes").unwrap();
-        let path = temp.path().join("pebrel-runtime");
+        let path = temp.path().join("poxiterminal-runtime");
         assert_eq!(ensure_runtime_skill(&path).unwrap(), ManagedSkillInstall::Installed);
         assert!(!legacy.exists());
         assert_eq!(std::fs::read_to_string(path.join("notes.txt")).unwrap(), "user notes");
@@ -264,7 +265,7 @@ mod runtime_skill_tests {
         let temp = tempfile::tempdir().unwrap();
         let legacy = legacy_skill(temp.path());
         std::fs::write(legacy.join("SKILL.md"), "edited legacy skill").unwrap();
-        let path = temp.path().join("pebrel-runtime");
+        let path = temp.path().join("poxiterminal-runtime");
         assert_eq!(ensure_runtime_skill(&path).unwrap(), ManagedSkillInstall::Conflict);
         assert!(!path.exists());
         assert_eq!(remove_runtime_skill(&path).unwrap(), ManagedSkillRemoval::Conflict);
@@ -278,7 +279,7 @@ mod runtime_skill_tests {
     fn new_skill_name_conflict_preserves_the_valid_legacy_skill() {
         let temp = tempfile::tempdir().unwrap();
         let legacy = legacy_skill(temp.path());
-        let path = temp.path().join("pebrel-runtime");
+        let path = temp.path().join("poxiterminal-runtime");
         std::fs::create_dir(&path).unwrap();
         std::fs::write(path.join("SKILL.md"), "user skill").unwrap();
         assert_eq!(ensure_runtime_skill(&path).unwrap(), ManagedSkillInstall::Conflict);

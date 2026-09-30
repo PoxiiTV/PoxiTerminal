@@ -62,7 +62,7 @@ $setupPath = Join-Path $outputRoot "$PackageBrand-v$Version-windows-$Architectur
 
 $requiredFiles = @(
     (Join-Path $targetRoot 'poxiterminal.exe'),
-    (Join-Path $targetRoot 'pebrel-hook.exe'),
+    (Join-Path $targetRoot 'poxiterminal-hook.exe'),
     (Join-Path $targetRoot 'conpty.dll'),
     (Join-Path $targetRoot 'OpenConsole.exe'),
     (Join-Path $repo 'README.md'),
@@ -70,8 +70,8 @@ $requiredFiles = @(
     (Join-Path $repo 'docs\lua-configuration.md'),
     (Join-Path $repo 'docs\runtime-control-api.md'),
     (Join-Path $repo 'docs\runtime-api-v1.schema.json'),
-    (Join-Path $repo 'docs\skills\pebrel-runtime\SKILL.md'),
-    (Join-Path $repo 'docs\skills\pebrel-runtime\agents\openai.yaml'),
+    (Join-Path $repo 'docs\skills\poxiterminal-runtime\SKILL.md'),
+    (Join-Path $repo 'docs\skills\poxiterminal-runtime\agents\openai.yaml'),
     (Join-Path $repo 'assets\fonts\MapleMonoNormal-NF-CN-Regular.ttf'),
     (Join-Path $repo 'LICENSE'),
     (Join-Path $repo 'licenses\LICENSE-LUA'),
@@ -108,7 +108,7 @@ if (-not $AllowStale) {
     $sourceScopes = @(
         @{ Binary = $packagedExe; Roots = $memberDirs + @(
             (Join-Path $repo 'Cargo.toml'), (Join-Path $repo '..\gpui-component-fork\crates')) },
-        @{ Binary = (Join-Path $targetRoot 'pebrel-hook.exe'); Roots = @(
+        @{ Binary = (Join-Path $targetRoot 'poxiterminal-hook.exe'); Roots = @(
             (Join-Path $repo 'nebula_hook'), (Join-Path $repo 'Cargo.toml')) }
     )
     foreach ($scope in $sourceScopes) {

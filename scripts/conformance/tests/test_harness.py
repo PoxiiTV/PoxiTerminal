@@ -185,7 +185,7 @@ class ArchiveSafetyTests(unittest.TestCase):
             archive = Path(directory) / "Pebrel-v1.6.0-windows-x64.zip"
             with zipfile.ZipFile(archive, "w") as output:
                 output.writestr("pebrel.exe", b"MZfixture")
-                output.writestr("runtime/pebrel-hook.exe", b"MZhelper")
+                output.writestr("runtime/poxiterminal-hook.exe", b"MZhelper")
                 output.writestr("runtime/OpenConsole.exe", b"MZhost")
             app = ResolvedApp(archive)
             try:

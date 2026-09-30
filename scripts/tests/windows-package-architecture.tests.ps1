@@ -11,7 +11,7 @@ try {
         [BitConverter]::GetBytes([uint32]0x4550).CopyTo($bytes, 64)
         $machine = if ($architecture -eq 'arm64') { 0xAA64 } else { 0x8664 }
         [BitConverter]::GetBytes([uint16]$machine).CopyTo($bytes, 68)
-        foreach ($name in @('pebrel.exe', 'pebrel-hook.exe', 'conpty.dll', 'OpenConsole.exe')) {
+        foreach ($name in @('pebrel.exe', 'poxiterminal-hook.exe', 'conpty.dll', 'OpenConsole.exe')) {
             [IO.File]::WriteAllBytes((Join-Path $fixtureRoot $name), $bytes)
         }
         Assert-WindowsPackageArchitecture -Root $fixtureRoot -Architecture $architecture
@@ -23,10 +23,10 @@ try {
         if (-not $rejected) { throw 'Mislabeled machine type was accepted' }
         # The application alone is insufficient: the packaged hook and console runtime must match.
         $bytes[68] = 0
-        [IO.File]::WriteAllBytes((Join-Path $fixtureRoot 'pebrel-hook.exe'), $bytes)
+        [IO.File]::WriteAllBytes((Join-Path $fixtureRoot 'poxiterminal-hook.exe'), $bytes)
         $rejected = $false
         try { Assert-WindowsPackageArchitecture -Root $fixtureRoot -Architecture $architecture } catch {
-            $rejected = $_.Exception.Message -match 'pebrel-hook.exe'
+            $rejected = $_.Exception.Message -match 'poxiterminal-hook.exe'
         }
         if (-not $rejected) { throw 'Mismatched hook helper was accepted' }
         [IO.File]::WriteAllBytes((Join-Path $fixtureRoot 'pebrel.exe'), [byte[]]@(0, 1, 2))

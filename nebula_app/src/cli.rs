@@ -330,7 +330,7 @@ pub enum Subcommands {
 /// UI thread, short enough that a wedged runtime does not hang an agent.
 const SHORT_TIMEOUT_MS: u64 = 30_000;
 
-/// Default ceiling for `pebrel pane wait` / `pebrel agent wait`. Waiting on a
+/// Default ceiling for `poxiterminal pane wait` / `poxiterminal agent wait`. Waiting on a
 /// coding agent is measured in minutes, so reusing the query timeout would turn
 /// a normal turn into a spurious `timeout` error.
 const SHORT_WAIT_TIMEOUT_MS: u64 = 600_000;
@@ -369,7 +369,7 @@ pub enum WindowCommand {
 
 #[derive(Args, Debug)]
 pub struct WindowCloseOptions {
-    /// Window id from `pebrel pane list`.
+    /// Window id from `poxiterminal pane list`.
     pub window: u64,
 
     #[clap(flatten)]
@@ -456,7 +456,7 @@ pub struct PaneOptions {
     pub command: PaneCommand,
 }
 
-/// Pane verbs. A pane is addressed by its numeric id from `pebrel pane list`.
+/// Pane verbs. A pane is addressed by its numeric id from `poxiterminal pane list`.
 #[derive(Subcommand, Debug)]
 pub enum PaneCommand {
     /// List every pane with its id, task state, cwd, and Git branch.
@@ -486,7 +486,7 @@ pub struct AgentOptions {
 }
 
 /// Agent verbs. An agent is addressed by the name or stable id from
-/// `pebrel agent list` — not by pane, so a restarted session cannot silently
+/// `poxiterminal agent list` — not by pane, so a restarted session cannot silently
 /// inherit work aimed at the one it replaced.
 #[derive(Subcommand, Debug)]
 pub enum AgentCommand {
@@ -519,7 +519,7 @@ pub struct ListOptions {
 
 #[derive(Args, Debug)]
 pub struct PaneReadOptions {
-    /// Pane id from `pebrel pane list`.
+    /// Pane id from `poxiterminal pane list`.
     pub pane: u64,
 
     /// Logical terminal rows to read from the buffer tail.
@@ -539,7 +539,7 @@ pub struct PaneReadOptions {
 
 #[derive(Args, Debug)]
 pub struct PaneSendOptions {
-    /// Pane id from `pebrel pane list`.
+    /// Pane id from `poxiterminal pane list`.
     pub pane: u64,
 
     /// The line to write. Several words are joined with single spaces, so both
@@ -592,7 +592,7 @@ pub struct PasteSourceOptions {
 
 #[derive(Args, Debug)]
 pub struct PanePasteOptions {
-    /// Pane id from `pebrel pane list`.
+    /// Pane id from `poxiterminal pane list`.
     pub pane: u64,
 
     #[clap(flatten)]
@@ -622,7 +622,7 @@ pub struct PanePasteOptions {
 
 #[derive(Args, Debug)]
 pub struct PaneWaitOptions {
-    /// Pane id from `pebrel pane list`.
+    /// Pane id from `poxiterminal pane list`.
     pub pane: u64,
 
     /// The state to wait for. `settled` covers finished, failed, and
@@ -648,7 +648,7 @@ pub struct PaneWaitOptions {
 
 #[derive(Args, Debug)]
 pub struct PaneExecOptions {
-    /// Pane id from `pebrel pane list`; its current cwd and local environment are reused.
+    /// Pane id from `poxiterminal pane list`; its current cwd and local environment are reused.
     pub pane: u64,
 
     #[clap(long)]
@@ -672,7 +672,7 @@ pub struct PaneExecOptions {
 
 #[derive(Args, Debug)]
 pub struct PaneCloseOptions {
-    /// Pane id from `pebrel pane list`.
+    /// Pane id from `poxiterminal pane list`.
     pub pane: u64,
 
     #[clap(long)]
@@ -687,7 +687,7 @@ pub struct PaneCloseOptions {
 
 #[derive(Args, Debug)]
 pub struct PaneZoomOptions {
-    /// Pane id from `pebrel pane list`.
+    /// Pane id from `poxiterminal pane list`.
     pub pane: u64,
 
     /// Desired zoom state. Requiring the value keeps the command idempotent.
@@ -711,7 +711,7 @@ pub struct PaneZoomOptions {
 
 #[derive(Args, Debug)]
 pub struct PaneResizeOptions {
-    /// Pane id from `pebrel pane list`.
+    /// Pane id from `poxiterminal pane list`.
     pub pane: u64,
 
     /// Desired share of the pane's direct parent split, from 0.05 through 0.95.
@@ -729,7 +729,7 @@ pub struct PaneResizeOptions {
 
 #[derive(Args, Debug)]
 pub struct AgentSendOptions {
-    /// Agent name or stable id from `pebrel agent list`.
+    /// Agent name or stable id from `poxiterminal agent list`.
     pub agent: String,
 
     /// The task itself. Several words are joined with single spaces, so both
@@ -764,7 +764,7 @@ pub struct AgentSendOptions {
 
 #[derive(Args, Debug)]
 pub struct AgentDelegateOptions {
-    /// Agent name or stable id from `pebrel agent list`.
+    /// Agent name or stable id from `poxiterminal agent list`.
     pub agent: String,
 
     /// The delegated task. Several words are joined with single spaces.
@@ -784,7 +784,7 @@ pub struct AgentDelegateOptions {
 
 #[derive(Args, Debug)]
 pub struct AgentPasteOptions {
-    /// Agent name or stable id from `pebrel agent list`.
+    /// Agent name or stable id from `poxiterminal agent list`.
     pub agent: String,
 
     #[clap(flatten)]
@@ -815,7 +815,7 @@ pub struct AgentPasteOptions {
 
 #[derive(Args, Debug)]
 pub struct AgentReadOptions {
-    /// Agent name or stable id from `pebrel agent list`.
+    /// Agent name or stable id from `poxiterminal agent list`.
     pub agent: String,
 
     /// Logical terminal rows to read from the buffer tail.
@@ -834,7 +834,7 @@ pub struct AgentReadOptions {
 
 #[derive(Args, Debug)]
 pub struct AgentWaitOptions {
-    /// Agent name or stable id from `pebrel agent list`.
+    /// Agent name or stable id from `poxiterminal agent list`.
     pub agent: String,
 
     /// The state to wait for.
@@ -937,7 +937,7 @@ pub struct SetupAiOptions {
 
 /// Options for the `ssh` subcommand: every token after `ssh` is captured raw
 /// and handed to the system `ssh` binary (host, `-p`, `-i`, `-L`, …), so
-/// `pebrel ssh -p 2222 user@host` behaves exactly like the real client.
+/// `poxiterminal ssh -p 2222 user@host` behaves exactly like the real client.
 #[cfg(windows)]
 #[derive(Args, Debug)]
 pub struct SshOptions {
@@ -948,7 +948,7 @@ pub struct SshOptions {
 
 /// Options for the cross-platform runtime control API used by humans and coding agents.
 ///
-/// Start with `pebrel ctl describe --pretty` and `pebrel ctl snapshot --pretty`.
+/// Start with `poxiterminal ctl describe --pretty` and `poxiterminal ctl snapshot --pretty`.
 /// A split returns the new focused pane id; pass that id to `prompt`, `run`, `wait`,
 /// or `read` to build deterministic multi-pane workflows without GUI automation.
 #[derive(Args, Debug)]

@@ -11,7 +11,7 @@ use serde_json::{Value, json};
 use super::{codex_config_dir, helper_path};
 use crate::ai_hook::{CodexHookMode, installation};
 
-const MARKER: &str = "hooks.pebrel-managed.json";
+const MARKER: &str = "hooks.poxiterminal-managed.json";
 const MAX_CONFIG_BYTES: u64 = 1024 * 1024;
 
 fn read(path: &Path) -> io::Result<Option<String>> {
@@ -276,7 +276,7 @@ mod tests {
     #[test]
     fn upgrades_cmd_style_owned_hooks_without_changing_user_entries() {
         let root = tempfile::tempdir().unwrap();
-        let helper = "C:/Program Files/PoxiTerminal/runtime/pebrel-hook.exe";
+        let helper = "C:/Program Files/PoxiTerminal/runtime/poxiterminal-hook.exe";
         let old_command = format!("\"{helper}\" codex --hooks=full");
         let previous =
             installation::codex_groups(&old_command, Some(&old_command), CodexHookMode::Full);
@@ -357,14 +357,14 @@ mod tests {
         )
         .unwrap();
         assert!(
-            install(root.path(), "C:/Program Files/PoxiTerminal/pebrel-hook.exe", CodexHookMode::Turns)
+            install(root.path(), "C:/Program Files/PoxiTerminal/poxiterminal-hook.exe", CodexHookMode::Turns)
                 .unwrap()
         );
         assert!(
-            !install(root.path(), "C:/Program Files/PoxiTerminal/pebrel-hook.exe", CodexHookMode::Turns)
+            !install(root.path(), "C:/Program Files/PoxiTerminal/poxiterminal-hook.exe", CodexHookMode::Turns)
                 .unwrap()
         );
-        assert!(install(root.path(), "D:/new/pebrel-hook.exe", CodexHookMode::Full).unwrap());
+        assert!(install(root.path(), "D:/new/poxiterminal-hook.exe", CodexHookMode::Full).unwrap());
         assert!(remove(root.path()).unwrap());
         let hooks: Value =
             serde_json::from_str(&read(&root.path().join("hooks.json")).unwrap().unwrap()).unwrap();
@@ -385,7 +385,7 @@ mod tests {
             json!({"hooks":{"Stop":[foreign]}}).to_string(),
         )
         .unwrap();
-        let helper = "C:/Program Files/PoxiTerminal/pebrel-hook.exe";
+        let helper = "C:/Program Files/PoxiTerminal/poxiterminal-hook.exe";
         for _ in 0..20 {
             assert!(install(root.path(), helper, CodexHookMode::Full).unwrap());
             assert!(installed_at(root.path()).unwrap());

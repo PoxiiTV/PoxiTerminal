@@ -36,7 +36,7 @@ fn spawn_pipe_server(sink: impl Fn(AiHookEvent) -> bool + Send + 'static) {
         std::env::set_var(PIPE_ENV, &name);
         std::env::set_var(LEGACY_PIPE_ENV, &name);
     };
-    // Export nebula-hook.exe's path for the opencode plugin (best-effort:
+    // Export poxiterminal-hook.exe's path for the opencode plugin (best-effort:
     // if the helper isn't found, the plugin simply no-ops like anywhere
     // outside Nebula). Forward slashes: the path is interpolated into
     // Bun's `$` shell inside the plugin, matching `helper_command`.
@@ -48,7 +48,7 @@ fn spawn_pipe_server(sink: impl Fn(AiHookEvent) -> bool + Send + 'static) {
         };
     }
     if let Err(err) =
-        std::thread::Builder::new().name("pebrel-ai-pipe".into()).spawn(move || serve(&name, sink))
+        std::thread::Builder::new().name("poxiterminal-ai-pipe".into()).spawn(move || serve(&name, sink))
     {
         log::warn!("ai_hook: failed to spawn pipe server: {err}");
     }

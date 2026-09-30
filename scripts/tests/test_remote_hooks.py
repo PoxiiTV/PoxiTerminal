@@ -80,10 +80,10 @@ class RemoteHooksTests(unittest.TestCase):
             if path == paths["bridge.py"]:
                 raise OSError("fixture write failure")
             real_replace(path, content, executable)
-        plan = [{"name": name, "expected": None, "content": "new"} for name in ["pebrel-hook", "bridge.py"]]
+        plan = [{"name": name, "expected": None, "content": "new"} for name in ["poxiterminal-hook", "bridge.py"]]
         with patch.object(files, "replace", replace), self.assertRaises(OSError):
             files.apply(plan)
-        self.assertFalse(paths["pebrel-hook"].exists())
+        self.assertFalse(paths["poxiterminal-hook"].exists())
         self.assertFalse(paths["bridge.py"].exists())
 
     def test_unknown_name_and_symlink_cannot_redirect_writes(self):

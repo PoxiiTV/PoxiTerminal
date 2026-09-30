@@ -61,7 +61,7 @@ fn claim_setup_announcement(directory: &Path) -> std::io::Result<bool> {
 
 /// The Nebula↔opencode bridge, auto-dropped into opencode's global plugin
 /// dir. opencode is a Bun app that auto-loads `{plugin,plugins}/*.js`; this
-/// plugin subscribes to its event bus and shells out to nebula-hook.exe
+/// plugin subscribes to its event bus and shells out to poxiterminal-hook.exe
 /// (path in `NEBULA_HOOK_EXE`, pipe in the inherited `NEBULA_NOTIFY_PIPE`),
 /// normalizing events into the small payload `parse_envelope` reads. The
 /// send chain serializes delivery: Bun waits for one helper to close before
@@ -112,7 +112,7 @@ pub fn ensure_claude_hooks() -> bool {
 
     // First modification keeps a pristine copy next to the original.
     if path.exists() {
-        let bak = path.with_extension("json.pebrel-bak");
+        let bak = path.with_extension("json.poxiterminal-bak");
         if !bak.exists() {
             if let Err(err) = std::fs::copy(&path, &bak) {
                 log::warn!("ai_hook: backup failed ({err}); not touching {}", path.display());
@@ -135,7 +135,7 @@ pub fn ensure_claude_hooks() -> bool {
 }
 
 /// Pure JSON surgery: ensure each subscribed event carries exactly one
-/// nebula-hook command, healing a stale absolute path in place. `None`
+/// poxiterminal-hook command, healing a stale absolute path in place. `None`
 /// means the document's shape is not what claude documents — refuse.
 fn install_into(root: &mut Value, command: &str) -> Option<bool> {
     // Unix provider 按 shell 字符串执行；沿用远端安装器的字面量引用规则。
@@ -203,7 +203,7 @@ fn is_our_claude_hook(entry: &Value) -> bool {
     }
 }
 
-/// Strip every nebula-hook entry (and matchers left empty by that).
+/// Strip every poxiterminal-hook entry (and matchers left empty by that).
 fn remove_hooks() -> std::io::Result<bool> {
     let Some(dir) = claude_config_dir() else { return Ok(false) };
     let path = dir.join("settings.json");
@@ -370,7 +370,7 @@ pub fn ensure_opencode_plugin() -> bool {
     // Only act when opencode exists — don't scaffold its config tree.
     let Some(cfg) = opencode_config_dir().filter(|d| d.exists()) else { return false };
     let dir = cfg.join("plugins");
-    report_bridge_install(&dir.join("pebrel.js"), install_bridge(&dir, Bridge::Opencode))
+    report_bridge_install(&dir.join("poxiterminal.js"), install_bridge(&dir, Bridge::Opencode))
 }
 
 /// Undo [`ensure_opencode_plugin`]: delete the plugin file if it is ours.
@@ -393,7 +393,7 @@ fn pi_agent_dir() -> Option<PathBuf> {
 pub fn ensure_pi_extension() -> bool {
     let Some(agent) = pi_agent_dir().filter(|dir| dir.exists()) else { return false };
     let dir = agent.join("extensions");
-    report_bridge_install(&dir.join("pebrel.ts"), install_bridge(&dir, Bridge::Pi))
+    report_bridge_install(&dir.join("poxiterminal.ts"), install_bridge(&dir, Bridge::Pi))
 }
 
 fn remove_pi_extension() -> std::io::Result<bool> {
@@ -412,7 +412,7 @@ impl Bridge {
         // Exact embedded payloads verified from v1.0.0 through v1.5.0.
         match self {
             Self::Opencode => (
-                "pebrel.js",
+                "poxiterminal.js",
                 "nebula.js",
                 OPENCODE_PLUGIN_JS,
                 &[
@@ -422,7 +422,7 @@ impl Bridge {
                 ],
             ),
             Self::Pi => (
-                "pebrel.ts",
+                "poxiterminal.ts",
                 "nebula.ts",
                 PI_EXTENSION_TS,
                 &[
@@ -499,11 +499,9 @@ pub(super) fn helper_path() -> Option<PathBuf> {
 fn helper_path_from_exe(exe: &Path) -> Option<PathBuf> {
     let exe_dir = exe.parent()?;
     // 新包优先使用分类目录，旧同目录位置仅用于开发构建和兼容历史包。
-    let names = ["pebrel-hook", "nebula-hook"]
-        .map(|stem| format!("{stem}{}", std::env::consts::EXE_SUFFIX));
-    names
+    let name = format!("poxiterminal-hook{}", std::env::consts::EXE_SUFFIX);
+    [exe_dir.join("runtime").join(&name), exe_dir.join(name)]
         .into_iter()
-        .flat_map(|name| [exe_dir.join("runtime").join(&name), exe_dir.join(name)])
         .find(|path| {
             let Ok(metadata) = path.metadata() else { return false };
             if !metadata.is_file() {
@@ -550,7 +548,7 @@ fn write_atomic(path: &Path, data: &str) -> std::io::Result<()> {
     //
     // 内容本身是幂等的（装的是同一套 hook 条目），所以最后谁赢都行，
     // 要防的只是这个假报错。
-    let tmp = path.with_extension(format!("pebrel-tmp-{}", std::process::id()));
+    let tmp = path.with_extension(format!("poxiterminal-tmp-{}", std::process::id()));
     std::fs::write(&tmp, data)?;
     std::fs::rename(&tmp, path)
 }
@@ -561,7 +559,7 @@ mod generated_hook_tests {
 
     use super::{CLAUDE_EVENTS, OPENCODE_PLUGIN_JS, PI_EXTENSION_TS, install_into};
 
-    const HELPER: &str = "C:/Program Files/PoxiTerminal/runtime/pebrel-hook.exe";
+    const HELPER: &str = "C:/Program Files/PoxiTerminal/runtime/poxiterminal-hook.exe";
 
     #[cfg(unix)]
     #[test]
@@ -572,7 +570,7 @@ mod generated_hook_tests {
         let dir = tempfile::tempdir().unwrap();
         let parent = dir.path().join("用户's $data `literal` folder");
         std::fs::create_dir(&parent).unwrap();
-        let helper = parent.join("pebrel-hook");
+        let helper = parent.join("poxiterminal-hook");
         std::fs::write(&helper, "#!/bin/sh\nprintf '%s\\n' \"$@\"\ncat\n").unwrap();
         std::fs::set_permissions(&helper, std::fs::Permissions::from_mode(0o700)).unwrap();
         let mut root = json!({});
@@ -596,12 +594,15 @@ mod generated_hook_tests {
     #[test]
     fn claude_install_and_remove_preserve_commands_that_only_mention_the_helper() {
         let foreign = json!([
-            {"type":"command", "command":"echo pebrel-hook.exe"},
-            {"type":"command", "command":"echo C:/pebrel-hook.exe"},
-            {"type":"command", "command":"echo C:/pebrel-hook.exe claude"},
-            {"type":"command", "command":"C:/pebrel-hook.exe.backup", "args":["claude"]},
+            {"type":"command", "command":"echo poxiterminal-hook.exe"},
+            {"type":"command", "command":"echo C:/poxiterminal-hook.exe"},
+            {"type":"command", "command":"echo C:/poxiterminal-hook.exe claude"},
+            {"type":"command", "command":"C:/poxiterminal-hook.exe.backup", "args":["claude"]},
             {"type":"command", "command":HELPER, "args":["custom"]},
-            {"type":"command", "command":"\"C:/pebrel-hook.exe\" claude && echo user"}
+            {"type":"command", "command":"\"C:/poxiterminal-hook.exe\" claude && echo user"},
+            // Entradas exactas que escribe pebrel instalado en la misma máquina: son suyas.
+            {"type":"command", "command":"C:/Program Files/pebrel/runtime/pebrel-hook.exe", "args":["claude"]},
+            {"type":"command", "command":"\"C:/Program Files/pebrel/runtime/pebrel-hook.exe\" claude"}
         ]);
         let mut root = json!({"hooks":{"Stop":[{"hooks":foreign}]}, "custom":true});
         for _ in 0..12 {
@@ -658,7 +659,7 @@ mod generated_hook_tests {
                 "SessionStart": [{
                     "hooks": [{
                         "type": "command",
-                        "command": "\"D:/old/Nebula/runtime/nebula-hook.exe\" claude",
+                        "command": "\"D:/old/PoxiTerminal/runtime/poxiterminal-hook.exe\" claude",
                         "timeout": 10,
                     }]
                 }]
@@ -782,31 +783,35 @@ mod runtime_asset_tests {
     #[test]
     fn hook_helper_prefers_runtime_directory() {
         let dir = tempfile::tempdir().unwrap();
-        let exe = dir.path().join(name("pebrel"));
+        let exe = dir.path().join(name("poxiterminal"));
         let runtime = dir.path().join("runtime");
         std::fs::create_dir(&runtime).unwrap();
-        helper(&dir.path().join(name("nebula-hook")));
-        helper(&runtime.join(name("nebula-hook")));
-        helper(&runtime.join(name("pebrel-hook")));
+        helper(&dir.path().join(name("poxiterminal-hook")));
+        helper(&runtime.join(name("poxiterminal-hook")));
 
-        assert_eq!(helper_path_from_exe(&exe), Some(runtime.join(name("pebrel-hook"))));
+        assert_eq!(helper_path_from_exe(&exe), Some(runtime.join(name("poxiterminal-hook"))));
     }
 
+    /// Los helpers de pebrel/nebula nunca se toman por el nuestro.
     #[test]
-    fn hook_helper_falls_back_to_legacy_sibling() {
+    fn hook_helper_falls_back_to_sibling_ignoring_foreign_helpers() {
         let dir = tempfile::tempdir().unwrap();
-        let exe = dir.path().join(name("nebula"));
-        let legacy = dir.path().join(name("nebula-hook"));
-        helper(&legacy);
+        let exe = dir.path().join(name("poxiterminal"));
+        let runtime = dir.path().join("runtime");
+        std::fs::create_dir(&runtime).unwrap();
+        helper(&runtime.join(name("pebrel-hook")));
+        helper(&runtime.join(name("nebula-hook")));
+        let sibling = dir.path().join(name("poxiterminal-hook"));
+        helper(&sibling);
 
-        assert_eq!(helper_path_from_exe(&exe), Some(legacy));
+        assert_eq!(helper_path_from_exe(&exe), Some(sibling));
     }
 
     #[cfg(unix)]
     #[test]
     fn non_executable_helper_is_not_installed_into_agent_configuration() {
         let dir = tempfile::tempdir().unwrap();
-        std::fs::write(dir.path().join("pebrel-hook"), b"fixture").unwrap();
-        assert!(helper_path_from_exe(&dir.path().join("pebrel")).is_none());
+        std::fs::write(dir.path().join("poxiterminal-hook"), b"fixture").unwrap();
+        assert!(helper_path_from_exe(&dir.path().join("poxiterminal")).is_none());
     }
 }

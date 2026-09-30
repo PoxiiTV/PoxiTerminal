@@ -80,17 +80,17 @@ def find_program(name):
 
 def locations():
     home = Path.home()
-    root = Path(os.environ.get("XDG_DATA_HOME", home / ".local/share")) / "pebrel/ai"
+    root = Path(os.environ.get("XDG_DATA_HOME", home / ".local/share")) / "poxiterminal/ai"
     paths = {
         "claude": Path(os.environ.get("CLAUDE_CONFIG_DIR", home / ".claude")) / "settings.json",
         "codex": Path(os.environ.get("CODEX_HOME", home / ".codex")) / "hooks.json",
         "codex_config": Path(os.environ.get("CODEX_HOME", home / ".codex")) / "config.toml",
-        "opencode": Path(os.environ.get("XDG_CONFIG_HOME", home / ".config")) / "opencode/plugins/pebrel.js",
-        "pi": home / ".pi/agent/extensions/pebrel.ts",
+        "opencode": Path(os.environ.get("XDG_CONFIG_HOME", home / ".config")) / "opencode/plugins/poxiterminal.js",
+        "pi": home / ".pi/agent/extensions/poxiterminal.ts",
         "manifest": root / "manifest.json",
         "disabled": root / "disabled",
     }
-    for name in ("pebrel-hook", "bridge.py", "shell.py", "bashrc", ".zshenv", ".zprofile", ".zshrc"):
+    for name in ("poxiterminal-hook", "bridge.py", "shell.py", "bashrc", ".zshenv", ".zprofile", ".zshrc"):
         paths[name] = root / name
     return root, paths
 
@@ -130,7 +130,7 @@ def replace(path, content, executable=False):
     if content is None:
         path.unlink(missing_ok=True)
         return
-    fd, temporary = tempfile.mkstemp(prefix=".pebrel-", dir=path.parent)
+    fd, temporary = tempfile.mkstemp(prefix=".poxiterminal-", dir=path.parent)
     try:
         with os.fdopen(fd, "wb") as stream:
             stream.write(content)
@@ -172,12 +172,12 @@ def apply(plan):
                     raise ValueError("integration file exceeds size limit")
                 if content == originals[name]:
                     continue
-                replace(paths[name], content, name == "pebrel-hook")
+                replace(paths[name], content, name == "poxiterminal-hook")
                 written.append((name, digest(content)))
         except Exception:
             for name, expected in reversed(written):
                 if digest(read_file(paths[name])) == expected:
-                    replace(paths[name], originals[name], name == "pebrel-hook")
+                    replace(paths[name], originals[name], name == "poxiterminal-hook")
             raise
     return {"version": 1, "applied": True}
 

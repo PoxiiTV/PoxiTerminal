@@ -54,7 +54,7 @@ CLI 路径由环境给出，调用方无需根据展示名称猜测文件名。
 
 环境契约解决的是**可达性**，不是**该不该调**。后者属于 Skill
 （`docs/skills/pebrel-runtime/SKILL.md`）。两者不能互相替代：没有契约，Skill 里写的命令是空头
-承诺；把发现层全押在 Skill 上（用户得手工安装一段提示词）则是不可靠的单点——所以 `pebrel env`
+承诺；把发现层全押在 Skill 上（用户得手工安装一段提示词）则是不可靠的单点——所以 `poxiterminal env`
 本身也是发现入口，见下节。
 
 ## CLI
@@ -65,27 +65,27 @@ CLI 路径由环境给出，调用方无需根据展示名称猜测文件名。
 同 `kubectl` / `docker` / `gh`）而不是自造词：别人看一眼就知道在做什么，比"短"更重要。
 
 ```powershell
-pebrel env --pretty                              # 我是谁、控制面在哪、有哪些命令
+poxiterminal env --pretty                              # 我是谁、控制面在哪、有哪些命令
 
-pebrel pane list                                 # 所有 pane 压平成一维行
-pebrel pane read 17 --lines 80                   # 读某个 pane 的 Grid 尾部
-pebrel pane send 17 "cargo test" --wait          # 写一行并回车，然后等它跑完
-pebrel pane paste 17 --from-file task.txt --wait # 以 bracketed paste 发送有界多行文本
-pebrel pane wait 17 --after-seq 41               # 等某个 pane 静下来
-pebrel pane exec 17 -- cargo test                # 独立非 TTY 子进程，不改交互 shell 状态
-pebrel pane zoom 17 --zoomed true                # 显式缩放，不用 toggle
-pebrel pane resize 17 0.60                       # 修改直接父分屏中的目标占比
+poxiterminal pane list                                 # 所有 pane 压平成一维行
+poxiterminal pane read 17 --lines 80                   # 读某个 pane 的 Grid 尾部
+poxiterminal pane send 17 "cargo test" --wait          # 写一行并回车，然后等它跑完
+poxiterminal pane paste 17 --from-file task.txt --wait # 以 bracketed paste 发送有界多行文本
+poxiterminal pane wait 17 --after-seq 41               # 等某个 pane 静下来
+poxiterminal pane exec 17 -- cargo test                # 独立非 TTY 子进程，不改交互 shell 状态
+poxiterminal pane zoom 17 --zoomed true                # 显式缩放，不用 toggle
+poxiterminal pane resize 17 0.60                       # 修改直接父分屏中的目标占比
 
-pebrel agent list                                # 只有 AI CLI 的 pane
-pebrel agent send codex "修复登录回归" --wait    # 派任务并提交，然后等这一轮结束
-pebrel agent delegate codex "检查 vc skill"       # 派任务，完成后自动回传到当前 Agent 会话
-pebrel agent paste codex --from-file task.txt    # generation 绑定的多行任务输入
-pebrel agent read codex --lines 80               # 读它最近打印了什么
-pebrel agent wait codex --after-seq 41           # 等它这一轮结束
+poxiterminal agent list                                # 只有 AI CLI 的 pane
+poxiterminal agent send codex "修复登录回归" --wait    # 派任务并提交，然后等这一轮结束
+poxiterminal agent delegate codex "检查 vc skill"       # 派任务，完成后自动回传到当前 Agent 会话
+poxiterminal agent paste codex --from-file task.txt    # generation 绑定的多行任务输入
+poxiterminal agent read codex --lines 80               # 读它最近打印了什么
+poxiterminal agent wait codex --after-seq 41           # 等它这一轮结束
 
-pebrel window close 3                            # 关闭空闲窗口
-pebrel tab rename 2 tests --window 3             # 按窗口内零基索引重命名 tab
-pebrel tab move 2 0 --window 3                   # 同一窗口内移动 tab
+poxiterminal window close 3                            # 关闭空闲窗口
+poxiterminal tab rename 2 tests --window 3             # 按窗口内零基索引重命名 tab
+poxiterminal tab move 2 0 --window 3                   # 同一窗口内移动 tab
 ```
 
 它们是完整协议的**薄别名**：同一个请求函数、同一套响应信封、同样的 generation 与 `after_seq`
@@ -93,10 +93,10 @@ pebrel tab move 2 0 --window 3                   # 同一窗口内移动 tab
 
 `pane` 与 `agent` 分成两个资源不只是为了好读——它们走的是**不同**的协议方法。Agent 路径带
 generation 绑定（Codex 退出重开后不会把任务投给新会话），pane 路径没有这层保护。用两个资源名把
-这条边界摆在命令行上，比塞进一个参数再靠前缀区分要难错得多：pane 用 `pebrel pane list` 给出的
-数字 id，Agent 用 `pebrel agent list` 给出的名字或稳定 id。
+这条边界摆在命令行上，比塞进一个参数再靠前缀区分要难错得多：pane 用 `poxiterminal pane list` 给出的
+数字 id，Agent 用 `poxiterminal agent list` 给出的名字或稳定 id。
 
-`pebrel env` 是发现层的实体：环境那半段**不依赖 runtime**，即使控制面没起来、端口文件过期、
+`poxiterminal env` 是发现层的实体：环境那半段**不依赖 runtime**，即使控制面没起来、端口文件过期、
 或这根本不是 Pebrel 的 pane，命令仍然成功返回并如实说明缺什么。一个探测命令若在"没连上"时整体
 失败，调用方唯一能学到的就是"不知道"，只好去猜。它还随响应回报完整命令清单，每条给**可直接
 复制执行**的样例而不是抽象签名——模型照抄一条完整命令的成功率远高于自己按参数表拼装。
@@ -126,26 +126,26 @@ Agent 投递时，状态结束不能单独证明某一条请求已完成。`sett
 ### 完整协议
 
 ```powershell
-pebrel ctl describe --pretty
-pebrel ctl snapshot --pretty
-pebrel ctl orchestrate --file workflow.json --timeout-ms 30000 --pretty
-pebrel ctl agents --pretty
-pebrel ctl agent-fork --window <WINDOW_ID> --source-pane <PANE_ID> --name login-fixer --kind codex --pretty
-pebrel ctl agent-get --agent login-fixer --pretty
-pebrel ctl agent-prompt --agent login-fixer --generation 1 --text "修复登录回归" --pretty
-pebrel ctl agent-wait --agent login-fixer --generation 1 --state settled --timeout-ms 300000 --pretty
-pebrel ctl agent-read --agent login-fixer --generation 1 --lines 120 --pretty
-pebrel ctl read --window <WINDOW_ID> --pane <PANE_ID> --lines 120 --pretty
-pebrel ctl procs --window <WINDOW_ID> --pane <PANE_ID> --pretty
-pebrel ctl send-key --window <WINDOW_ID> --pane <PANE_ID> --key c --control --pretty
-pebrel ctl run --window <WINDOW_ID> --pane <PANE_ID> --command "cargo test" --pretty
-pebrel ctl exec-pane --window <WINDOW_ID> --pane <PANE_ID> -- cargo test --workspace
-pebrel ctl focus --window <WINDOW_ID> --pane <PANE_ID>
-pebrel ctl new-tab --window <WINDOW_ID>
-pebrel ctl split --window <WINDOW_ID> --direction right
-pebrel ctl prompt --window <WINDOW_ID> --pane <PANE_ID> --text "检查当前构建" --wait settled
-pebrel ctl wait --window <WINDOW_ID> --pane <PANE_ID> --state attention --timeout-ms 300000
-pebrel ctl subscribe --since <REVISION>
+poxiterminal ctl describe --pretty
+poxiterminal ctl snapshot --pretty
+poxiterminal ctl orchestrate --file workflow.json --timeout-ms 30000 --pretty
+poxiterminal ctl agents --pretty
+poxiterminal ctl agent-fork --window <WINDOW_ID> --source-pane <PANE_ID> --name login-fixer --kind codex --pretty
+poxiterminal ctl agent-get --agent login-fixer --pretty
+poxiterminal ctl agent-prompt --agent login-fixer --generation 1 --text "修复登录回归" --pretty
+poxiterminal ctl agent-wait --agent login-fixer --generation 1 --state settled --timeout-ms 300000 --pretty
+poxiterminal ctl agent-read --agent login-fixer --generation 1 --lines 120 --pretty
+poxiterminal ctl read --window <WINDOW_ID> --pane <PANE_ID> --lines 120 --pretty
+poxiterminal ctl procs --window <WINDOW_ID> --pane <PANE_ID> --pretty
+poxiterminal ctl send-key --window <WINDOW_ID> --pane <PANE_ID> --key c --control --pretty
+poxiterminal ctl run --window <WINDOW_ID> --pane <PANE_ID> --command "cargo test" --pretty
+poxiterminal ctl exec-pane --window <WINDOW_ID> --pane <PANE_ID> -- cargo test --workspace
+poxiterminal ctl focus --window <WINDOW_ID> --pane <PANE_ID>
+poxiterminal ctl new-tab --window <WINDOW_ID>
+poxiterminal ctl split --window <WINDOW_ID> --direction right
+poxiterminal ctl prompt --window <WINDOW_ID> --pane <PANE_ID> --text "检查当前构建" --wait settled
+poxiterminal ctl wait --window <WINDOW_ID> --pane <PANE_ID> --state attention --timeout-ms 300000
+poxiterminal ctl subscribe --since <REVISION>
 ```
 
 一次性命令输出一个完整响应 Envelope。`subscribe` 输出 JSON Lines：第一行是订阅确认，随后
@@ -349,7 +349,7 @@ Shell/hook 结束事件归位；因此即使命令在 120ms Runtime pump 的两�
 2. 把它作为 `after_seq` 传给 `pane.wait`，服务端就只承认 `state_change_seq > after_seq`
    的观察结果。
 
-`pebrel ctl prompt --wait` 已经在内部串好这两步。独立调用 `pebrel ctl wait` 时需自己传
+`poxiterminal ctl prompt --wait` 已经在内部串好这两步。独立调用 `poxiterminal ctl wait` 时需自己传
 `--after-seq`；
 省略则退回「立即匹配当前状态」的旧语义，仅适合观察一个已在运行的 Pane。
 

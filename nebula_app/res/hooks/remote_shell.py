@@ -13,7 +13,7 @@ def main():
     env = os.environ.copy()
     env.update(PEBREL_REMOTE_HOOK_TOKEN=token, NEBULA_REMOTE_HOOK_TOKEN=token,
                PEBREL_PANE_REMOTE="1", NEBULA_PANE_REMOTE="1",
-               PEBREL_HOOK_EXE=root + "/pebrel-hook", NEBULA_HOOK_EXE=root + "/pebrel-hook")
+               PEBREL_HOOK_EXE=root + "/poxiterminal-hook", NEBULA_HOOK_EXE=root + "/poxiterminal-hook")
     shell = env.get("SHELL") or "/bin/sh"
     name = os.path.basename(shell)
     if name == "bash":

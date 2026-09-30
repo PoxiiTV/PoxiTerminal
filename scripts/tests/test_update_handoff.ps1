@@ -58,7 +58,7 @@ foreach ($scenario in @('cancel', 'success', 'checksum', 'creation-time', 'insta
     try {
         if ($scenario -in @('helper-unlocked', 'helper-held')) {
             $null = New-Item -ItemType Directory -Path (Join-Path $installation 'runtime') -Force
-            $helperPath = Join-Path $installation 'runtime\pebrel-hook.exe'
+            $helperPath = Join-Path $installation 'runtime\poxiterminal-hook.exe'
             [System.IO.File]::WriteAllText($helperPath, 'old helper fixture')
             $helperLock = [System.IO.FileStream]::new($helperPath, [System.IO.FileMode]::Open,
                 [System.IO.FileAccess]::Read, [System.IO.FileShare]::Read)
@@ -135,8 +135,8 @@ foreach ($scenario in @('cancel', 'success', 'checksum', 'creation-time', 'insta
         if ($result.success) {
             $expected = (Get-FileHash -LiteralPath $payload -Algorithm SHA256).Hash
             Assert ($result.executable_sha256 -eq $expected) 'Installed binary differs from candidate'
-            Assert (Test-Path -LiteralPath (Join-Path $installation 'runtime\pebrel-hook.exe')) 'Successful setup did not repair the helper'
-            Assert ([System.IO.File]::ReadAllText((Join-Path $installation 'runtime\pebrel-hook.exe')) -eq 'repaired helper fixture') 'Helper still contains the original payload'
+            Assert (Test-Path -LiteralPath (Join-Path $installation 'runtime\poxiterminal-hook.exe')) 'Successful setup did not repair the helper'
+            Assert ([System.IO.File]::ReadAllText((Join-Path $installation 'runtime\poxiterminal-hook.exe')) -eq 'repaired helper fixture') 'Helper still contains the original payload'
         }
         if ($scenario -in @('other-process', 'late-process')) {
             Assert (-not $other.HasExited) 'Update stopped an unprepared process'
@@ -147,7 +147,7 @@ foreach ($scenario in @('cancel', 'success', 'checksum', 'creation-time', 'insta
         }
         if ($scenario -eq 'helper-held') {
             Assert (-not (Test-Path (Join-Path $directory 'installer-started'))) 'A blocked helper allowed a partial installation'
-            Assert ($result.error -match 'pebrel-hook.exe') 'The blocked file is missing from the failure details'
+            Assert ($result.error -match 'poxiterminal-hook.exe') 'The blocked file is missing from the failure details'
         }
         $probe = [System.IO.FileStream]::new($plan.guard_path, [System.IO.FileMode]::OpenOrCreate,
             [System.IO.FileAccess]::ReadWrite, [System.IO.FileShare]::None)

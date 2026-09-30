@@ -28,11 +28,11 @@ pub(super) fn configuration(agent: AgentHook) -> Option<(PathBuf, bool)> {
         },
         AgentHook::OpenCode => {
             let dir = opencode_config_dir()?;
-            (dir.join("plugins/pebrel.js"), dir.is_dir())
+            (dir.join("plugins/poxiterminal.js"), dir.is_dir())
         },
         AgentHook::Pi => {
             let dir = pi_agent_dir()?;
-            (dir.join("extensions/pebrel.ts"), dir.is_dir())
+            (dir.join("extensions/poxiterminal.ts"), dir.is_dir())
         },
         AgentHook::Kimi => {
             let dir = kimi::kimi_config_dir()?;
@@ -276,7 +276,7 @@ mod tests {
         let path = dir.path().join("settings.json");
         std::fs::write(
             &path,
-            r#"{"hooks":{"Stop":[{"hooks":[{"command":"C:/old/nebula-hook.exe claude"}]}]}}"#,
+            r#"{"hooks":{"Stop":[{"hooks":[{"command":"C:/old/poxiterminal-hook.exe claude"}]}]}}"#,
         )
         .unwrap();
         assert!(installed_at(AgentHook::Claude, &path, "").unwrap());
@@ -288,7 +288,7 @@ mod tests {
         let path = dir.path().join("config.toml");
         std::fs::write(
             &path,
-            "notify = ['C:/old/pebrel-hook.exe', 'codex', '--chain', 'my-notifier']\n",
+            "notify = ['C:/old/poxiterminal-hook.exe', 'codex', '--chain', 'my-notifier']\n",
         )
         .unwrap();
         assert!(installed_at(AgentHook::Codex, &path, "").unwrap());
@@ -299,7 +299,7 @@ mod tests {
     #[test]
     fn discovers_current_and_legacy_plugins_and_reports_edits() {
         let dir = tempfile::tempdir().unwrap();
-        let path = dir.path().join("pebrel.ts");
+        let path = dir.path().join("poxiterminal.ts");
         let legacy = dir.path().join("nebula.ts");
         std::fs::write(&legacy, PI_EXTENSION_TS).unwrap();
         assert!(installed_at(AgentHook::Pi, &path, "").unwrap());
@@ -312,7 +312,7 @@ mod tests {
     fn partial_claude_install_is_visible_but_never_verified_as_complete() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("settings.json");
-        let helper = "C:/tools/pebrel-hook.exe";
+        let helper = "C:/tools/poxiterminal-hook.exe";
         let mut value = json!({"hooks":{"Stop":[{"hooks":[{"type":"command","command":helper,"args":HELPER_ARGS}]}]}});
         std::fs::write(&path, value.to_string()).unwrap();
         assert!(installed_at(AgentHook::Claude, &path, helper).unwrap());

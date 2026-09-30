@@ -31,7 +31,7 @@ pub fn spawn_config_guard() -> Option<ConfigGuard> {
     let stopping = stop.clone();
     let events = wake.clone();
     match std::thread::Builder::new()
-        .name("pebrel-ai-setup".into())
+        .name("poxiterminal-ai-setup".into())
         .spawn(move || config_guard(events, receive, stopping))
     {
         Ok(worker) => Some(ConfigGuard { stop, wake, worker: Some(worker) }),
@@ -89,9 +89,9 @@ fn config_guard(tx: mpsc::SyncSender<()>, rx: mpsc::Receiver<()>, stop: Arc<Atom
                             name == "settings.json"
                                 || name == "config.toml"
                                 || name == "hooks.json"
-                                || name == "pebrel.js"
-                                || name == "pebrel.ts"
-                                || name == "pebrel.json"
+                                || name == "poxiterminal.js"
+                                || name == "poxiterminal.ts"
+                                || name == "poxiterminal.json"
                                 || name == "pebrel_settings.txt"
                                 || name == "nebula_settings.txt"
                         })

@@ -9,7 +9,7 @@ struct Invocation(Option<Child>);
 
 impl Invocation {
     fn spawn(args: &[&str], pipe: Option<&str>) -> Self {
-        let mut command = Command::new(env!("CARGO_BIN_EXE_pebrel-hook"));
+        let mut command = Command::new(env!("CARGO_BIN_EXE_poxiterminal-hook"));
         command.args(args).stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped());
         for suffix in ["NOTIFY_PIPE", "REMOTE_HOOK_TOKEN", "HOOK_LOG"] {
             command.env_remove(format!("PEBREL_{suffix}"));
@@ -80,7 +80,7 @@ fn ordinary_completed_payload_exits_silently() {
 fn unix_socket_delivers_the_envelope_and_waits_for_acknowledgement() {
     use std::io::Read as _;
     use std::os::unix::net::UnixListener;
-    let path = std::env::temp_dir().join(format!("pebrel-hook-test-{}.sock", std::process::id()));
+    let path = std::env::temp_dir().join(format!("poxiterminal-hook-test-{}.sock", std::process::id()));
     let listener = UnixListener::bind(&path).unwrap();
     listener.set_nonblocking(true).unwrap();
     let mut invocation = Invocation::spawn(&["claude"], Some(path.to_str().unwrap()));
@@ -161,7 +161,7 @@ mod stalled_receiver {
         /// mode 1 = PIPE_ACCESS_INBOUND, one instance: mirrors the live
         /// transport's one-client-at-a-time shape.
         pub fn create(discriminator: &str) -> (Self, String) {
-            let name = format!(r"\\.\pipe\pebrel-hook-lifetime-test-{discriminator}");
+            let name = format!(r"\\.\pipe\poxiterminal-hook-lifetime-test-{discriminator}");
             let wide: Vec<u16> = name.encode_utf16().chain(Some(0)).collect();
             let handle = unsafe {
                 CreateNamedPipeW(wide.as_ptr(), 1, 0, 1, 4096, 4096, 0, std::ptr::null())
@@ -207,7 +207,7 @@ fn a_receiver_that_never_reads_cannot_pin_the_helper() {
     assert!(output.stdout.is_empty() && output.stderr.is_empty());
 }
 
-/// Issue #259: Pi's extension launches `pebrel-hook pi <prompt-json>` as a
+/// Issue #259: Pi's extension launches `poxiterminal-hook pi <prompt-json>` as a
 /// detached Windows process and never reaps it, so a prompt burst can
 /// outlive its host. The padded context field exceeds the receiver's buffer,
 /// pinning the first connect mid-write — the stalled-write condition the

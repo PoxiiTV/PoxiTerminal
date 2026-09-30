@@ -147,7 +147,7 @@ fi
 script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 repo="$(cd "$script_directory/.." && pwd -P)"
 binary="$(cd "$(dirname "$binary")" && pwd -P)/$(basename "$binary")"
-hook_binary="$(dirname "$binary")/pebrel-hook"
+hook_binary="$(dirname "$binary")/poxiterminal-hook"
 if [[ ! -f "$hook_binary" || ! -x "$hook_binary" ]] || \
   [[ "$(lipo -archs "$hook_binary")" != "$(lipo -archs "$binary")" ]]; then
   echo "missing or incompatible native hook helper: $hook_binary" >&2
@@ -232,7 +232,7 @@ contents="$app/Contents"
 resources="$contents/Resources"
 mkdir -p "$contents/MacOS" "$resources/docs" "$resources/licenses"
 install -m 0755 "$binary" "$contents/MacOS/pebrel"
-install -m 0755 "$hook_binary" "$contents/MacOS/pebrel-hook"
+install -m 0755 "$hook_binary" "$contents/MacOS/poxiterminal-hook"
 install -m 0644 "$plist_source" "$contents/Info.plist"
 plutil -replace CFBundleShortVersionString -string "$version" "$contents/Info.plist"
 plutil -replace CFBundleVersion -string "$build_number" "$contents/Info.plist"
@@ -278,11 +278,11 @@ if [[ -n "$signing_keychain" ]]; then
 fi
 if [[ -n "$sign_identity" ]]; then
   codesign --force --sign "$sign_identity" --options runtime --timestamp \
-    ${keychain_args[@]+"${keychain_args[@]}"} "$contents/MacOS/pebrel-hook"
+    ${keychain_args[@]+"${keychain_args[@]}"} "$contents/MacOS/poxiterminal-hook"
   codesign --force --sign "$sign_identity" --options runtime --timestamp \
     ${keychain_args[@]+"${keychain_args[@]}"} "$app"
 else
-  codesign --force --sign - --timestamp=none "$contents/MacOS/pebrel-hook"
+  codesign --force --sign - --timestamp=none "$contents/MacOS/poxiterminal-hook"
   codesign --force --sign - --timestamp=none "$app"
 fi
 codesign --verify --deep --strict --verbose=2 "$app"

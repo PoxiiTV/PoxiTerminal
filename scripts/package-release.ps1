@@ -55,7 +55,7 @@ $temporaryZip = Join-Path $outputRoot ".$PackageBrand-v$Version-windows-$Archite
 $manifest = [ordered]@{
     'poxiterminal.exe'                               = Join-Path $targetRoot 'poxiterminal.exe'
     'README.md'                                      = Join-Path $repo 'README.md'
-    'runtime/pebrel-hook.exe'                        = Join-Path $targetRoot 'pebrel-hook.exe'
+    'runtime/poxiterminal-hook.exe'                        = Join-Path $targetRoot 'poxiterminal-hook.exe'
     'runtime/conpty.dll'                             = Join-Path $targetRoot 'conpty.dll'
     'runtime/OpenConsole.exe'                        = Join-Path $targetRoot 'OpenConsole.exe'
     # 1.1.0 起 zip 不再附带 20MB 字体副本：poxiterminal.exe 内嵌同一份字节，
@@ -65,8 +65,8 @@ $manifest = [ordered]@{
     'docs/lua-configuration.md'                      = Join-Path $repo 'docs\lua-configuration.md'
     'docs/runtime-control-api.md'                    = Join-Path $repo 'docs\runtime-control-api.md'
     'docs/runtime-api-v1.schema.json'                = Join-Path $repo 'docs\runtime-api-v1.schema.json'
-    'skills/pebrel-runtime/SKILL.md'                 = Join-Path $repo 'docs\skills\pebrel-runtime\SKILL.md'
-    'skills/pebrel-runtime/agents/openai.yaml'       = Join-Path $repo 'docs\skills\pebrel-runtime\agents\openai.yaml'
+    'skills/poxiterminal-runtime/SKILL.md'                 = Join-Path $repo 'docs\skills\poxiterminal-runtime\SKILL.md'
+    'skills/poxiterminal-runtime/agents/openai.yaml'       = Join-Path $repo 'docs\skills\poxiterminal-runtime\agents\openai.yaml'
     'licenses/LICENSE'                               = Join-Path $repo 'LICENSE'
     'licenses/LICENSE-LUA'                           = Join-Path $repo 'licenses\LICENSE-LUA'
     'licenses/LICENSE-MLUA'                          = Join-Path $repo 'licenses\LICENSE-MLUA'
@@ -134,7 +134,7 @@ function Assert-FreshBinaries {
     )
     $checks = @(
         @{ Binary = $manifest['poxiterminal.exe']; Newest = Get-NewestSourceTime $appSources },
-        @{ Binary = $manifest['runtime/pebrel-hook.exe']; Newest = Get-NewestSourceTime @(
+        @{ Binary = $manifest['runtime/poxiterminal-hook.exe']; Newest = Get-NewestSourceTime @(
             (Join-Path $repo 'nebula_hook'), (Join-Path $repo 'Cargo.toml')) }
     )
     foreach ($check in $checks) {

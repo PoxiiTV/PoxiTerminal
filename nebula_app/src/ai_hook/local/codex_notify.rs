@@ -13,9 +13,9 @@ pub(super) fn codex_config_dir() -> Option<PathBuf> {
     Some(crate::platform::dirs::home_dir()?.join(".codex"))
 }
 
-/// Wire codex's `notify` to nebula-hook. Codex has a SINGLE notify slot
+/// Wire codex's `notify` to poxiterminal-hook. Codex has a SINGLE notify slot
 /// which may already be taken (e.g. OpenAI's own computer-use notifier),
-/// so an occupied slot is wrapped, not evicted: nebula-hook forwards to
+/// so an occupied slot is wrapped, not evicted: poxiterminal-hook forwards to
 /// the pipe and then invokes the original program via `--chain` with the
 /// same payload. toml_edit keeps the file's formatting and comments.
 /// Idempotent; heals a moved helper path. Returns whether it wrote.
@@ -51,7 +51,7 @@ pub fn ensure_codex_notify() -> bool {
     }
     doc["notify"] = toml_edit::value(array);
 
-    let bak = path.with_extension("toml.pebrel-bak");
+    let bak = path.with_extension("toml.poxiterminal-bak");
     if !bak.exists() {
         if let Err(err) = std::fs::copy(&path, &bak) {
             log::warn!("ai_hook: backup failed ({err}); not touching {}", path.display());
@@ -112,7 +112,7 @@ pub(super) fn remove_codex_notify() -> std::io::Result<bool> {
 mod codex_notify_tests {
     use super::{desired_codex_notify, stripped_codex_notify};
 
-    const HELPER: &str = "C:/Program Files/PoxiTerminal/runtime/pebrel-hook.exe";
+    const HELPER: &str = "C:/Program Files/PoxiTerminal/runtime/poxiterminal-hook.exe";
 
     fn argv(args: &[&str]) -> Vec<String> {
         args.iter().map(|s| (*s).to_owned()).collect()
@@ -140,7 +140,7 @@ mod codex_notify_tests {
 
     #[test]
     fn our_stale_helper_path_heals_and_keeps_the_chain_tail() {
-        let current = argv(&["D:/old/nebula-hook.exe", "codex", "--chain", "C:/cua/cua.exe"]);
+        let current = argv(&["D:/old/poxiterminal-hook.exe", "codex", "--chain", "C:/cua/cua.exe"]);
         assert_eq!(
             desired_codex_notify(&current, HELPER),
             Some(argv(&[HELPER, "codex", "--chain", "C:/cua/cua.exe"]))
@@ -171,10 +171,10 @@ mod codex_notify_tests {
         assert_eq!(serde_json::from_str::<Vec<String>>(&removed[2]).unwrap(), original);
         assert!(stripped_codex_notify(&removed).is_none());
         for foreign in [
-            argv(&["C:/pebrel-hook-logger.exe", "codex"]),
-            argv(&["echo", "pebrel-hook.exe"]),
+            argv(&["C:/poxiterminal-hook-logger.exe", "codex"]),
+            argv(&["echo", "poxiterminal-hook.exe"]),
             argv(&[HELPER, "custom"]),
-            argv(&["foreign.exe", "--notify", "encoded:nebula-hook.exe:payload"]),
+            argv(&["foreign.exe", "--notify", "encoded:poxiterminal-hook.exe:payload"]),
         ] {
             assert!(stripped_codex_notify(&foreign).is_none());
         }
@@ -188,7 +188,7 @@ mod codex_notify_tests {
         let current = argv(&[
             "C:/cua/codex-computer-use.exe",
             "--previous-notify",
-            r#"["C:\\Program Files\\Nebula\\runtime\\nebula-hook.exe", "codex", "--chain", "C:\\cua\\cua.exe", "turn-ended"]"#,
+            r#"["C:\\Program Files\\PoxiTerminal (old)\\runtime\\poxiterminal-hook.exe", "codex", "--chain", "C:\\cua\\cua.exe", "turn-ended"]"#,
             "turn-ended",
         ]);
         let desired = desired_codex_notify(&current, HELPER).expect("old embedded path migrates");
@@ -205,7 +205,7 @@ mod codex_notify_tests {
 
     #[test]
     fn an_unknown_wrapper_encoding_never_grows_another_hook_layer() {
-        let current = argv(&["foreign.exe", "--notify", "encoded:nebula-hook.exe:payload"]);
+        let current = argv(&["foreign.exe", "--notify", "encoded:poxiterminal-hook.exe:payload"]);
         assert_eq!(desired_codex_notify(&current, HELPER), None);
     }
 

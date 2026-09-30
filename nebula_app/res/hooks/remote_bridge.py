@@ -83,7 +83,7 @@ def bounded_payload(args):
 
 @contextmanager
 def stream_state(token, identity):
-    root = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "pebrel/hooks"
+    root = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "poxiterminal/hooks"
     root.mkdir(parents=True, exist_ok=True, mode=0o700)
     if any(parent.is_symlink() for parent in [root, *root.parents]):
         raise ValueError("hook cache contains a symbolic link")

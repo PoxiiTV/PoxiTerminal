@@ -1,4 +1,4 @@
-//! pebrel-hook — the bridge between AI-CLI lifecycle hooks and PoxiTerminal.
+//! poxiterminal-hook — the bridge between AI-CLI lifecycle hooks and PoxiTerminal.
 //!
 //! Claude Code (`Stop` / `Notification` / `UserPromptSubmit` hooks), Kimi Code
 //! (`[[hooks]]` commands in `config.toml`, event JSON streamed on stdin like

@@ -981,7 +981,7 @@
     "fonts": "Fuentes personalizadas"
   },
   "ai_hooks": {
-    "announced": "Notificaciones de turno de IA conectadas (Claude / Codex / Kimi / Pi / opencode). Para revocar: pebrel setup-ai --remove"
+    "announced": "Notificaciones de turno de IA conectadas (Claude / Codex / Kimi / Pi / opencode). Para revocar: poxiterminal setup-ai --remove"
   },
   "notification.command_finished": "Comando terminado en {seconds}s",
   "notification.command_failed": "Comando fallido (código {code}) tras {seconds}s",

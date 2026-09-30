@@ -42,7 +42,7 @@ pub const LEGACY_PIPE_ENV: &str = "NEBULA_NOTIFY_PIPE";
 /// Per-pane identity, injected into each pane's PTY environment.
 pub const PANE_ENV: &str = "PEBREL_PANE_ID";
 pub const LEGACY_PANE_ENV: &str = "NEBULA_PANE_ID";
-/// Absolute path of `nebula-hook.exe`, exported so the opencode Bun plugin
+/// Absolute path of `poxiterminal-hook.exe`, exported so the opencode Bun plugin
 /// (which cannot resolve nebula.exe's install dir on its own) can shell out to
 /// the bridge. Same process-wide scope as [`PIPE_ENV`].
 pub const HOOK_EXE_ENV: &str = "PEBREL_HOOK_EXE";
@@ -50,7 +50,7 @@ pub const LEGACY_HOOK_EXE_ENV: &str = "NEBULA_HOOK_EXE";
 
 /// 仅用于阻止未知 notify 包装器再次套娃；子串不能作为修改/删除的归属依据。
 fn contains_helper(value: &str) -> bool {
-    value.contains("pebrel-hook") || value.contains("nebula-hook")
+    value.contains("poxiterminal-hook")
 }
 
 fn is_helper_executable(value: &str) -> bool {
@@ -62,7 +62,7 @@ fn is_helper_executable(value: &str) -> bool {
             && matches!(value.as_bytes().get(2), Some(b'/' | b'\\')));
     (value == filename || absolute)
         && !value.contains(['"', '\r', '\n', '\0'])
-        && ["pebrel-hook.exe", "nebula-hook.exe", "pebrel-hook", "nebula-hook"]
+        && ["poxiterminal-hook.exe", "poxiterminal-hook"]
             .iter()
             .any(|name| filename.eq_ignore_ascii_case(name))
 }

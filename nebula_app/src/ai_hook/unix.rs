@@ -43,14 +43,14 @@ pub fn spawn_gpui_server() -> mpsc::Receiver<AiHookEvent> {
 
 fn start(tx: mpsc::SyncSender<AiHookEvent>) -> io::Result<Server> {
     // Darwin 的 socket 路径长度有限；短的私有目录也避免复用/删除别的实例端点。
-    let directory = tempfile::Builder::new().prefix("pebrel-hooks-").tempdir_in("/tmp")?;
+    let directory = tempfile::Builder::new().prefix("poxiterminal-hooks-").tempdir_in("/tmp")?;
     std::fs::set_permissions(directory.path(), std::fs::Permissions::from_mode(0o700))?;
     let endpoint = directory.path().join("events.sock");
     let listener = UnixListener::bind(&endpoint)?;
     listener.set_nonblocking(true)?;
     let stop = Arc::new(AtomicBool::new(false));
     let stopping = stop.clone();
-    let worker = std::thread::Builder::new().name("pebrel-ai-socket".into()).spawn(move || {
+    let worker = std::thread::Builder::new().name("poxiterminal-ai-socket".into()).spawn(move || {
         let _directory = directory;
         while !stopping.load(Ordering::Acquire) {
             match listener.accept() {

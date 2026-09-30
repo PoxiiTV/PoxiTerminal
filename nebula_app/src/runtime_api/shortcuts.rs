@@ -1,20 +1,20 @@
 //! 资源 + 动词形式的控制命令。
 //!
 //! [`super::cli`] 暴露的是完整协议——每个方法、每个旋钮都在，适合脚本和长期
-//! 集成。但一个模型在 pane 里临时要派个活儿时，`pebrel ctl agent-prompt --agent
+//! 集成。但一个模型在 pane 里临时要派个活儿时，`poxiterminal ctl agent-prompt --agent
 //! codex --text "…"` 这种长度本身就是失败源：拼错一个 flag 就退化成"我试过了但
 //! 没成功"。所以这里给同一批能力配一套按资源分组的入口：
 //!
 //! ```text
-//! pebrel env                        我在哪、控制面在哪、有哪些命令
-//! pebrel pane list                  所有 pane
-//! pebrel pane read <id>             读某个 pane 的输出
-//! pebrel pane send <id> <文本>      写一行进某个 pane
-//! pebrel pane wait <id>             等某个 pane
-//! pebrel agent list                 只有 AI CLI 的 pane
-//! pebrel agent send <名字> <任务>   派任务并提交
-//! pebrel agent read <名字>          读它最近打印了什么
-//! pebrel agent wait <名字>          等它这一轮结束
+//! poxiterminal env                        我在哪、控制面在哪、有哪些命令
+//! poxiterminal pane list                  所有 pane
+//! poxiterminal pane read <id>             读某个 pane 的输出
+//! poxiterminal pane send <id> <文本>      写一行进某个 pane
+//! poxiterminal pane wait <id>             等某个 pane
+//! poxiterminal agent list                 只有 AI CLI 的 pane
+//! poxiterminal agent send <名字> <任务>   派任务并提交
+//! poxiterminal agent read <名字>          读它最近打印了什么
+//! poxiterminal agent wait <名字>          等它这一轮结束
 //! ```
 //!
 //! 命名刻意选了 CLI 界的通用惯例（资源在前、动词在后，同 `kubectl` / `docker`
@@ -257,7 +257,7 @@ fn pane_resize(options: PaneResizeOptions) -> Result<(), Box<dyn Error>> {
     print_response(&response, options.output.pretty)
 }
 
-/// `pebrel env` —— 发现层入口。
+/// `poxiterminal env` —— 发现层入口。
 ///
 /// 环境那半段**不依赖 runtime**：即使控制面没起来、端口文件过期、或这根本不是
 /// PoxiTerminal 的 pane，命令仍然成功返回并如实说明缺什么。这是刻意的——一个探测命令
@@ -335,7 +335,7 @@ fn describe_self(pane_id: u64, timeout: Duration) -> Option<Value> {
     serde_json::to_value(snapshot.pane(None, pane_id).ok()?).ok()
 }
 
-/// 命令清单，随 `pebrel env` 一起返回。
+/// 命令清单，随 `poxiterminal env` 一起返回。
 ///
 /// 给的是**可直接复制执行**的样例而不是抽象签名：模型照抄一条完整命令的成功率
 /// 远高于自己按参数表拼装。这一段就是"不靠 Skill 也能被发现"的实体——Skill 负责
@@ -343,115 +343,115 @@ fn describe_self(pane_id: u64, timeout: Duration) -> Option<Value> {
 fn command_catalog() -> Value {
     json!([
         {
-            "command": "pebrel window close <window>",
+            "command": "poxiterminal window close <window>",
             "purpose": "Close an idle window. Busy panes return confirmation_required.",
-            "example": "pebrel window close 3",
+            "example": "poxiterminal window close 3",
         },
         {
-            "command": "pebrel tab close <tab> --window <window>",
+            "command": "poxiterminal tab close <tab> --window <window>",
             "purpose": "Close an idle tab by its zero-based index within one window.",
-            "example": "pebrel tab close 2 --window 3",
+            "example": "poxiterminal tab close 2 --window 3",
         },
         {
-            "command": "pebrel tab rename <tab> <name> --window <window>",
+            "command": "poxiterminal tab rename <tab> <name> --window <window>",
             "purpose": "Set a tab's custom name; an empty name restores its generated title.",
-            "example": "pebrel tab rename 2 tests --window 3",
+            "example": "poxiterminal tab rename 2 tests --window 3",
         },
         {
-            "command": "pebrel tab move <tab> <to> --window <window>",
+            "command": "poxiterminal tab move <tab> <to> --window <window>",
             "purpose": "Move a tab to another index in the same window.",
-            "example": "pebrel tab move 2 0 --window 3",
+            "example": "poxiterminal tab move 2 0 --window 3",
         },
         {
-            "command": "pebrel pane list",
+            "command": "poxiterminal pane list",
             "purpose": "List every pane with id, task state, cwd, and Git branch.",
-            "example": "pebrel pane list",
+            "example": "poxiterminal pane list",
         },
         {
-            "command": "pebrel pane read <pane>",
+            "command": "poxiterminal pane read <pane>",
             "purpose": "Read the tail of a pane's real terminal buffer.",
-            "example": "pebrel pane read 17 --lines 80",
+            "example": "poxiterminal pane read 17 --lines 80",
         },
         {
-            "command": "pebrel pane send <pane> <text>",
+            "command": "poxiterminal pane send <pane> <text>",
             "purpose": "Write one line into a pane and press Enter.",
-            "example": "pebrel pane send 17 \"cargo test\" --wait",
+            "example": "poxiterminal pane send 17 \"cargo test\" --wait",
         },
         {
-            "command": "pebrel pane paste <pane> [text|--stdin|--from-file]",
+            "command": "poxiterminal pane paste <pane> [text|--stdin|--from-file]",
             "purpose": "Paste bounded UTF-8 as one bracketed block. Local stdin/file content is \
                         never forwarded to SSH panes.",
-            "example": "pebrel pane paste 17 --from-file task.txt --wait",
+            "example": "poxiterminal pane paste 17 --from-file task.txt --wait",
         },
         {
-            "command": "pebrel pane wait <pane>",
+            "command": "poxiterminal pane wait <pane>",
             "purpose": "Block until a pane settles.",
-            "example": "pebrel pane wait 17 --after-seq 41",
+            "example": "poxiterminal pane wait 17 --after-seq 41",
         },
         {
-            "command": "pebrel pane exec <pane> -- <program> [args]",
+            "command": "poxiterminal pane exec <pane> -- <program> [args]",
             "purpose": "Run an independent non-TTY child in the pane's local cwd and capture stdout/stderr separately.",
-            "example": "pebrel pane exec 17 -- cargo test",
+            "example": "poxiterminal pane exec 17 -- cargo test",
         },
         {
-            "command": "pebrel pane close <pane>",
+            "command": "poxiterminal pane close <pane>",
             "purpose": "Close an idle pane. Busy panes return confirmation_required.",
-            "example": "pebrel pane close 17",
+            "example": "poxiterminal pane close 17",
         },
         {
-            "command": "pebrel pane zoom <pane> --zoomed <true|false>",
+            "command": "poxiterminal pane zoom <pane> --zoomed <true|false>",
             "purpose": "Idempotently enable or disable focused-pane zoom for the pane's tab.",
-            "example": "pebrel pane zoom 17 --zoomed true",
+            "example": "poxiterminal pane zoom 17 --zoomed true",
         },
         {
-            "command": "pebrel pane resize <pane> <ratio>",
+            "command": "poxiterminal pane resize <pane> <ratio>",
             "purpose": "Set the pane's share of its direct parent split, from 0.05 through 0.95.",
-            "example": "pebrel pane resize 17 0.60",
+            "example": "poxiterminal pane resize 17 0.60",
         },
         {
-            "command": "pebrel agent list",
+            "command": "poxiterminal agent list",
             "purpose": "List the panes running an AI CLI, with session identity and generation. \
                         Resolve a delegation target here first — never send to whichever pane \
                         happens to be focused.",
-            "example": "pebrel agent list",
+            "example": "poxiterminal agent list",
         },
         {
-            "command": "pebrel agent send <agent> <task>",
+            "command": "poxiterminal agent send <agent> <task>",
             "purpose": "Hand one task to an agent and submit it. Bound to the agent's current \
                         generation, so a session that restarted in the meantime cannot inherit \
                         work aimed at the one it replaced.",
-            "example": "pebrel agent send codex \"fix the login regression in auth/\" --wait",
+            "example": "poxiterminal agent send codex \"fix the login regression in auth/\" --wait",
         },
         {
-            "command": "pebrel agent delegate <agent> <task>",
+            "command": "poxiterminal agent delegate <agent> <task>",
             "purpose": "Delegate one task and automatically route the target Agent's final answer \
                         back to the calling Agent pane. Requires NEBULA_PANE_ID and a stable \
                         caller session identity.",
-            "example": "pebrel agent delegate codex \"review the vc skill and report the result\"",
+            "example": "poxiterminal agent delegate codex \"review the vc skill and report the result\"",
         },
         {
-            "command": "pebrel agent paste <agent> [text|--stdin|--from-file]",
+            "command": "poxiterminal agent paste <agent> [text|--stdin|--from-file]",
             "purpose": "Paste a bounded multi-line task into the same managed-agent generation.",
-            "example": "Get-Content task.md | pebrel agent paste codex --stdin --wait",
+            "example": "Get-Content task.md | poxiterminal agent paste codex --stdin --wait",
         },
         {
-            "command": "pebrel agent read <agent>",
+            "command": "poxiterminal agent read <agent>",
             "purpose": "Read the tail of what the agent printed, straight from its terminal grid.",
-            "example": "pebrel agent read codex --lines 80",
+            "example": "poxiterminal agent read codex --lines 80",
         },
         {
-            "command": "pebrel agent wait <agent>",
+            "command": "poxiterminal agent wait <agent>",
             "purpose": "Block until the agent's turn ends. Pass --after-seq with the \
                         state_change_seq observed before dispatching, so an already-idle agent \
                         cannot satisfy the wait immediately.",
-            "example": "pebrel agent wait codex --after-seq 41",
+            "example": "poxiterminal agent wait codex --after-seq 41",
         },
         {
-            "command": "pebrel ctl --help",
+            "command": "poxiterminal ctl --help",
             "purpose": "The full protocol: split panes, start or fork agents into isolated Git \
                         worktrees, run commands for a real exit code, subscribe to state events, \
                         or drive a whole multi-agent layout in one orchestrate request.",
-            "example": "pebrel ctl describe --pretty",
+            "example": "poxiterminal ctl describe --pretty",
         },
     ])
 }
@@ -625,7 +625,7 @@ fn agent_send(options: AgentSendOptions) -> Result<(), Box<dyn Error>> {
         return Err(CliError::new(
             "runtime_no_response",
             "the task was delivered but the response carried no agent generation; \
-             re-resolve the target with `pebrel agent list` before waiting",
+             re-resolve the target with `poxiterminal agent list` before waiting",
         )
         .into());
     };
@@ -689,7 +689,7 @@ fn agent_paste(options: AgentPasteOptions) -> Result<(), Box<dyn Error>> {
         return Err(CliError::new(
             "runtime_no_response",
             "the paste was delivered but the response carried no agent generation; \
-             re-resolve the target with `pebrel agent list` before waiting",
+             re-resolve the target with `poxiterminal agent list` before waiting",
         )
         .into());
     };
@@ -762,7 +762,7 @@ fn resolve_generation(agent: &str, timeout: Duration) -> Result<u64, Box<dyn Err
         .ok_or_else(|| {
             CliError::new(
                 "target_not_found",
-                format!("no live agent matches {agent:?}; run `pebrel agent list`"),
+                format!("no live agent matches {agent:?}; run `poxiterminal agent list`"),
             )
             .into()
         })
@@ -1025,7 +1025,7 @@ mod tests {
             // stdin 示例可以在命令前带 producer 与管道；关键是声明的资源命令
             // 确实出现在可复制样例里，而不是强制它位于第一个字节。
             assert!(example.contains(&prefix), "{example:?} should contain {prefix:?}");
-            // 动词也要对上——除非它本身就是个 flag：`pebrel ctl --help` 指向的是
+            // 动词也要对上——除非它本身就是个 flag：`poxiterminal ctl --help` 指向的是
             // 完整协议，样例给的是其中一条具体调用，不该要求字面相同。
             if let Some(verb) = words.next().filter(|verb| !verb.starts_with('-')) {
                 assert!(example.contains(verb), "{example:?} should exercise {verb:?}");
@@ -1046,26 +1046,26 @@ mod tests {
         // 两个资源的公共动词都要在清单里。漏一个就等于让模型以为它不存在。
         for verb in ["list", "read", "send", "paste", "wait"] {
             assert!(
-                commands.iter().any(|command| *command == format!("pebrel pane {verb}")
-                    || command.starts_with(&format!("pebrel pane {verb} "))),
+                commands.iter().any(|command| *command == format!("poxiterminal pane {verb}")
+                    || command.starts_with(&format!("poxiterminal pane {verb} "))),
                 "pane {verb} missing from the catalog"
             );
             assert!(
-                commands.iter().any(|command| *command == format!("pebrel agent {verb}")
-                    || command.starts_with(&format!("pebrel agent {verb} "))),
+                commands.iter().any(|command| *command == format!("poxiterminal agent {verb}")
+                    || command.starts_with(&format!("poxiterminal agent {verb} "))),
                 "agent {verb} missing from the catalog"
             );
         }
 
         for command in [
-            "pebrel window close <window>",
-            "pebrel tab close <tab> --window <window>",
-            "pebrel tab rename <tab> <name> --window <window>",
-            "pebrel tab move <tab> <to> --window <window>",
-            "pebrel pane close <pane>",
-            "pebrel pane zoom <pane> --zoomed <true|false>",
-            "pebrel pane resize <pane> <ratio>",
-            "pebrel pane exec <pane> -- <program> [args]",
+            "poxiterminal window close <window>",
+            "poxiterminal tab close <tab> --window <window>",
+            "poxiterminal tab rename <tab> <name> --window <window>",
+            "poxiterminal tab move <tab> <to> --window <window>",
+            "poxiterminal pane close <pane>",
+            "poxiterminal pane zoom <pane> --zoomed <true|false>",
+            "poxiterminal pane resize <pane> <ratio>",
+            "poxiterminal pane exec <pane> -- <program> [args]",
         ] {
             assert!(commands.contains(&command), "{command} missing from the catalog");
         }

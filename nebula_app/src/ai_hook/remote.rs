@@ -203,7 +203,7 @@ impl Snapshot {
     }
 
     fn install(&self, manifest: &mut Manifest, edits: &mut Vec<Edit>) -> Result<(), String> {
-        let helper = &self.file("pebrel-hook")?.path;
+        let helper = &self.file("poxiterminal-hook")?.path;
         if self.present("claude") {
             let command = format!("{} claude", quote(helper));
             let groups = CLAUDE_EVENTS.into_iter().map(|event| {
@@ -220,7 +220,7 @@ impl Snapshot {
             quote(&self.file("bridge.py")?.path)
         );
         let mut assets = vec![
-            ("pebrel-hook", launcher.as_str()),
+            ("poxiterminal-hook", launcher.as_str()),
             ("bridge.py", BRIDGE),
             ("shell.py", SHELL),
             ("bashrc", include_str!("../../res/shell/bashrc")),

@@ -56,10 +56,10 @@ tocodex-docs/
 !/docs/engineering-evidence.md
 !/docs/internationalization.md
 !/docs/skills/
-!/docs/skills/pebrel-runtime/
-!/docs/skills/pebrel-runtime/SKILL.md
-!/docs/skills/pebrel-runtime/agents/
-!/docs/skills/pebrel-runtime/agents/openai.yaml
+!/docs/skills/poxiterminal-runtime/
+!/docs/skills/poxiterminal-runtime/SKILL.md
+!/docs/skills/poxiterminal-runtime/agents/
+!/docs/skills/poxiterminal-runtime/agents/openai.yaml
 !/docs/release-notes/
 !/docs/release-notes/**
 !/docs/screenshots/

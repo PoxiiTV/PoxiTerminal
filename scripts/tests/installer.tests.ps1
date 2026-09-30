@@ -24,7 +24,7 @@ $requiredPatterns = [ordered]@{
     'hook cleanup command' = 'Parameters: "setup-ai --remove"'
     'gpui start-menu shortcut' = 'Parameters: "--gpui"'
     'idempotent cleanup entry' = 'RunOnceId: "RemovePebrelAiHooks"'
-    'hook helper payload' = 'pebrel-hook\.exe'
+    'hook helper payload' = 'poxiterminal-hook\.exe'
     'ConPTY payload' = 'conpty\.dll'
     'ConPTY host payload' = 'OpenConsole\.exe'
     'font payload' = 'MapleMonoNormal-NF-CN-Regular\.ttf'
@@ -55,8 +55,8 @@ $requiredPatterns = [ordered]@{
     'isolated acceptance installer identity' = 'AppId=\{\{76B778B5-76C6-4F60-9431-9E67C2A351AF\}'
     'runtime control API documentation' = 'Source: "\{#RepoRoot\}\\docs\\runtime-control-api\.md"; DestDir: "\{app\}\\docs";'
     'runtime API schema' = 'Source: "\{#RepoRoot\}\\docs\\runtime-api-v1\.schema\.json"; DestDir: "\{app\}\\docs";'
-    'Pebrel Runtime skill instructions' = 'Source: "\{#RepoRoot\}\\docs\\skills\\pebrel-runtime\\SKILL\.md"; DestDir: "\{app\}\\skills\\pebrel-runtime";'
-    'Pebrel Runtime skill metadata' = 'Source: "\{#RepoRoot\}\\docs\\skills\\pebrel-runtime\\agents\\openai\.yaml"; DestDir: "\{app\}\\skills\\pebrel-runtime\\agents";'
+    'Pebrel Runtime skill instructions' = 'Source: "\{#RepoRoot\}\\docs\\skills\\poxiterminal-runtime\\SKILL\.md"; DestDir: "\{app\}\\skills\\poxiterminal-runtime";'
+    'Pebrel Runtime skill metadata' = 'Source: "\{#RepoRoot\}\\docs\\skills\\poxiterminal-runtime\\agents\\openai\.yaml"; DestDir: "\{app\}\\skills\\poxiterminal-runtime\\agents";'
 }
 
 foreach ($entry in $requiredPatterns.GetEnumerator()) {

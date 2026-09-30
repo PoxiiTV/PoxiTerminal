@@ -317,7 +317,7 @@ fn paste_accepts_layout_whitespace_but_not_terminal_control_sequences() {
 
 /// `tab.new` / `window.create` 的 `shell` 是可选字段。
 ///
-/// 老客户端（升级前的第二份进程、`pebrel ctl tab new`）不带它，必须逐字保持
+/// 老客户端（升级前的第二份进程、`poxiterminal ctl tab new`）不带它，必须逐字保持
 /// 原行为；带了它的新客户端由驻留实例按 id 解析。注意 `WindowParams` 是
 /// `deny_unknown_fields`：**反向**不兼容（新客户端 → 旧驻留实例）会得到一个
 /// `invalid_params`，调用方会退回冷启动——这是升级后要重启 PoxiTerminal 的原因。

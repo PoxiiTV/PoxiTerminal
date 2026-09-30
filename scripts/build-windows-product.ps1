@@ -22,7 +22,7 @@ try {
     $arguments = @(
         'build', '--locked', '--timings',
         '-p', 'nebula', '--bin', 'poxiterminal',
-        '-p', 'nebula_hook', '--bin', 'pebrel-hook',
+        '-p', 'nebula_hook', '--bin', 'poxiterminal-hook',
         '--features', 'nebula/gpui-shell'
     )
     if ($Configuration -eq 'release') { $arguments += '--release' }

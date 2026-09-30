@@ -6,7 +6,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $prepare = Join-Path $PSScriptRoot '../prepare-windows-runtime.ps1'
-$root = Join-Path ([IO.Path]::GetTempPath()) "pebrel-runtime-test-$([guid]::NewGuid().ToString('N'))"
+$root = Join-Path ([IO.Path]::GetTempPath()) "poxiterminal-runtime-test-$([guid]::NewGuid().ToString('N'))"
 New-Item -ItemType Directory -Path $root | Out-Null
 try {
     $destination = Join-Path $root 'runtime'

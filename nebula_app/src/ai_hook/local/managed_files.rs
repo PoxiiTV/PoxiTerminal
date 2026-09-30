@@ -21,7 +21,7 @@ fn fingerprint(content: &[u8]) -> String {
 
 fn marker_path(path: &Path) -> PathBuf {
     path.with_extension(format!(
-        "{}.pebrel-managed",
+        "{}.poxiterminal-managed",
         path.extension().and_then(|value| value.to_str()).unwrap_or_default()
     ))
 }
@@ -144,7 +144,7 @@ mod tests {
     #[test]
     fn legacy_bridge_is_replaced_without_duplicate_loading() {
         let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("pebrel.js");
+        let path = directory.path().join("poxiterminal.js");
         let legacy = directory.path().join("nebula.js");
         std::fs::write(&legacy, "legacy bridge").unwrap();
         let legacy_hash = fingerprint(b"legacy bridge");
@@ -166,7 +166,7 @@ mod tests {
     #[test]
     fn an_edited_legacy_bridge_is_not_overwritten_or_registered_twice() {
         let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("pebrel.ts");
+        let path = directory.path().join("poxiterminal.ts");
         let legacy = directory.path().join("nebula.ts");
         let edited = "legacy bridge\nuser customization";
         std::fs::write(&legacy, edited).unwrap();
@@ -184,7 +184,7 @@ mod tests {
     #[test]
     fn an_edited_current_bridge_survives_update_and_remove() {
         let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("pebrel.js");
+        let path = directory.path().join("poxiterminal.js");
         let legacy = directory.path().join("nebula.js");
         install(&path, &legacy, "version one", &[]).unwrap();
         std::fs::write(&path, "version one with user changes").unwrap();
@@ -196,7 +196,7 @@ mod tests {
     #[test]
     fn same_name_conflicts_preserve_the_original_legacy_file() {
         let directory = tempfile::tempdir().unwrap();
-        let path = directory.path().join("pebrel.js");
+        let path = directory.path().join("poxiterminal.js");
         let legacy = directory.path().join("nebula.js");
         std::fs::write(&legacy, "legacy bridge").unwrap();
         std::fs::write(&path, "user plugin").unwrap();

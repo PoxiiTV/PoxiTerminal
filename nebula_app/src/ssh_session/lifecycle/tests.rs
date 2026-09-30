@@ -265,7 +265,7 @@ impl server::Handler for Loopback {
                 "pi",
                 "manifest",
                 "disabled",
-                "pebrel-hook",
+                "poxiterminal-hook",
                 "bridge.py",
                 "shell.py",
                 "bashrc",

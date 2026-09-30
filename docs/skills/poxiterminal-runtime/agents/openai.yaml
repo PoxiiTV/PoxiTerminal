@@ -1,0 +1,4 @@
+interface:
+  display_name: "PoxiTerminal Runtime"
+  short_description: "Control PoxiTerminal panes and delegate tasks to terminal agents"
+  default_prompt: "Use $poxiterminal-runtime to inspect my terminal workspace, resolve the intended pane or agent, and carry out the requested actions through the Runtime API."

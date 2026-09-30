@@ -9,7 +9,7 @@
 //!
 //! 与 claude/codex 同一套纪律：幂等合并、只认完整 helper 调用
 //! 的条目、过期路径就地自愈、首次改动留
-//! `*.pebrel-bak`、解析失败或形状意外拒写、目录不存在不 scaffold。
+//! `*.poxiterminal-bak`、解析失败或形状意外拒写、目录不存在不 scaffold。
 
 use std::path::{Path, PathBuf};
 
@@ -50,7 +50,7 @@ fn hook_command(helper: &Path) -> String {
     format!("\"{}\" kimi", helper.display().to_string().replace('\\', "/"))
 }
 
-/// 「自己的条目」= 订阅事件 ∩ 完整 helper 调用。用户把 pebrel-hook
+/// 「自己的条目」= 订阅事件 ∩ 完整 helper 调用。用户把 poxiterminal-hook
 /// 手工挂到未订阅事件上的条目不在移除范围内（与 claude remove_hooks
 /// 只遍历 CLAUDE_EVENTS 同理）。
 fn is_our_entry(event: Option<&str>, command: Option<&str>) -> bool {
@@ -181,7 +181,7 @@ fn ensure_kimi_hooks_in(path: &Path, helper: &Path) -> bool {
     }
     // 首次改动留一份原始备份；新建文件没有可备份的原文，跳过。
     if path.exists() {
-        let bak = path.with_extension("toml.pebrel-bak");
+        let bak = path.with_extension("toml.poxiterminal-bak");
         if !bak.exists()
             && let Err(err) = std::fs::copy(path, &bak)
         {
@@ -253,7 +253,7 @@ mod tests {
         hook_command, remove_kimi_hooks_in,
     };
 
-    const HELPER: &str = "C:/Program Files/PoxiTerminal/runtime/pebrel-hook.exe";
+    const HELPER: &str = "C:/Program Files/PoxiTerminal/runtime/poxiterminal-hook.exe";
 
     fn helper() -> &'static std::path::Path {
         std::path::Path::new(HELPER)
@@ -273,8 +273,8 @@ mod tests {
         // #80：kimi 的 command 走 shell，含空格路径必须双引号包裹；
         // 反斜杠归一成正斜杠，避免 TOML/shell 双层转义。
         let command =
-            hook_command(std::path::Path::new("D:\\Program Files\\PoxiTerminal\\pebrel-hook.exe"));
-        assert_eq!(command, "\"D:/Program Files/PoxiTerminal/pebrel-hook.exe\" kimi");
+            hook_command(std::path::Path::new("D:\\Program Files\\PoxiTerminal\\poxiterminal-hook.exe"));
+        assert_eq!(command, "\"D:/Program Files/PoxiTerminal/poxiterminal-hook.exe\" kimi");
     }
 
     #[test]
@@ -295,8 +295,8 @@ mod tests {
             assert_eq!(entry["command"].as_str(), Some(expected_command().as_str()));
             assert_eq!(entry["timeout"].as_integer(), Some(KIMI_HOOK_TIMEOUT));
         }
-        // 新建文件没有可备份的原文，不落 .pebrel-bak。
-        assert!(!path.with_extension("toml.pebrel-bak").exists());
+        // 新建文件没有可备份的原文，不落 .poxiterminal-bak。
+        assert!(!path.with_extension("toml.poxiterminal-bak").exists());
     }
 
     #[test]
@@ -317,7 +317,7 @@ mod tests {
             &path,
             r#"[[hooks]]
 event = "Stop"
-command = "\"D:/old/Nebula/runtime/nebula-hook.exe\" kimi"
+command = "\"D:/old/PoxiTerminal/runtime/poxiterminal-hook.exe\" kimi"
 timeout = 30
 "#,
         )
@@ -333,8 +333,8 @@ timeout = 30
         assert_eq!(stop[0]["command"].as_str(), Some(expected_command().as_str()));
         assert_eq!(stop[0]["timeout"].as_integer(), Some(30), "用户调过的字段不自愈");
         // 既有文件的首次改动留下了原始备份。
-        let backup = std::fs::read_to_string(path.with_extension("toml.pebrel-bak")).unwrap();
-        assert!(backup.contains("D:/old/Nebula"));
+        let backup = std::fs::read_to_string(path.with_extension("toml.poxiterminal-bak")).unwrap();
+        assert!(backup.contains("D:/old/PoxiTerminal"));
         assert!(!ensure_kimi_hooks_in(&path, helper()));
     }
 
@@ -350,15 +350,15 @@ command = "notify-send done"
 
 [[hooks]]
 event = "PreToolUse"
-command = "\"D:/tools/pebrel-hook.exe\" kimi"
+command = "\"D:/tools/poxiterminal-hook.exe\" kimi"
 
 [[hooks]]
 event = "Stop"
-command = "echo pebrel-hook.exe"
+command = "echo poxiterminal-hook.exe"
 
 [[hooks]]
 event = "Stop"
-command = "\"D:/tools/pebrel-hook.exe\" kimi && echo user"
+command = "\"D:/tools/poxiterminal-hook.exe\" kimi && echo user"
 "#,
         )
         .unwrap();
@@ -376,9 +376,9 @@ command = "\"D:/tools/pebrel-hook.exe\" kimi && echo user"
             kept,
             [
                 ("Notification", "notify-send done"),
-                ("PreToolUse", "\"D:/tools/pebrel-hook.exe\" kimi"),
-                ("Stop", "echo pebrel-hook.exe"),
-                ("Stop", "\"D:/tools/pebrel-hook.exe\" kimi && echo user"),
+                ("PreToolUse", "\"D:/tools/poxiterminal-hook.exe\" kimi"),
+                ("Stop", "echo poxiterminal-hook.exe"),
+                ("Stop", "\"D:/tools/poxiterminal-hook.exe\" kimi && echo user"),
             ],
             "别人的条目与手工挂在未订阅事件上的 helper 条目都要留下"
         );
@@ -391,7 +391,7 @@ command = "\"D:/tools/pebrel-hook.exe\" kimi && echo user"
         let path = temp.path().join("config.toml");
         std::fs::write(
             &path,
-            "hooks = [{ event = \"Stop\", command = \"\\\"D:/x/pebrel-hook.exe\\\" kimi\" }, \
+            "hooks = [{ event = \"Stop\", command = \"\\\"D:/x/poxiterminal-hook.exe\\\" kimi\" }, \
              { event = \"Notification\", command = \"notify-send done\" }]\n",
         )
         .unwrap();

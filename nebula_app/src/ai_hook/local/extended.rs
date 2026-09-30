@@ -26,7 +26,7 @@ pub(super) fn directory(agent: AgentHook) -> Option<PathBuf> {
 
 pub(super) fn path(agent: AgentHook) -> Option<PathBuf> {
     let suffix =
-        if agent == AgentHook::OhMyPi { "extensions/pebrel.ts" } else { "hooks/pebrel.json" };
+        if agent == AgentHook::OhMyPi { "extensions/poxiterminal.ts" } else { "hooks/poxiterminal.json" };
     Some(directory(agent)?.join(suffix))
 }
 
@@ -144,7 +144,7 @@ mod tests {
 
     #[test]
     fn native_event_names_and_shell_paths_are_preserved() {
-        let helper = "C:/Program Files/用户's Tools/pebrel-hook.exe";
+        let helper = "C:/Program Files/用户's Tools/poxiterminal-hook.exe";
         let copilot: Value =
             serde_json::from_str(&content(AgentHook::Copilot, helper).unwrap()).unwrap();
         assert_eq!(copilot["version"], 1);
