@@ -46,6 +46,7 @@ use gpui_component::notification::Notification;
 use nebula_split::{DIVIDER_GAP, HIT_SLOP, RemoveOutcome, SplitDirection, SplitNav, SplitTree};
 
 mod agents;
+mod agents_panel;
 mod changes;
 mod closing;
 mod command_manager;
@@ -122,6 +123,7 @@ gpui::actions!(
         CommandPaletteDown,
         ToggleFileTree,
         ToggleGitPanel,
+        ToggleAgentsPanel,
         SplitRight,
         SplitDown,
         RenameActiveTab,
@@ -718,6 +720,8 @@ pub struct NebulaWorkspace {
     side_panel: crate::display::side_panel::SidePanel,
     /// Foto del repo de cada panel al empezar el último turno de su IA.
     turn_baselines: changes::TurnBaselines,
+    /// Estado del panel «Agentes» (uso de tokens, ramas, tiempos).
+    agents_panel: agents_panel::AgentsPanel,
     side_panel_polling: bool,
     side_panel_anim_armed: bool,
     details_panel: details_panel::DetailsPanelState,
@@ -972,6 +976,7 @@ impl NebulaWorkspace {
             _command_palette_subscription: command_palette_subscription,
             side_panel: crate::display::side_panel::SidePanel::new(),
             turn_baselines: changes::TurnBaselines::default(),
+            agents_panel: agents_panel::AgentsPanel::default(),
             side_panel_polling: false,
             side_panel_anim_armed: false,
             details_panel: details_panel::DetailsPanelState::default(),
@@ -3045,6 +3050,9 @@ impl Render for NebulaWorkspace {
             }))
             .on_action(cx.listener(|this, _: &ToggleGitPanel, _, cx| {
                 this.toggle_git_tree(cx);
+            }))
+            .on_action(cx.listener(|this, _: &ToggleAgentsPanel, _, cx| {
+                this.toggle_agents_panel(cx);
             }))
             .on_action(cx.listener(|this, _: &IncreaseFontSize, _, cx| {
                 this.bump_font_size(1.0, cx);

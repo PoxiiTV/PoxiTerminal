@@ -51,6 +51,8 @@ pub enum PanelView {
     Files,
     /// Git branch + working-tree changes of the enclosing repository.
     Git,
+    /// Centro de control de IA: los agentes abiertos y su estado.
+    Agents,
 }
 
 /// Git 抽屉内部的三个等宽入口。它与 [`PanelView`] 分层：后者只负责文件/VCS
@@ -1444,6 +1446,8 @@ impl SidePanel {
             PanelView::Git => {
                 self.git.as_ref().map_or(0, |g| g.unstaged.len() + g.staged.len() + 2)
             },
+            // El panel de agentes tiene su propio scroll.
+            PanelView::Agents => 0,
         };
         let max = len.saturating_sub(visible_rows);
         self.scroll = (self.scroll as i64 + delta as i64).clamp(0, max as i64) as usize;

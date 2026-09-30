@@ -101,6 +101,7 @@ pub(super) fn default_workspace_bindings() -> Vec<KeyBinding> {
         KeyBinding::new("ctrl-shift-pageup", MoveTabLeft, None),
         KeyBinding::new("ctrl-shift-pagedown", MoveTabRight, None),
         KeyBinding::new("ctrl-shift-g", ToggleGitPanel, None),
+        KeyBinding::new("ctrl-shift-a", ToggleAgentsPanel, None),
         KeyBinding::new("ctrl-=", IncreaseFontSize, None),
         KeyBinding::new("ctrl-+", IncreaseFontSize, None),
         KeyBinding::new("ctrl--", DecreaseFontSize, None),

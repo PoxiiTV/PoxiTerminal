@@ -41,6 +41,7 @@ mod ai_assistant;
 mod ai_hook;
 mod ai_providers;
 mod ai_sessions;
+mod ai_usage;
 mod app_icon;
 mod assistant_answer;
 mod atomic_file;

@@ -230,3 +230,10 @@ impl TerminalView {
         cx.notify();
     }
 }
+
+impl TerminalView {
+    /// Archivo de sesión (transcript) de la IA de este panel, si se conoce.
+    pub(crate) fn agent_session_file(&self) -> Option<String> {
+        self.recovery.target.as_ref()?.session_file.clone()
+    }
+}

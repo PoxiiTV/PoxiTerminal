@@ -1131,7 +1131,7 @@ impl TerminalView {
                 // 绑定。少写一个键位，症状就是"快捷键没反应"外加一串 CSI
                 // 序列被打进 PTY——本文件下面的回滚翻页分支只吃**不带 ctrl**
                 // 的 shift+pageup，所以 ctrl+shift 这一组必须在这里放行。
-                "t" | "w" | "b" | "p" | "f" | "d" | "s" | "g" | "o" | "enter" | "pageup"
+                "t" | "w" | "b" | "p" | "f" | "d" | "s" | "g" | "a" | "o" | "enter" | "pageup"
                 | "pagedown" => return,
                 _ => {},
             }

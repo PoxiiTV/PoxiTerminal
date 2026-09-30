@@ -187,6 +187,7 @@ impl NebulaWorkspace {
             Some(DocumentSection::Info) => 0,
             Some(DocumentSection::Outline) => 1,
             None if self.side_panel.view == PanelView::Files => 2,
+            None if self.side_panel.view == PanelView::Agents => 4,
             None => 3,
         }
     }
@@ -223,6 +224,7 @@ impl NebulaWorkspace {
             IconName::FolderClosed,
         ));
         tabs.push((3, "side-panel-git", vcs_name, IconName::Github));
+        tabs.push((4, "side-panel-agents", language.pick("智能体", "Agents"), IconName::Bot));
         let label_limit = (width
             - 16.0
             - (tabs.len() + 1) as f32 * HEADER_CONTROL_SIZE
@@ -301,9 +303,14 @@ impl NebulaWorkspace {
                         _ => {
                             view.details_panel.section = None;
                             view.select_side_panel_view(
-                                if index == 2 { PanelView::Files } else { PanelView::Git },
+                                match index {
+                                    2 => PanelView::Files,
+                                    4 => PanelView::Agents,
+                                    _ => PanelView::Git,
+                                },
                                 cx,
                             );
+                            view.start_agents_polling(cx);
                         },
                     }
                 }))
@@ -375,6 +382,7 @@ impl NebulaWorkspace {
                 PanelView::Files if remote => self.render_remote_files(cx),
                 PanelView::Files => self.render_file_tree(cx),
                 PanelView::Git => self.render_git_tree(window, cx),
+                PanelView::Agents => self.render_agents_panel(cx),
             }
         };
         let band = v_flex()
