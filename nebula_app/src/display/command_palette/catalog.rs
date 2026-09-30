@@ -121,6 +121,12 @@ pub(super) const ITEMS: &[PaletteItem] = &[
         action: PaletteAction::ToggleGitPanel,
     },
     PaletteItem {
+        label: "查看更改",
+        hint: "",
+        search: "查看更改 diff changes view ai turn chakan gengai ver cambios diff qué ha tocado la ia turno",
+        action: PaletteAction::ViewChanges,
+    },
+    PaletteItem {
         label: "打开设置",
         hint: "",
         search: "打开设置 open settings preferences dakai shezhi abrir configuración ajustes preferencias",

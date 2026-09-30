@@ -384,6 +384,10 @@ impl NebulaWorkspace {
                     .on_double_click(cx.listener(move |this, _, window, cx| {
                         if ops == RowOps::Conflict && is_git {
                             this.open_git_merge_tab(merge_open_path.clone(), window, cx);
+                        } else if is_git {
+                            // Doble clic en un cambio de Git: verlo en el visor
+                            // de cambios, ya seleccionado.
+                            this.open_changes_tab(None, Some(merge_open_path.clone()), window, cx);
                         } else if !svn_diff || !this.side_panel.svn_diff_path(&diff_path) {
                             // Git 与未版本化 SVN 文件仍走现有文档路由。
                             this.open_document_path(open_path.clone(), window, cx);

@@ -226,9 +226,37 @@ pub(crate) fn banner_for_pane(
         return;
     }
     log::info!("pane banner [{kind:?}] pane={pane_id}: {text}");
+    let body = text.clone();
     let mut notification = note(kind, text).on_click(move |_, _, cx| {
         cx.defer(move |cx| super::workspace::windowing::focus_notification(Some(pane_id), cx));
     });
+    // Fin de turno de una IA en un repo Git: botón para ver qué ha tocado.
+    if matches!(source, crate::notify::Notification::AiTurn { attention: false, .. })
+        && super::workspace::windowing::pane_has_turn_changes(pane_id, cx)
+    {
+        let label = super::config::ui_language(cx).pick("查看更改", "View changes").to_owned();
+        notification = notification.content(move |_, _, cx| {
+            v_flex()
+                .gap_2()
+                .child(div().text_sm().child(body.clone()))
+                .child(
+                    h_flex().justify_end().child(
+                        Button::new(("ai-view-changes", pane_id))
+                            .label(label.clone())
+                            .small()
+                            .ghost()
+                            .on_click(cx.listener(move |note, _, window, cx| {
+                                cx.stop_propagation();
+                                note.dismiss(window, cx);
+                                cx.defer(move |cx| {
+                                    super::workspace::windowing::open_pane_changes(pane_id, cx)
+                                });
+                            })),
+                    ),
+                )
+                .into_any_element()
+        });
+    }
     if ai_toast {
         notification = notification.id1::<AiToast>(("ai-result", pane_id));
     } else {

@@ -255,6 +255,9 @@ impl NebulaWorkspace {
         let Some(target_id) = ai_hook_target_pane(&pane_ids, event.pane, active_focused) else {
             return false;
         };
+        if event.kind == crate::ai_hook::AiHookKind::PromptSubmit {
+            self.capture_turn_baseline(target_id, cx);
+        }
         let target = self.tabs.iter().find_map(|tab| match tab {
             WorkspaceTab::Terminal { panes, .. } => {
                 panes.iter().find(|pane| pane.id == target_id).map(|pane| pane.view.clone())

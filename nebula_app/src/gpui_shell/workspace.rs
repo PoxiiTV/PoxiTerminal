@@ -46,6 +46,7 @@ use gpui_component::notification::Notification;
 use nebula_split::{DIVIDER_GAP, HIT_SLOP, RemoveOutcome, SplitDirection, SplitNav, SplitTree};
 
 mod agents;
+mod changes;
 mod closing;
 mod command_manager;
 mod keyboard_bindings;
@@ -715,6 +716,8 @@ pub struct NebulaWorkspace {
     /// filesystem traversal, expansion state, ignore marking and throttling
     /// remain in `display::side_panel`.
     side_panel: crate::display::side_panel::SidePanel,
+    /// Foto del repo de cada panel al empezar el último turno de su IA.
+    turn_baselines: changes::TurnBaselines,
     side_panel_polling: bool,
     side_panel_anim_armed: bool,
     details_panel: details_panel::DetailsPanelState,
@@ -968,6 +971,7 @@ impl NebulaWorkspace {
             command_palette_scroll: gpui::ScrollHandle::new(),
             _command_palette_subscription: command_palette_subscription,
             side_panel: crate::display::side_panel::SidePanel::new(),
+            turn_baselines: changes::TurnBaselines::default(),
             side_panel_polling: false,
             side_panel_anim_armed: false,
             details_panel: details_panel::DetailsPanelState::default(),
@@ -2222,6 +2226,13 @@ impl NebulaWorkspace {
             PaletteAction::ToggleGitPanel => {
                 self.toggle_git_tree(cx);
                 self.focus_active(window, cx);
+            },
+            PaletteAction::ViewChanges => {
+                let pane = match self.tabs.get(self.active) {
+                    Some(WorkspaceTab::Terminal { focused, .. }) => Some(*focused),
+                    _ => None,
+                };
+                self.open_changes_tab(pane, None, window, cx);
             },
             PaletteAction::ExportWorkspace => self.export_workspace(window, cx),
             PaletteAction::ToggleGhost => {

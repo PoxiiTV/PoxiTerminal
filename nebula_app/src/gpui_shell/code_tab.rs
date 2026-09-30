@@ -141,6 +141,8 @@ pub struct CodeTabView {
     notice: Option<String>,
     lines: usize,
     merge: Option<MergeEditor>,
+    /// Modo «visor de cambios» (qué ha tocado la IA / todo sin commit).
+    diff: Option<Entity<super::diff_view::DiffView>>,
     file: Option<Entity<super::file_editor::TextFileView>>,
     _file_subscription: Option<gpui::Subscription>,
 }
@@ -165,9 +167,45 @@ impl CodeTabView {
             notice: None,
             lines: 0,
             merge: None,
+            diff: None,
             file: Some(file),
             _file_subscription: Some(subscription),
         }
+    }
+
+    /// Pestaña «Cambios · repo». `turn_base` es la foto del inicio del turno
+    /// de la IA; sin ella se abre directamente en «Todo sin commit».
+    pub fn new_diff(
+        location: GitLocation,
+        turn_base: Option<String>,
+        preselect: Option<String>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Self {
+        let root = match &location {
+            GitLocation::Local { root } => root.clone(),
+            GitLocation::Wsl { distro, root } => PathBuf::from(format!("{distro}:{root}")),
+        };
+        let diff =
+            cx.new(|cx| super::diff_view::DiffView::new(location, turn_base, preselect, cx));
+        let language = crate::gpui_shell::config::ui_language(cx);
+        let title = format!("{} · {}", language.pick("更改", "Changes"), diff.read(cx).repo_name());
+        Self {
+            path: root,
+            title,
+            input: code_input("text", window, cx),
+            notice: None,
+            lines: 0,
+            merge: None,
+            diff: Some(diff),
+            file: None,
+            _file_subscription: None,
+        }
+    }
+
+    /// Si esta pestaña es un visor de cambios del repositorio `root`.
+    pub(super) fn is_diff_of(&self, root: &Path) -> bool {
+        self.diff.is_some() && self.path == root
     }
 
     pub(super) fn file_editor(&self) -> Option<Entity<super::file_editor::TextFileView>> {
@@ -210,6 +248,7 @@ impl CodeTabView {
             lines: 0,
             file: None,
             _file_subscription: None,
+            diff: None,
             merge: Some(MergeEditor {
                 key: MergeKey { location, relative_path },
                 ours,
@@ -503,6 +542,9 @@ impl CodeTabView {
 
 impl Render for CodeTabView {
     fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        if let Some(diff) = &self.diff {
+            return div().size_full().child(diff.clone()).into_any_element();
+        }
         if self.merge.is_some() { self.render_merge(cx) } else { self.render_file(cx) }
     }
 }

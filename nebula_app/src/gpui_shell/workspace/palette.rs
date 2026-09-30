@@ -42,6 +42,7 @@ impl NebulaWorkspace {
                 | PaletteAction::SplitRight
                 | PaletteAction::SplitDown
                 | PaletteAction::ToggleGitPanel
+                | PaletteAction::ViewChanges
                 | PaletteAction::ExportWorkspace
         )
     }

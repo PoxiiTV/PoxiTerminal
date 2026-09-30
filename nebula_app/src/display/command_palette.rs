@@ -235,6 +235,8 @@ pub enum PaletteAction {
     NewAtDirectory(PathBuf),
     ToggleFilesPanel,
     ToggleGitPanel,
+    /// Visor de cambios: qué ha tocado la IA en el último turno del panel.
+    ViewChanges,
     /// Save every terminal tab as a workspace file.
     ExportWorkspace,
     /// Pick a workspace file and append its tabs to this window.
@@ -1300,6 +1302,7 @@ fn localized_item_label(item: &PaletteItem, language: super::UiLanguage) -> &'st
         SplitDown => "Split down",
         ToggleFilesPanel => "Files panel",
         ToggleGitPanel => "Git panel",
+        ViewChanges => "View changes (what the AI touched)",
         OpenSettings => "Open settings",
         OpenSettingsFile => "Open configuration file",
         ToggleGhost => "Toggle ghost completion",
@@ -1347,7 +1350,9 @@ impl CommandGroup {
             OpenDirectoryPicker | CloseTab | NextTab | PrevTab | NewWindow | SplitRight
             | SplitDown => Self::Tabs,
             OpenAiSessionPicker => Self::Jump,
-            ToggleFilesPanel | ToggleGitPanel | ToggleSidebar | TogglePanelResize => Self::View,
+            ToggleFilesPanel | ToggleGitPanel | ViewChanges | ToggleSidebar | TogglePanelResize => {
+                Self::View
+            },
             ExportWorkspace | ImportWorkspace | SyncPush | SyncPull => Self::Workspace,
             PickBackgroundImage | CycleBackground | ResetAppearance | SelectTheme(_) => {
                 Self::Appearance

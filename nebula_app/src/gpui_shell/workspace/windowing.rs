@@ -1219,6 +1219,40 @@ pub(crate) fn notification_view(
     })
 }
 
+/// Si el panel tiene foto del último turno (está en un repo Git y su IA ha
+/// empezado un turno): decide si el aviso de fin de turno lleva «Ver cambios».
+pub(crate) fn pane_has_turn_changes(pane_id: u64, cx: &App) -> bool {
+    cx.has_global::<WindowRegistry>()
+        && cx.global::<WindowRegistry>().entries.iter().any(|entry| {
+            entry
+                .workspace
+                .upgrade()
+                .is_some_and(|workspace| workspace.read(cx).has_turn_baseline(pane_id))
+        })
+}
+
+/// Botón «Ver cambios» del aviso de fin de turno: muestra la ventana del panel
+/// y abre su pestaña de cambios.
+pub(crate) fn open_pane_changes(pane_id: u64, cx: &mut App) {
+    focus_notification(Some(pane_id), cx);
+    if !cx.has_global::<WindowRegistry>() {
+        return;
+    }
+    let entries = cx.global::<WindowRegistry>().entries.clone();
+    for entry in entries {
+        let Some(workspace) = entry.workspace.upgrade() else { continue };
+        if workspace.read(cx).tab_of_pane(pane_id).is_none() {
+            continue;
+        }
+        let _ = entry.handle.update(cx, move |_, window, cx| {
+            workspace.update(cx, |workspace, cx| {
+                workspace.open_changes_tab(Some(pane_id), None, window, cx)
+            });
+        });
+        return;
+    }
+}
+
 pub(crate) fn focus_notification(pane_id: Option<u64>, cx: &mut App) {
     if !cx.has_global::<WindowRegistry>() {
         return;
