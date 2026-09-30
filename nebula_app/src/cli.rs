@@ -16,11 +16,11 @@ use crate::config::ui_config::Program;
 use crate::config::window::{Class, Identity};
 use crate::logging::LOG_TARGET_IPC_CONFIG;
 
-/// CLI options for the main Pebrel executable.
+/// CLI options for the main PoxiTerminal executable.
 #[derive(Parser, Default, Debug)]
 #[clap(
     name = crate::brand::NAME,
-    bin_name = "pebrel",
+    bin_name = "poxiterminal",
     display_name = crate::brand::NAME,
     author,
     about = crate::brand::DESCRIPTION,
@@ -35,7 +35,7 @@ pub struct Options {
     #[clap(long, conflicts_with("daemon"))]
     pub ref_test: bool,
 
-    /// X11 window ID to embed Pebrel within (decimal or hexadecimal with "0x" prefix).
+    /// X11 window ID to embed PoxiTerminal within (decimal or hexadecimal with "0x" prefix).
     #[clap(long)]
     pub embed: Option<String>,
 
@@ -192,7 +192,7 @@ pub struct TerminalOptions {
 ///
 /// The installed verb passes `--working-directory "%V"`; for a drive root
 /// `%V` is `D:\`, so the command line ends in `\"` and `CommandLineToArgvW`
-/// reads that trailing backslash as an escaped quote — Pebrel receives `D:"`
+/// reads that trailing backslash as an escaped quote — PoxiTerminal receives `D:"`
 /// and rejects it as an invalid directory (issue #36). A double quote can
 /// never appear in a Windows path, so a trailing one is unambiguously that
 /// swallowed separator: restore it. Any other path is returned unchanged, and
@@ -266,11 +266,11 @@ impl From<TerminalOptions> for PtyOptions {
 /// Window specific cli options which can be passed to new windows via IPC.
 #[derive(Serialize, Deserialize, Args, Default, Debug, Clone, PartialEq, Eq)]
 pub struct WindowIdentity {
-    /// Defines the window title [default: Pebrel].
+    /// Defines the window title [default: PoxiTerminal].
     #[clap(short = 'T', short_alias('t'), long)]
     pub title: Option<String>,
 
-    /// Defines window class/app_id on X11/Wayland [default: Pebrel].
+    /// Defines window class/app_id on X11/Wayland [default: PoxiTerminal].
     #[clap(long, value_name = "general> | <general>,<instance", value_parser = parse_class)]
     pub class: Option<Class>,
 }
@@ -309,17 +309,17 @@ pub enum Subcommands {
     #[cfg(all(unix, feature = "legacy-shell"))]
     Msg(MessageOptions),
     Migrate(MigrateOptions),
-    /// Validate or create the Pebrel configuration.
+    /// Validate or create the PoxiTerminal configuration.
     Config(ConfigOptions),
     /// Check or invoke a local plugin package without starting a GUI or plugin daemon.
     Plugin(crate::plugins::cli::Options),
     /// Test system notification (toast) delivery.
     #[cfg(windows)]
     NotifyTest,
-    /// Install (or --remove) AI hooks plus the Pebrel Runtime Skill for
+    /// Install (or --remove) AI hooks plus the PoxiTerminal Runtime Skill for
     /// Codex and Claude Code.
     SetupAi(SetupAiOptions),
-    /// SSH with Pebrel shell integration bootstrapped on the remote host, so
+    /// SSH with PoxiTerminal shell integration bootstrapped on the remote host, so
     /// tab icons / spinner / cwd track the program running over the connection
     /// (claude, vim, cargo…). All arguments are forwarded to the system `ssh`.
     #[cfg(windows)]
@@ -665,7 +665,7 @@ pub struct PaneExecOptions {
     #[clap(long, default_value_t = SHORT_TIMEOUT_MS)]
     pub timeout_ms: u64,
 
-    /// Program and arguments. `--` is required so child flags cannot be parsed by Pebrel.
+    /// Program and arguments. `--` is required so child flags cannot be parsed by PoxiTerminal.
     #[clap(last = true, required = true, num_args = 1.., value_name = "ARGV")]
     pub argv: Vec<String>,
 }
@@ -919,7 +919,7 @@ impl ConfigLanguage {
 /// Options for the `setup-ai` subcommand.
 #[derive(Args, Debug)]
 pub struct SetupAiOptions {
-    /// Remove Pebrel-managed hooks for every supported agent and preserve
+    /// Remove PoxiTerminal-managed hooks for every supported agent and preserve
     /// other integrations. Without this flag, enable Claude Code and Codex
     /// plus agents explicitly enabled in settings.
     #[clap(long)]
@@ -981,7 +981,7 @@ pub enum ControlCommand {
         #[clap(long, value_hint = ValueHint::FilePath, conflicts_with = "spec")]
         file: Option<PathBuf>,
     },
-    /// List only panes Pebrel recognizes as AI agents, with semantic state and session identity.
+    /// List only panes PoxiTerminal recognizes as AI agents, with semantic state and session identity.
     Agents {
         #[clap(long)]
         window: Option<u64>,
@@ -1287,7 +1287,7 @@ pub enum ControlWaitState {
     Settled,
 }
 
-/// Send a message to the Pebrel socket.
+/// Send a message to the PoxiTerminal socket.
 #[cfg(unix)]
 #[derive(Args, Debug)]
 pub struct MessageOptions {
@@ -1304,13 +1304,13 @@ pub struct MessageOptions {
 #[cfg(unix)]
 #[derive(Subcommand, Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub enum SocketMessage {
-    /// Create a new window in the same Pebrel process.
+    /// Create a new window in the same PoxiTerminal process.
     CreateWindow(WindowOptions),
 
-    /// Update the Pebrel configuration.
+    /// Update the PoxiTerminal configuration.
     Config(IpcConfig),
 
-    /// Read runtime Pebrel configuration.
+    /// Read runtime PoxiTerminal configuration.
     GetConfig(IpcGetConfig),
 }
 
@@ -1908,10 +1908,10 @@ mod tests {
         let mut clap = Options::command();
 
         for (shell, file) in
-            &[(Shell::Bash, "pebrel.bash"), (Shell::Fish, "pebrel.fish"), (Shell::Zsh, "_pebrel")]
+            &[(Shell::Bash, "poxiterminal.bash"), (Shell::Fish, "poxiterminal.fish"), (Shell::Zsh, "_poxiterminal")]
         {
             let mut generated = Vec::new();
-            clap_complete::generate(*shell, &mut clap, "pebrel", &mut generated);
+            clap_complete::generate(*shell, &mut clap, "poxiterminal", &mut generated);
             let generated = String::from_utf8_lossy(&generated);
 
             let mut completion = String::new();
@@ -1941,10 +1941,10 @@ mod tests {
             .unwrap_or_else(completion_directory);
         std::fs::create_dir_all(&directory).expect("create completion directory");
         for (shell, file) in
-            &[(Shell::Bash, "pebrel.bash"), (Shell::Fish, "pebrel.fish"), (Shell::Zsh, "_pebrel")]
+            &[(Shell::Bash, "poxiterminal.bash"), (Shell::Fish, "poxiterminal.fish"), (Shell::Zsh, "_poxiterminal")]
         {
             let mut generated = Vec::new();
-            clap_complete::generate(*shell, &mut clap, "pebrel", &mut generated);
+            clap_complete::generate(*shell, &mut clap, "poxiterminal", &mut generated);
             File::create(directory.join(file))
                 .and_then(|mut file| file.write_all(&generated))
                 .expect("write generated completion");

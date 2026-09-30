@@ -267,10 +267,10 @@ mod tests {
         )
         .unwrap();
         assert!(!proxy.is_no_proxy(
-            &"https://api.github.com/repos/Kuddev/pebrel/releases/latest".parse().unwrap()
+            &"https://api.github.com/repos/PoxiiTV/PoxiTerminal/releases/latest".parse().unwrap()
         ));
         assert!(proxy.is_no_proxy(
-            &"https://github.com:443/Kuddev/pebrel/releases/download/v1.7.0/x.exe".parse().unwrap()
+            &"https://github.com:443/PoxiiTV/PoxiTerminal/releases/download/v1.7.0/x.exe".parse().unwrap()
         ));
         assert!(
             proxy.is_no_proxy(

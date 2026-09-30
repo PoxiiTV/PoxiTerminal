@@ -102,7 +102,7 @@ pub(super) fn shell_palette_rows(
         // 空串 = 没起名：`ssh_host_display` 回落地址本身，hint 保持 "SSH"。
         let named = (!label.is_empty()).then_some(label.as_str());
         let (label, hint) = ssh_host_display(named, &host);
-        let search = format!("{label} {host} ssh host remote lianjie 连接").to_lowercase();
+        let search = format!("{label} {host} ssh host remote lianjie 连接 remoto conexión conectar").to_lowercase();
         WorkspacePaletteRow {
             group_order: 2,
             group: ssh_group.to_owned(),

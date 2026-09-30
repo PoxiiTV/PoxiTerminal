@@ -96,7 +96,7 @@ impl NebulaTheme {
 
     pub(crate) fn label(self) -> &'static str {
         match self {
-            Self::Nebula => "Pebrel",
+            Self::Nebula => "PoxiTerminal",
             Self::SilverLight => "Silver Light",
             Self::SteelDark => "Steel Dark",
             Self::LimestoneLight => "Limestone",
@@ -985,8 +985,8 @@ mod tests {
 
     #[test]
     fn system_appearance_keeps_the_selected_theme_family() {
-        assert_eq!(NebulaTheme::Nebula.label(), "Pebrel");
-        assert_eq!(NebulaTheme::Nebula.short_label(), "Pebrel");
+        assert_eq!(NebulaTheme::Nebula.label(), "PoxiTerminal");
+        assert_eq!(NebulaTheme::Nebula.short_label(), "PoxiTerminal");
         assert_eq!(NebulaTheme::Nebula.prompt_name(), "Nebula");
         assert_eq!(NebulaTheme::from_prompt_name("Nebula"), Some(NebulaTheme::Nebula));
         assert_eq!(NebulaTheme::Nebula.for_system_appearance(true), NebulaTheme::SilverLight);

@@ -69,7 +69,7 @@ fn tab_rows(
             label: title.clone(),
             hint,
             hint_style: super::WorkspacePaletteHintStyle::Metadata,
-            search: format!("{title} {kind} tab 标签 biaoqian {}", tab_ix + 1).to_lowercase(),
+            search: format!("{title} {kind} tab 标签 biaoqian pestaña {}", tab_ix + 1).to_lowercase(),
             action: WorkspacePaletteAction::FocusTab(tab_ix),
             icon: None,
             icon_glyph: None,
@@ -97,7 +97,7 @@ fn tab_rows(
                 hint: pane_hint,
                 hint_style: super::WorkspacePaletteHintStyle::Metadata,
                 search: format!(
-                    "{title} {pane_title} {location} pane split 分屏 fenping {}",
+                    "{title} {pane_title} {location} pane split 分屏 fenping panel dividir {}",
                     pane.id
                 )
                 .to_lowercase(),
@@ -129,7 +129,7 @@ fn directory_rows(language: crate::display::UiLanguage) -> Vec<WorkspacePaletteR
                 label,
                 hint: full.clone(),
                 hint_style: super::WorkspacePaletteHintStyle::Metadata,
-                search: format!("{full} directory folder 常用目录 mulu wenjianjia").to_lowercase(),
+                search: format!("{full} directory folder 常用目录 mulu wenjianjia directorio carpeta").to_lowercase(),
                 action: WorkspacePaletteAction::OpenDirectory(path),
                 icon: None,
                 icon_glyph: None,
@@ -150,7 +150,7 @@ fn ssh_rows(language: crate::display::UiLanguage) -> Vec<WorkspacePaletteRow> {
                 crate::display::ui::os_icons::resolve(icons.get(&host).map(String::as_str)).glyph;
             let named = (!label.is_empty()).then_some(label.as_str());
             let (label, hint) = shell_picker::ssh_host_display(named, &host);
-            let search = format!("{label} {host} ssh host remote 远程 连接").to_lowercase();
+            let search = format!("{label} {host} ssh host remote 远程 连接 remoto conexión conectar").to_lowercase();
             WorkspacePaletteRow {
                 group_order: 3,
                 group: group.to_owned(),

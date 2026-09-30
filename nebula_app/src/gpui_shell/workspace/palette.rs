@@ -109,8 +109,10 @@ impl NebulaWorkspace {
                         .glyph;
                         let named = (!label.is_empty()).then_some(label.as_str());
                         let (label, hint) = shell_picker::ssh_host_display(named, &host);
-                        let search =
-                            format!("{label} {host} ssh host remote lianjie 连接").to_lowercase();
+                        let search = format!(
+                            "{label} {host} ssh host remote lianjie 连接 conectar remoto servidor"
+                        )
+                        .to_lowercase();
                         WorkspacePaletteRow {
                             group_order: usize::MAX,
                             group: language.pick("SSH 主机", "SSH HOSTS").to_owned(),

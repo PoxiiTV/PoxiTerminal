@@ -67,10 +67,10 @@ pub(crate) fn panel_action_tooltip(
     }
     let (action, label) = match panel.hover {
         PanelHit::FollowCurrentDirectory => {
-            (PanelHit::FollowCurrentDirectory, "跟随当前终端  Alt+R")
+            (PanelHit::FollowCurrentDirectory, "Seguir terminal actual  Alt+R")
         },
-        PanelHit::NewTerminalHere => (PanelHit::NewTerminalHere, "在此新建终端  Alt+T"),
-        PanelHit::RevealDirectory => (PanelHit::RevealDirectory, "在资源管理器中打开  Alt+O"),
+        PanelHit::NewTerminalHere => (PanelHit::NewTerminalHere, "Nuevo terminal aquí  Alt+T"),
+        PanelHit::RevealDirectory => (PanelHit::RevealDirectory, "Abrir en el Explorador  Alt+O"),
         _ => return None,
     };
     let action_rect =
@@ -441,10 +441,10 @@ pub(crate) fn draw_text(
     } else {
         sk.ink_dim
     };
-    let files_content_w = cell_w + s(6.0) + cell_w * 4.0;
+    let files_content_w = cell_w + s(6.0) + cell_w * "Archivos".len() as f32;
     let fx = segment_x + s(2.0) + (slot_w - files_content_w) * 0.5;
     r.draw_chrome_text(size, fx, header_ty, files_ink, ICON_FOLDER, gc);
-    r.draw_chrome_text(size, fx + cell_w + s(6.0), header_ty, files_ink, "文件", gc);
+    r.draw_chrome_text(size, fx + cell_w + s(6.0), header_ty, files_ink, "Archivos", gc);
     let git_count = panel.git().map(|git| git.unstaged.len() + git.staged.len()).unwrap_or(0);
     let badge = (git_count > 0).then(|| git_count.to_string());
     let badge_w = badge.as_ref().map_or(0.0, |text| text.len() as f32 * cell_w + s(12.0));
@@ -487,7 +487,7 @@ pub(crate) fn draw_text(
                     panel
                         .root()
                         .map(|root| clip_tail(&root.display().to_string(), summary_cols))
-                        .unwrap_or_else(|| "（无目录）".into()),
+                        .unwrap_or_else(|| "(sin directorio)".into()),
                     sk.ink_dim,
                 )
             };
@@ -533,7 +533,7 @@ pub(crate) fn draw_text(
             r.draw_chrome_text(size, sx + s(8.0), search_ty, sk.ink_faint, ICON_SEARCH, gc);
             let qx = sx + s(8.0) + cell_w * 1.8;
             if panel.search.is_empty() && !panel.search_focus {
-                r.draw_chrome_text(size, qx, search_ty, sk.ink_faint, "筛选文件…", gc);
+                r.draw_chrome_text(size, qx, search_ty, sk.ink_faint, "Filtrar archivos…", gc);
             } else {
                 let shown = if panel.search_focus
                     && !panel.search_all_selected()
@@ -594,21 +594,21 @@ pub(crate) fn draw_text(
             if !has_real_rows {
                 let empty = if filtering {
                     crate::ux::EmptyState::new(
-                        "没有匹配文件",
-                        "当前筛选词未匹配工作区内容。",
-                        "修改筛选词，或按 Esc 清空筛选。",
+                        "Ningún archivo coincide",
+                        "El filtro actual no coincide con nada del espacio de trabajo.",
+                        "Cambia el filtro o pulsa Esc para borrarlo.",
                     )
                 } else if panel.root.is_none() {
                     crate::ux::EmptyState::new(
-                        "没有可浏览的目录",
-                        "当前终端尚未报告工作目录。",
-                        "在终端中进入一个目录后点击刷新。",
+                        "No hay directorio que explorar",
+                        "El terminal actual aún no ha informado de su directorio de trabajo.",
+                        "Entra en un directorio desde el terminal y pulsa Actualizar.",
                     )
                 } else {
                     crate::ux::EmptyState::new(
-                        "此目录为空",
-                        "当前工作目录中没有可显示的文件。",
-                        "在终端创建文件，或选择其他目录。",
+                        "Este directorio está vacío",
+                        "No hay archivos que mostrar en el directorio de trabajo actual.",
+                        "Crea archivos desde el terminal o elige otro directorio.",
                     )
                 };
                 let parent_row_offset = panel
@@ -700,7 +700,7 @@ pub(crate) fn draw_text(
                     };
                     let shown = format!("{}{caret}", panel.commit_msg);
                     let hint = if panel.commit_msg.is_empty() {
-                        "提交信息…  Enter 提交 · Esc 取消"
+                        "Mensaje de commit…  Enter confirma · Esc cancela"
                     } else {
                         ""
                     };
@@ -716,14 +716,14 @@ pub(crate) fn draw_text(
                     let pull_on = !busy;
                     let push_on = !busy && git.ahead > 0;
                     let push_label = if git.ahead > 0 {
-                        format!("推送 ↑{}", git.ahead)
+                        format!("Push ↑{}", git.ahead)
                     } else {
-                        "推送".to_string()
+                        "Push".to_string()
                     };
                     let labels: [(&str, bool); 4] = [
-                        (if busy { "…" } else { "暂存" }, stage_on),
-                        ("提交", commit_on),
-                        ("拉取", pull_on),
+                        (if busy { "…" } else { "Stage" }, stage_on),
+                        ("Commit", commit_on),
+                        ("Pull", pull_on),
                         (&push_label, push_on),
                     ];
                     for ((bx, bw), (label, enabled)) in
@@ -755,13 +755,13 @@ pub(crate) fn draw_text(
                 }
                 let mut lines: Vec<GLine<'_>> = Vec::new();
                 if git.unstaged.is_empty() && git.staged.is_empty() {
-                    lines.push(GLine::Header("工作区干净".into()));
+                    lines.push(GLine::Header("Sin cambios".into()));
                 } else {
-                    lines.push(GLine::Header(format!("未暂存 ({})", git.unstaged.len())));
+                    lines.push(GLine::Header(format!("Sin preparar ({})", git.unstaged.len())));
                     for (c, p) in &git.unstaged {
                         lines.push(GLine::File(*c, p));
                     }
-                    lines.push(GLine::Header(format!("已暂存 ({})", git.staged.len())));
+                    lines.push(GLine::Header(format!("Preparados ({})", git.staged.len())));
                     for (c, p) in &git.staged {
                         lines.push(GLine::File(*c, p));
                     }
@@ -797,7 +797,7 @@ pub(crate) fn draw_text(
                     px + text_pad,
                     summary_y,
                     sk.ink_dim,
-                    "不在 git 仓库中",
+                    "No es un repositorio git",
                     gc,
                 );
             },

@@ -60,27 +60,27 @@ impl SshConnectionOptions {
         validate_ssh_destination(destination)?;
         if self.has_custom_proxy() {
             validate_host(&self.normalized_proxy_host()).map_err(|_| {
-                "代理地址无效，请只填写主机名或 IP，不要包含协议、端口或密码".to_owned()
+                "Dirección de proxy no válida: indica solo el nombre de host o la IP, sin protocolo, puerto ni contraseña".to_owned()
             })?;
             if self.effective_proxy_port() == 0 {
-                return Err("代理端口必须在 1–65535 之间".to_owned());
+                return Err("El puerto del proxy debe estar entre 1 y 65535".to_owned());
             }
             let username = self.proxy_username.trim();
             if username.chars().any(char::is_control) {
-                return Err("代理用户名不能包含控制字符".to_owned());
+                return Err("El usuario del proxy no puede contener caracteres de control".to_owned());
             }
             if self.proxy_mode == SshHostProxyMode::Socks5 && username.len() > 255 {
-                return Err("SOCKS5 用户名不能超过 255 字节".to_owned());
+                return Err("El usuario SOCKS5 no puede superar los 255 bytes".to_owned());
             }
             if self.proxy_mode == SshHostProxyMode::Http && username.contains(':') {
-                return Err("HTTP 代理用户名不能包含冒号".to_owned());
+                return Err("El usuario del proxy HTTP no puede contener dos puntos".to_owned());
             }
         }
         if self.jump_mode == SshHostJumpMode::Host {
             validate_ssh_destination(&self.jump_host)
-                .map_err(|_| "跳板地址无效，请填写单个 SSH 别名或 user@host:port".to_owned())?;
+                .map_err(|_| "Dirección de salto no válida: indica un único alias SSH o user@host:port".to_owned())?;
             if normalized_destination(&self.jump_host) == normalized_destination(destination) {
-                return Err("不能将目标主机自身设为跳板".to_owned());
+                return Err("El host de destino no puede ser su propio salto".to_owned());
             }
         }
         Ok(())
@@ -113,7 +113,7 @@ impl SshConnectionOptions {
         for byte in digest.finalize() {
             let _ = write!(fingerprint, "{byte:02x}");
         }
-        Some(format!("Pebrel/SSH/Proxy/{fingerprint}"))
+        Some(format!("PoxiTerminal/SSH/Proxy/{fingerprint}"))
     }
 }
 
@@ -126,29 +126,29 @@ pub(crate) fn validate_ssh_destination(value: &str) -> Result<(), String> {
                 || ",;&|<>\"'`\\?#".contains(character)
         })
     {
-        return Err("SSH 地址为空或包含不允许的字符".to_owned());
+        return Err("La dirección SSH está vacía o contiene caracteres no permitidos".to_owned());
     }
     let address = value.strip_prefix("ssh://").unwrap_or(value);
     if address.starts_with('-') {
-        return Err("SSH 地址不能以选项前缀开头".to_owned());
+        return Err("La dirección SSH no puede empezar como una opción (-)".to_owned());
     }
     let host_port = if let Some((username, host)) = address.rsplit_once('@') {
         if username.is_empty() || username.contains(['@', ':', '/', '[', ']']) {
-            return Err("SSH 用户名无效".to_owned());
+            return Err("Usuario SSH no válido".to_owned());
         }
         host
     } else {
         address
     };
     let (host, port) = if let Some(rest) = host_port.strip_prefix('[') {
-        let (host, suffix) = rest.split_once(']').ok_or("IPv6 地址缺少右方括号")?;
+        let (host, suffix) = rest.split_once(']').ok_or("A la dirección IPv6 le falta el corchete de cierre")?;
         if host.parse::<Ipv6Addr>().is_err() {
-            return Err("IPv6 地址无效".to_owned());
+            return Err("Dirección IPv6 no válida".to_owned());
         }
         let port = if suffix.is_empty() {
             None
         } else {
-            Some(suffix.strip_prefix(':').ok_or("SSH 端口格式无效")?)
+            Some(suffix.strip_prefix(':').ok_or("Formato de puerto SSH no válido")?)
         };
         (host, port)
     } else if let Some((host, port)) = host_port.rsplit_once(':') {
@@ -158,22 +158,22 @@ pub(crate) fn validate_ssh_destination(value: &str) -> Result<(), String> {
     };
     validate_host(host)?;
     if port.is_some_and(|port| port.parse::<u16>().map_or(true, |port| port == 0)) {
-        return Err("SSH 端口必须在 1–65535 之间".to_owned());
+        return Err("El puerto SSH debe estar entre 1 y 65535".to_owned());
     }
     Ok(())
 }
 
 fn validate_host(host: &str) -> Result<(), String> {
     if host.is_empty() || host.starts_with('-') || host.len() > 253 {
-        return Err("主机名无效".to_owned());
+        return Err("Nombre de host no válido".to_owned());
     }
     if host.contains(':') {
-        host.parse::<Ipv6Addr>().map_err(|_| "IPv6 地址无效".to_owned())?;
+        host.parse::<Ipv6Addr>().map_err(|_| "Dirección IPv6 no válida".to_owned())?;
     } else if host
         .chars()
         .any(|character| !character.is_alphanumeric() && !matches!(character, '.' | '-' | '_'))
     {
-        return Err("主机名包含不允许的字符".to_owned());
+        return Err("El nombre de host contiene caracteres no permitidos".to_owned());
     }
     Ok(())
 }

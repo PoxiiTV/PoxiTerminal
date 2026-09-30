@@ -109,7 +109,7 @@ pub(crate) fn prepare(asset: &UpdateAsset) -> Result<PreparedUpdate, String> {
     crate::platform::distribution::require_direct_update()?;
     if crate::platform::elevation::requires_isolation() {
         return Err(
-            "Install updates from an ordinary Pebrel window so privileged sessions stay isolated"
+            "Install updates from an ordinary PoxiTerminal window so privileged sessions stay isolated"
                 .into(),
         );
     }
@@ -316,7 +316,7 @@ pub(super) fn failure_unseen(prompt_state: &Path) -> bool {
 pub(crate) fn schedule(asset: &UpdateAsset) -> Result<(), String> {
     crate::platform::distribution::require_direct_update()?;
     if crate::platform::elevation::requires_isolation() {
-        return Err("Schedule updates from an ordinary Pebrel window".into());
+        return Err("Schedule updates from an ordinary PoxiTerminal window".into());
     }
     super::validate_asset(asset)?;
     if !matches!(super::status(asset), super::DownloadStatus::Ready { .. }) {

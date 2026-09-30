@@ -13,19 +13,6 @@ impl SettingsPane {
             .into_any_element()
     }
 
-    /// 与外链行同一条骨架，尾标是「进入页面」而不是「离开应用」。
-    pub(super) fn about_page_row(
-        id: &'static str,
-        icon: IconName,
-        title: &'static str,
-        on_click: impl Fn(&gpui::ClickEvent, &mut Window, &mut App) + 'static,
-        cx: &Context<Self>,
-    ) -> gpui::AnyElement {
-        Self::about_row(id, icon, title, IconName::ChevronRight, cx)
-            .on_click(on_click)
-            .into_any_element()
-    }
-
     fn about_row(
         id: &'static str,
         icon: IconName,
@@ -294,11 +281,11 @@ impl SettingsPane {
                 crate::update_check::RELEASES_PAGE.to_owned(),
                 cx,
             ))
-            .child(Self::about_page_row(
-                "about-sponsors",
+            .child(Self::about_action_row(
+                "about-upstream",
                 IconName::Heart,
-                language.pick("赞助商", "Sponsors"),
-                cx.listener(|this, _, _, cx| this.open_sponsor_page(cx)),
+                language.pick("基于 Kuddev 的 pebrel", "Based on pebrel by Kuddev"),
+                UPSTREAM_URL.to_owned(),
                 cx,
             ));
 

@@ -494,7 +494,7 @@ pub(super) fn dispatch_runtime_command(
     let (dispatch, receiver) = RuntimeDispatch::new(command);
     if !sink.emit_control(dispatch) {
         return Err(agent_api::rollback_prepared_worktree(
-            ApiError::new("runtime_unavailable", "Pebrel's event loop is not available"),
+            ApiError::new("runtime_unavailable", "PoxiTerminal's event loop is not available"),
             worktree_transaction.take(),
         ));
     }
@@ -538,7 +538,7 @@ pub(super) fn dispatch_runtime_command(
                 error.details = Some(json!({
                     "worktree": provenance,
                     "cleanup_deferred": true,
-                    "reason": "the UI outcome is unknown; Pebrel did not remove the worktree"
+                    "reason": "the UI outcome is unknown; PoxiTerminal did not remove the worktree"
                 }));
             }
             Err(error)

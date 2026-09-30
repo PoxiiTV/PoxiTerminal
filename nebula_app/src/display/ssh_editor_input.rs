@@ -64,7 +64,7 @@ impl Display {
         let profile =
             crate::ssh_profiles::SshProfiles::load(&nebula_data_dir().join("ssh_profiles.json"))
                 .unwrap_or_else(|err| {
-                    warn!("加载 SSH Profile 失败，编辑器使用自动认证: {err}");
+                    warn!("No se pudo cargar el perfil SSH; el editor usará autenticación automática: {err}");
                     crate::ssh_profiles::SshProfiles::default()
                 })
                 .for_destination(&destination);
@@ -519,9 +519,9 @@ impl Display {
                 .any(|c| c.is_whitespace() || c.is_control() || ";&|<>\"'`".contains(c));
         if !valid {
             editor.error = Some(if destination.is_empty() {
-                "请输入 SSH 地址，例如 user@example.com".to_owned()
+                "Introduce una dirección SSH, p. ej. user@example.com".to_owned()
             } else {
-                "地址不能包含空白、控制字符或 shell 分隔符".to_owned()
+                "La dirección no puede contener espacios, caracteres de control ni separadores de shell".to_owned()
             });
             editor.test = Default::default();
             return;
@@ -713,7 +713,7 @@ impl Display {
         // `0`——那不是一个能连的端口，却能通过 parse。
         let port = editor.port.trim().to_owned();
         if !port.is_empty() && !port.parse::<u16>().is_ok_and(|p| p > 0) {
-            editor.error = Some("端口需要是 1–65535 之间的数字".to_owned());
+            editor.error = Some("El puerto debe ser un número entre 1 y 65535".to_owned());
             editor.field = SshEditorField::Port;
             self.nebula_ssh_editor = Some(editor);
             self.pending_update.dirty = true;
@@ -728,9 +728,9 @@ impl Display {
                 .any(|c| c.is_whitespace() || c.is_control() || ";&|<>\"'`".contains(c));
         if !valid {
             editor.error = Some(if destination.is_empty() {
-                "请输入 SSH 地址，例如 user@example.com".to_owned()
+                "Introduce una dirección SSH, p. ej. user@example.com".to_owned()
             } else {
-                "地址不能包含空白、控制字符或 shell 分隔符".to_owned()
+                "La dirección no puede contener espacios, caracteres de control ni separadores de shell".to_owned()
             });
             editor.field = SshEditorField::Destination;
             self.nebula_ssh_editor = Some(editor);
@@ -765,7 +765,7 @@ impl Display {
         let profile_path = nebula_data_dir().join("ssh_profiles.json");
         let mut profiles =
             crate::ssh_profiles::SshProfiles::load(&profile_path).unwrap_or_else(|err| {
-                warn!("加载 SSH Profile 失败，将创建新文件: {err}");
+                warn!("No se pudo cargar el perfil SSH; se creará un archivo nuevo: {err}");
                 crate::ssh_profiles::SshProfiles::default()
             });
         if let Some(original) = editor.original_destination.as_deref() {
@@ -795,7 +795,7 @@ impl Display {
             connection: profiles.for_destination(&destination).connection,
         });
         if let Err(err) = profiles.save(&profile_path) {
-            editor.error = Some(format!("保存 SSH Profile 失败: {err}"));
+            editor.error = Some(format!("No se pudo guardar el perfil SSH: {err}"));
             self.nebula_ssh_editor = Some(editor);
             self.pending_update.dirty = true;
             self.window.request_redraw();

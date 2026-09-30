@@ -271,8 +271,8 @@ impl SshStatus {
             },
             Self::DeleteCommitted { hidden_config: true } => language
                 .pick(
-                    "已隐藏 config 别名，并清理 Pebrel Profile 与凭据",
-                    "Config alias hidden; Pebrel profile and credentials removed",
+                    "已隐藏 config 别名，并清理 PoxiTerminal Profile 与凭据",
+                    "Config alias hidden; PoxiTerminal profile and credentials removed",
                 )
                 .into(),
             Self::DeleteCommitted { hidden_config: false } => language

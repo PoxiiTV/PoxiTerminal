@@ -123,7 +123,7 @@ pub fn discover_with(
         return source_for_path(path, true).map(Some);
     }
 
-    // A deliberately created Pebrel config takes priority over every legacy format.
+    // A deliberately created PoxiTerminal config takes priority over every legacy format.
     for brand in ["pebrel", "nebula"] {
         for extension in ["lua", "toml", "yml", "yaml"] {
             for path in roots.branded_candidates(brand, extension) {

@@ -320,8 +320,8 @@ impl SettingsPane {
                     self.row(
                         "Codex Goals",
                         language.pick(
-                            "写进 `~/.codex/config.toml` 的 `features.goals`。这是 Codex 自己的特性开关，Pebrel 只负责把它落到配置里，其它供应商不受影响。",
-                            "Writes `features.goals` to `~/.codex/config.toml`. This is a Codex feature flag; Pebrel only persists it and other providers are unaffected.",
+                            "写进 `~/.codex/config.toml` 的 `features.goals`。这是 Codex 自己的特性开关，PoxiTerminal 只负责把它落到配置里，其它供应商不受影响。",
+                            "Writes `features.goals` to `~/.codex/config.toml`. This is a Codex feature flag; PoxiTerminal only persists it and other providers are unaffected.",
                         ),
                         crate::gpui_shell::widgets::NebulaSwitch::new("provider-codex-goals")
                             .checked(goals)

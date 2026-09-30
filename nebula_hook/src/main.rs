@@ -1,4 +1,4 @@
-//! pebrel-hook — the bridge between AI-CLI lifecycle hooks and Pebrel.
+//! pebrel-hook — the bridge between AI-CLI lifecycle hooks and PoxiTerminal.
 //!
 //! Claude Code (`Stop` / `Notification` / `UserPromptSubmit` hooks), Kimi Code
 //! (`[[hooks]]` commands in `config.toml`, event JSON streamed on stdin like
@@ -19,7 +19,7 @@
 //!    but the effect must be Nebula-only. The scope guard is the environment:
 //!    NEBULA_NOTIFY_PIPE only exists for processes spawned inside Nebula.
 //!    Anywhere else it forwards nothing and exits without affecting the caller.
-//! 3. BOUNDED: pure std, no JSON handling (Pebrel parses), one pipe write.
+//! 3. BOUNDED: pure std, no JSON handling (PoxiTerminal parses), one pipe write.
 //!    Forwarding has a deadline; startup and notification latency depend on the host.
 //!
 //! Usage (installed by `nebula setup-ai` / Nebula's boot self-heal):
@@ -186,7 +186,7 @@ fn main() {
         let _ = finished.recv_timeout(FORWARD_TIMEOUT);
     }
     // A user-owned notifier is independent of our best-effort transport. Never
-    // wait for it and do not suppress it when the Pebrel pipe is unavailable.
+    // wait for it and do not suppress it when the PoxiTerminal pipe is unavailable.
     chain_notifier(&args);
     // Cursor 的提交前 Hook 有响应合同；传输失败也不能阻止用户提交。
     if args.first().is_some_and(|source| source == "cursor")

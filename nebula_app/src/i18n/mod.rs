@@ -15,7 +15,8 @@ impl LanguagePreference {
     }
 
     pub fn resolved(self) -> UiLanguage {
-        self.explicit().unwrap_or_else(|| UiLanguage::for_locale(system_locale().as_deref()))
+        // PoxiTerminal: "system" means Spanish, whatever the OS locale.
+        self.explicit().unwrap_or(UiLanguage::EsEs)
     }
 }
 
@@ -47,6 +48,10 @@ impl UiLanguage {
         match self {
             Self::ZhCn => zh_cn,
             Self::EnUs => en_us,
+            Self::EsEs => source_id(en_us)
+                .map(|message| self.text(message))
+                .or_else(|| phrase_es(en_us))
+                .unwrap_or(en_us),
             _ => source_id(en_us).map(|message| self.text(message)).unwrap_or(en_us),
         }
     }

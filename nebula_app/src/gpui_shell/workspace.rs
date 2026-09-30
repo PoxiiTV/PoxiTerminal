@@ -862,14 +862,17 @@ impl NebulaWorkspace {
                     cx.notify();
                 }
             });
-        let command_palette_input =
-            cx.new(|cx| InputState::new(window, cx).placeholder("搜索命令…"));
-        let command_manager_input =
-            cx.new(|cx| InputState::new(window, cx).placeholder("搜索已保存命令…"));
+        let language = workspace_ui_language();
+        let command_palette_input = cx.new(|cx| {
+            InputState::new(window, cx).placeholder(language.pick("搜索命令…", "Search commands..."))
+        });
+        let command_manager_input = cx.new(|cx| {
+            InputState::new(window, cx)
+                .placeholder(language.pick("搜索已保存命令…", "Search saved commands..."))
+        });
         let file_tree_search_input = cx.new(|cx| {
-            InputState::new(window, cx).placeholder(
-                workspace_ui_language().pick("搜索文件和文件夹…", "Search files and folders..."),
-            )
+            InputState::new(window, cx)
+                .placeholder(language.pick("搜索文件和文件夹…", "Search files and folders..."))
         });
         let git_commit_input = vcs_panel::CommitInput::new(window, cx);
         let command_palette_subscription = cx.subscribe_in(
@@ -1280,7 +1283,7 @@ impl NebulaWorkspace {
             if !lists.is_from_config(&destination) {
                 lists.remember(&destination);
                 if let Err(err) = lists.persist() {
-                    log::warn!("持久化 SSH 主机列表失败: {err}");
+                    log::warn!("No se pudo guardar la lista de hosts SSH: {err}");
                 }
             }
         }
@@ -2333,19 +2336,26 @@ impl NebulaWorkspace {
         cx.spawn_in(window, async move |this, cx| {
             let Ok(Ok(Some(path))) = prompt.await else { return };
             let result = crate::session::save_to(&path, &export);
-            let _ = this.update_in(cx, |_, window, cx| match result {
-                Ok(()) => crate::gpui_shell::toast::toast(
-                    window,
-                    cx,
-                    crate::display::ToastKind::Success,
-                    format!("已导出到 {}", path.display()),
-                ),
-                Err(error) => crate::gpui_shell::toast::toast(
-                    window,
-                    cx,
-                    crate::display::ToastKind::Warning,
-                    format!("工作区导出失败：{error}"),
-                ),
+            let _ = this.update_in(cx, |_, window, cx| {
+                let language = crate::gpui_shell::config::ui_language(cx);
+                match result {
+                    Ok(()) => crate::gpui_shell::toast::toast(
+                        window,
+                        cx,
+                        crate::display::ToastKind::Success,
+                        language
+                            .pick("已导出到 {path}", "Exported to {path}")
+                            .replace("{path}", &path.display().to_string()),
+                    ),
+                    Err(error) => crate::gpui_shell::toast::toast(
+                        window,
+                        cx,
+                        crate::display::ToastKind::Warning,
+                        language
+                            .pick("工作区导出失败：{error}", "Workspace export failed: {error}")
+                            .replace("{error}", &error.to_string()),
+                    ),
+                }
             });
         })
         .detach();

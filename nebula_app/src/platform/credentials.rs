@@ -9,14 +9,14 @@ struct CredentialIdentity<'a> {
 impl<'a> CredentialIdentity<'a> {
     fn current(target: &'a str) -> Self {
         let target = match target.strip_prefix("Nebula/") {
-            Some(suffix) => Cow::Owned(format!("Pebrel/{suffix}")),
+            Some(suffix) => Cow::Owned(format!("PoxiTerminal/{suffix}")),
             None => Cow::Borrowed(target),
         };
-        Self { service: "Pebrel", target }
+        Self { service: "PoxiTerminal", target }
     }
 
     fn legacy(target: &'a str) -> Option<Self> {
-        let suffix = target.strip_prefix("Pebrel/").or_else(|| target.strip_prefix("Nebula/"));
+        let suffix = target.strip_prefix("PoxiTerminal/").or_else(|| target.strip_prefix("Nebula/"));
         #[cfg(windows)]
         if suffix.is_none() {
             return None;
@@ -47,7 +47,7 @@ fn load_with(
 }
 
 pub fn store(target: &str, secret: &[u8]) -> io::Result<()> {
-    store_with_username(target, "Pebrel", secret)
+    store_with_username(target, "PoxiTerminal", secret)
 }
 
 pub fn store_with_username(target: &str, username: &str, secret: &[u8]) -> io::Result<()> {
@@ -148,7 +148,7 @@ fn invoke(
     let mut command = Command::new(program);
     command.arg(operation);
     if operation == "store" {
-        command.arg("--label=Pebrel SSH");
+        command.arg("--label=PoxiTerminal SSH");
     }
     let mut child = command
         .args(["application", identity.service, "target", &identity.target])
@@ -234,9 +234,9 @@ mod tests {
 
     #[test]
     fn legacy_targets_write_to_pebrel_and_read_the_existing_secret() {
-        for target in ["Pebrel/SSH/user@host", "Nebula/SSH/user@host"] {
+        for target in ["PoxiTerminal/SSH/user@host", "Nebula/SSH/user@host"] {
             let current = CredentialIdentity::current(target);
-            assert_eq!(key(&current), ("Pebrel".into(), "Pebrel/SSH/user@host".into()));
+            assert_eq!(key(&current), ("PoxiTerminal".into(), "PoxiTerminal/SSH/user@host".into()));
             let stored = HashMap::from([(
                 ("Nebula".into(), "Nebula/SSH/user@host".into()),
                 b"old password".to_vec(),
@@ -250,10 +250,10 @@ mod tests {
 
     #[test]
     fn replacing_and_forgetting_a_secret_cannot_restore_the_legacy_value() {
-        let target = "Pebrel/AI/provider";
+        let target = "PoxiTerminal/AI/provider";
         let mut stored = HashMap::from([
             (("Nebula".into(), "Nebula/AI/provider".into()), b"old key".to_vec()),
-            (("Pebrel".into(), "Pebrel/AI/provider".into()), b"new key".to_vec()),
+            (("PoxiTerminal".into(), "PoxiTerminal/AI/provider".into()), b"new key".to_vec()),
         ]);
         assert_eq!(
             load_with(target, |identity| Ok(stored.get(&key(identity)).cloned())).unwrap(),
@@ -274,7 +274,7 @@ mod tests {
     #[test]
     fn a_failed_legacy_deletion_preserves_the_current_secret() {
         let mut removed = Vec::new();
-        let error = delete_with("Pebrel/SSH/user@host", |identity| {
+        let error = delete_with("PoxiTerminal/SSH/user@host", |identity| {
             removed.push(key(identity));
             Err(io::Error::from(io::ErrorKind::PermissionDenied))
         })
@@ -286,13 +286,13 @@ mod tests {
     #[test]
     fn a_read_failure_does_not_fall_back_to_an_older_secret() {
         let mut reads = Vec::new();
-        let error = load_with("Pebrel/SSH/user@host", |identity| {
+        let error = load_with("PoxiTerminal/SSH/user@host", |identity| {
             reads.push(key(identity));
             Err(io::Error::from(io::ErrorKind::PermissionDenied))
         })
         .unwrap_err();
         assert_eq!(error.kind(), io::ErrorKind::PermissionDenied);
-        assert_eq!(reads, [("Pebrel".into(), "Pebrel/SSH/user@host".into())]);
+        assert_eq!(reads, [("PoxiTerminal".into(), "PoxiTerminal/SSH/user@host".into())]);
     }
 
     #[cfg(not(windows))]
@@ -303,7 +303,7 @@ mod tests {
         let legacy = CredentialIdentity::legacy(target).unwrap();
         assert_eq!(current.target, target);
         assert_eq!(legacy.target, target);
-        assert_eq!(current.service, "Pebrel");
+        assert_eq!(current.service, "PoxiTerminal");
         assert_eq!(legacy.service, "Nebula");
     }
 

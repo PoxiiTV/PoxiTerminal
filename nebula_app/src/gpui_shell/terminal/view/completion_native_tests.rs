@@ -212,7 +212,7 @@ fn git_completion_native_shell_end_to_end() {
             focus: false,
             ..Default::default()
         }, |window, cx| {
-            if demo.is_some() { window.set_window_title("Pebrel Completion Demo"); }
+            if demo.is_some() { window.set_window_title("PoxiTerminal Completion Demo"); }
             let view = cx.new(|cx| TerminalView::new(9001, (100, 30), TerminalLaunch::Local {
                 cwd: Some(cwd), shell: Some(shell), shell_name: None,
             }, window, cx));

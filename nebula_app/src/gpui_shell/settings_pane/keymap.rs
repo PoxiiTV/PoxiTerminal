@@ -21,9 +21,10 @@ impl SettingsPane {
     fn confirmation_shortcuts_search_text() -> String {
         let message = crate::i18n::Message::CommonConfirmationDialogShortcuts;
         format!(
-            "{} {} Enter / Esc",
+            "{} {} {} Enter / Esc",
             crate::i18n::UiLanguage::ZhCn.text(message),
             crate::i18n::UiLanguage::EnUs.text(message),
+            crate::i18n::UiLanguage::EsEs.text(message),
         )
         .to_lowercase()
     }
@@ -76,7 +77,8 @@ impl SettingsPane {
         } else {
             keymap::EDITABLE_ACTIONS.get(flat - 1).map(|(_, zh, en)| (*zh, *en)).unwrap_or(("", ""))
         };
-        format!("{zh} {en} {combo}").to_lowercase()
+        let es = crate::i18n::UiLanguage::EsEs.pick(zh, en);
+        format!("{zh} {en} {es} {combo}").to_lowercase()
     }
 
     /// 过滤后的可见行（flat 下标，升序）。空查询 = 全部。

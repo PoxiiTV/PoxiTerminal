@@ -17,8 +17,8 @@ use crate::event::{Event, EventType};
 #[cfg(feature = "legacy-shell")]
 use crate::message_bar::{Message, MessageType};
 
-const RELEASES_API: &str = "https://api.github.com/repos/Kuddev/pebrel/releases/latest";
-pub const RELEASES_PAGE: &str = "https://github.com/Kuddev/pebrel/releases";
+const RELEASES_API: &str = "https://api.github.com/repos/PoxiiTV/PoxiTerminal/releases/latest";
+pub const RELEASES_PAGE: &str = "https://github.com/PoxiiTV/PoxiTerminal/releases";
 const UPDATE_STATE_FILE: &str = "update_state.json";
 const REMIND_LATER_SECS: u64 = 3 * 24 * 60 * 60;
 
@@ -145,7 +145,7 @@ pub fn spawn_once(proxy: EventLoopProxy<Event>) {
             log::debug!("update-check: v{current} is current (latest v{latest})");
             return;
         }
-        let text = format!("Pebrel v{latest} 已发布（当前 v{current}），下载：{RELEASES_PAGE}");
+        let text = format!("PoxiTerminal v{latest} ya está disponible (tienes la v{current}). Descárgala en: {RELEASES_PAGE}");
         let _ = proxy.send_event(Event::new(
             EventType::Message(Message::new(text, MessageType::Warning)),
             None,
@@ -263,16 +263,16 @@ fn update_prompt_state(change: impl FnOnce(&mut UpdatePromptState)) -> Result<()
     let _guard = UPDATE_STATE_LOCK.lock().unwrap_or_else(|poison| poison.into_inner());
     let path = update_state_path();
     let Some(_file_lock) = crate::atomic_file::try_lock(&path)
-        .map_err(|error| format!("无法锁定更新提醒状态：{error}"))?
+        .map_err(|error| format!("No se pudo bloquear el estado del aviso de actualización: {error}"))?
     else {
-        return Err("更新提醒状态正由另一个 Pebrel 进程写入".to_owned());
+        return Err("Otro proceso de PoxiTerminal está escribiendo el estado del aviso de actualización".to_owned());
     };
     let mut state = load_prompt_state();
     change(&mut state);
     let bytes = serde_json::to_vec_pretty(&state)
-        .map_err(|error| format!("无法序列化更新提醒状态：{error}"))?;
+        .map_err(|error| format!("No se pudo serializar el estado del aviso de actualización: {error}"))?;
     crate::atomic_file::write(&path, &bytes)
-        .map_err(|error| format!("无法保存更新提醒状态：{error}"))
+        .map_err(|error| format!("No se pudo guardar el estado del aviso de actualización: {error}"))
 }
 
 pub fn should_prompt(version: &str) -> bool {
@@ -322,23 +322,23 @@ fn fetch_release_with_fallback(
         .call();
     let mut response = match response {
         Err(ureq::Error::StatusCode(status @ (403 | 429))) => return on_rate_limit(status),
-        other => other.map_err(|error| format!("GitHub 请求失败：{error}"))?,
+        other => other.map_err(|error| format!("Error en la petición a GitHub: {error}"))?,
     };
     let bytes = response
         .body_mut()
         .with_config()
         .limit(2 * 1024 * 1024)
         .read_to_vec()
-        .map_err(|error| format!("GitHub 请求失败：{error}"))?;
+        .map_err(|error| format!("Error en la petición a GitHub: {error}"))?;
     parse_latest_release(&bytes)
 }
 
 fn parse_latest_release(bytes: &[u8]) -> Result<LatestRelease, String> {
     let release: GitHubRelease =
-        serde_json::from_slice(bytes).map_err(|error| format!("GitHub 返回了无效数据：{error}"))?;
+        serde_json::from_slice(bytes).map_err(|error| format!("GitHub devolvió datos no válidos: {error}"))?;
     let version = release.tag_name.trim().trim_start_matches(['v', 'V']);
     if version.is_empty() {
-        return Err("GitHub release 的版本号为空".to_owned());
+        return Err("La release de GitHub no tiene número de versión".to_owned());
     }
     let version = version.to_owned();
     let asset = assets::select(
@@ -352,8 +352,8 @@ fn parse_latest_release(bytes: &[u8]) -> Result<LatestRelease, String> {
 
 pub(crate) fn windows_x64_installer_names(version: &str) -> [String; 3] {
     [
-        format!("Pebrel-v{version}-windows-x64-setup.exe"),
-        format!("Pebrel-{version}-windows-x64-setup.exe"),
+        format!("PoxiTerminal-v{version}-windows-x64-setup.exe"),
+        format!("PoxiTerminal-{version}-windows-x64-setup.exe"),
         format!("NebulaTerminal-{version}-windows-x64-setup.exe"),
     ]
 }
@@ -576,12 +576,12 @@ mod tests {
     #[test]
     fn installer_selection_rejects_other_versions_platforms_and_archive_names() {
         let names = [
-            "Pebrel-1.5.0-windows-x64-setup.exe",
+            "PoxiTerminal-1.5.0-windows-x64-setup.exe",
             "NebulaTerminal-1.5.0-windows-x64-setup.exe",
-            "Pebrel-1.6.0-windows-arm64-setup.exe",
-            "Pebrel-v1.6.0-windows-x64.zip",
-            "Pebrel-1.6.0-linux-x86_64.deb",
-            "prefix-Pebrel-1.6.0-windows-x64-setup.exe",
+            "PoxiTerminal-1.6.0-windows-arm64-setup.exe",
+            "PoxiTerminal-v1.6.0-windows-x64.zip",
+            "PoxiTerminal-1.6.0-linux-x86_64.deb",
+            "prefix-PoxiTerminal-1.6.0-windows-x64-setup.exe",
             "NebulaTerminal-1.6.0-windows-x64-setup.exe.bak",
         ];
         let assets = names.map(release_asset).into_iter().collect();
@@ -596,8 +596,8 @@ mod tests {
         let json = serde_json::json!({
             "tag_name": "v1.6.0",
             "assets": [{
-                "name": "Pebrel-1.6.0-windows-x64-setup.exe",
-                "browser_download_url": "https://github.com/Kuddev/nebula/releases/download/v1.6.0/Pebrel-1.6.0-windows-x64-setup.exe",
+                "name": "PoxiTerminal-1.6.0-windows-x64-setup.exe",
+                "browser_download_url": "https://github.com/Kuddev/nebula/releases/download/v1.6.0/PoxiTerminal-1.6.0-windows-x64-setup.exe",
                 "size": 42,
                 "digest": format!("sha256:{}", "a".repeat(64)),
             }],

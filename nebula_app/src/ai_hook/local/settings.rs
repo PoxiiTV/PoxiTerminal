@@ -184,7 +184,7 @@ pub(crate) fn set_enabled(agent: AgentHook, enabled: bool) -> io::Result<()> {
         }
         if helper_path().is_none() {
             return Err(io::Error::other(
-                "The Pebrel hook helper is missing from this installation.",
+                "The PoxiTerminal hook helper is missing from this installation.",
             ));
         }
     }

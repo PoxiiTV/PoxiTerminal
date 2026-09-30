@@ -1,4 +1,4 @@
-//! Windows UAC launch adapter. The requested program is always hosted by Pebrel.
+//! Windows UAC launch adapter. The requested program is always hosted by PoxiTerminal.
 
 use std::ffi::{OsStr, OsString};
 use std::io;

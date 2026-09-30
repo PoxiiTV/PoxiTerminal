@@ -1403,15 +1403,15 @@ fn theme_transfer_export_writes_a_valid_native_document_without_publishing_prefe
 
     click("theme-editor-export", &mut window);
     assert!(window.debug_bounds("theme-transfer-dialog").is_some());
-    assert!(window.debug_bounds("theme-transfer-format-Pebrel").is_some());
+    assert!(window.debug_bounds("theme-transfer-format-PoxiTerminal").is_some());
 
     // Exercise the rendered format controls and return to the lossless native
     // adapter before choosing the destination.
     click("theme-transfer-format-Kitty", &mut window);
-    click("theme-transfer-format-Pebrel", &mut window);
+    click("theme-transfer-format-PoxiTerminal", &mut window);
     assert_eq!(
         pane.read_with(&mut window, |pane, _| pane.theme_transfer.export_format),
-        ThemeFormat::Pebrel
+        ThemeFormat::PoxiTerminal
     );
     click("theme-transfer-confirm", &mut window);
     let output_for_picker = output_path.clone();

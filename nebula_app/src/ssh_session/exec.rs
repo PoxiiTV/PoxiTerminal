@@ -67,7 +67,7 @@ pub(super) async fn capture(
                     if let Ok(text) = std::str::from_utf8(&data) {
                         let text = text.trim();
                         if !text.is_empty() {
-                            log::debug!("远端命令 stderr（{raw_destination}）: {text}");
+                            log::debug!("stderr del comando remoto ({raw_destination}): {text}");
                         }
                     }
                 },
@@ -87,6 +87,6 @@ pub(super) async fn capture(
             closed?;
             Ok(String::from_utf8_lossy(&stdout?).into_owned())
         },
-        Err(_) => Err(format!("远端命令超过 {} 秒未返回", budget.as_secs()).into()),
+        Err(_) => Err(format!("El comando remoto no respondió en {} s", budget.as_secs()).into()),
     }
 }

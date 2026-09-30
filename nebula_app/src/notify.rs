@@ -1,4 +1,4 @@
-//! Pebrel's notification center.
+//! PoxiTerminal's notification center.
 //!
 //! One funnel for everything that may deserve the user's attention —
 //! terminal bells (Claude Code / Codex ring one when a turn finishes),
@@ -9,12 +9,12 @@
 //!
 //! Delivery on Windows is a real WinRT toast (system tray / notification
 //! center), on top of the taskbar flash. Unlike launchers that ask the user to
-//! hand-edit hook scripts into each CLI's config — Pebrel needs ZERO user
+//! hand-edit hook scripts into each CLI's config — PoxiTerminal needs ZERO user
 //! setup: AI CLIs already ring BEL when a turn ends, so the toast fires off
-//! that signal out of the box. Toast identity comes from a "Pebrel" AUMID
+//! that signal out of the box. Toast identity comes from a "PoxiTerminal" AUMID
 //! registered under `HKCU\Software\Classes\AppUserModelId` (the documented
 //! registry route for unpackaged apps — no COM, no Start-menu shortcut, no
-//! installer), so banners read "Pebrel" instead of "Windows PowerShell".
+//! installer), so banners read "PoxiTerminal" instead of "Windows PowerShell".
 //!
 //! Delivery discipline: the toast RPC runs on a throwaway thread so a slow or
 //! faulty notification stack can never stall the winit event loop — and a
@@ -99,7 +99,7 @@ pub enum Notification {
     /// Free-text notification from a program (OSC 9). Claude
     /// Code emits these (with the turn's actual message) when its notif
     /// channel is `iterm2`/`iterm2_with_bell`. Carries the tracked program
-    /// name so the toast is titled "claude" instead of "Pebrel".
+    /// name so the toast is titled "claude" instead of "PoxiTerminal".
     Text { body: String, program: Option<String> },
     /// Typed AI-CLI turn event delivered through the `pebrel-hook` pipe
     /// (claude hooks / codex notify — see `ai_hook`). `attention` means the
@@ -209,7 +209,7 @@ impl Notification {
         program.is_some_and(|program| crate::ai_agents::AgentKind::parse(program).is_some())
     }
 
-    /// Toast title + body. Title names the source ("Pebrel" or the program);
+    /// Toast title + body. Title names the source ("PoxiTerminal" or the program);
     /// body carries the human detail, bounded to a glanceable length.
     pub(crate) fn toast_text(&self) -> (String, String) {
         let (title, body) = self.raw_toast_text();
@@ -223,7 +223,10 @@ impl Notification {
                     p.clone(),
                     notification_language().text(crate::i18n::Message::NotificationBell).to_owned(),
                 ),
-                None => (crate::brand::NAME.to_owned(), "终端响铃".to_owned()),
+                None => (
+                    crate::brand::NAME.to_owned(),
+                    notification_language().pick("终端响铃", "Terminal bell").to_owned(),
+                ),
             },
             Self::CommandDone { duration, program } => (
                 program.clone().unwrap_or_else(|| crate::brand::NAME.to_owned()),
@@ -249,9 +252,13 @@ impl Notification {
             Self::AiTurn { program, message, attention } => {
                 let body = message.clone().unwrap_or_else(|| {
                     if *attention {
-                        "需要你的确认或输入".to_owned()
+                        notification_language()
+                            .pick("需要你的确认或输入", "Needs your confirmation or input")
+                            .to_owned()
                     } else {
-                        "回合完成，等待下一条指令".to_owned()
+                        notification_language()
+                            .pick("回合完成，等待下一条指令", "Turn complete, waiting for the next instruction")
+                            .to_owned()
                     }
                 });
                 (program.clone(), body)

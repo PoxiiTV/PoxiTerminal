@@ -1,6 +1,6 @@
 //! Optional, process-scoped Windows App Runtime package graph lease.
 //!
-//! Resolve the Windows 11 API dynamically so older Windows can still load Pebrel.
+//! Resolve the Windows 11 API dynamically so older Windows can still load PoxiTerminal.
 //! No bootstrap DLL, installation, filesystem probing or global package mutation.
 
 use std::ffi::c_void;
@@ -83,7 +83,7 @@ impl Runtime {
 #[test]
 fn absent_runtime_is_a_recoverable_error() {
     assert!(
-        Runtime::load_family(windows_core::w!("Pebrel.MissingAcrylicRuntime_8wekyb3d8bbwe"))
+        Runtime::load_family(windows_core::w!("PoxiTerminal.MissingAcrylicRuntime_8wekyb3d8bbwe"))
             .is_err()
     );
 }

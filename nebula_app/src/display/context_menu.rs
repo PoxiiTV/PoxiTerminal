@@ -118,7 +118,8 @@ fn contains((x, y, w, h): (f32, f32, f32, f32), px: f32, py: f32) -> bool {
 
 fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32) -> MenuLayout {
     let s = |v: f32| v * scale;
-    let width = s(252.0);
+    // Etiquetas en castellano: más anchas que las CJK originales.
+    let width = s(280.0);
     let row_h = s(38.0);
     let pad = s(7.0);
     let sep_h = s(9.0);
@@ -179,7 +180,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
                 rows.push(row(
                     ContextMenuAction::ForkAiSession(index),
                     ICON_FORK,
-                    "分叉 AI 会话",
+                    "Bifurcar sesión de IA",
                     "",
                     cursor_y,
                     false,
@@ -190,7 +191,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::DuplicateTab(index),
                 ICON_COPY,
-                "复制标签页",
+                "Duplicar pestaña",
                 "",
                 cursor_y,
                 false,
@@ -199,7 +200,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::ExportTab(index),
                 ICON_EXPORT,
-                "导出为工作区…",
+                "Exportar como espacio…",
                 "",
                 cursor_y,
                 false,
@@ -209,7 +210,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::SplitTabRight(index),
                 ICON_SPLIT_RIGHT,
-                "左右分屏",
+                "Dividir derecha",
                 "Ctrl+Shift+D",
                 cursor_y,
                 false,
@@ -218,7 +219,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::SplitTabDown(index),
                 ICON_SPLIT_DOWN,
-                "上下分屏",
+                "Dividir abajo",
                 "Ctrl+Shift+S",
                 cursor_y,
                 false,
@@ -228,7 +229,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::RenameTab(index),
                 ICON_EDIT,
-                "重命名",
+                "Renombrar",
                 "",
                 cursor_y,
                 false,
@@ -237,7 +238,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::CloseTab(index),
                 ICON_CLOSE,
-                "关闭",
+                "Cerrar",
                 "Ctrl+Shift+W",
                 cursor_y,
                 true,
@@ -260,7 +261,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::ConnectSsh(index),
                 "\u{f489}",
-                "连接",
+                "Conectar",
                 "Enter",
                 cursor_y,
                 false,
@@ -269,7 +270,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::OpenSftp(index),
                 "\u{f0c7}",
-                "打开 SFTP",
+                "Abrir SFTP",
                 "",
                 cursor_y,
                 false,
@@ -278,7 +279,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::CopySshAddress(index),
                 ICON_COPY,
-                "复制地址",
+                "Copiar dirección",
                 "",
                 cursor_y,
                 false,
@@ -287,7 +288,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::EditSsh(index),
                 ICON_EDIT,
-                "编辑",
+                "Editar",
                 "",
                 cursor_y,
                 false,
@@ -297,7 +298,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::DeleteSsh(index),
                 "\u{ea81}",
-                "删除",
+                "Eliminar",
                 "",
                 cursor_y,
                 true,
@@ -307,7 +308,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::DownloadSftp(index),
                 "\u{eb4a}",
-                "下载",
+                "Descargar",
                 "",
                 cursor_y,
                 false,
@@ -316,7 +317,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::RenameSftp(index),
                 ICON_EDIT,
-                "重命名",
+                "Renombrar",
                 "F2",
                 cursor_y,
                 false,
@@ -326,20 +327,20 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::DeleteSftp(index),
                 "\u{ea81}",
-                "删除",
+                "Eliminar",
                 "",
                 cursor_y,
                 true,
             ));
         },
         ContextMenuTarget::SftpPanel => {
-            rows.push(row(ContextMenuAction::RefreshSftp, "\u{eb37}", "刷新", "", cursor_y, false));
+            rows.push(row(ContextMenuAction::RefreshSftp, "\u{eb37}", "Actualizar", "", cursor_y, false));
             cursor_y += row_h;
             separator(&mut cursor_y);
             rows.push(row(
                 ContextMenuAction::UploadFilesSftp,
                 "\u{eb4b}",
-                "上传文件",
+                "Subir archivos",
                 "",
                 cursor_y,
                 false,
@@ -348,7 +349,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::UploadDirectorySftp,
                 "\u{ea83}",
-                "上传目录",
+                "Subir carpeta",
                 "",
                 cursor_y,
                 false,
@@ -357,7 +358,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::NewDirectorySftp,
                 "\u{eaf7}",
-                "新建目录",
+                "Nueva carpeta",
                 "",
                 cursor_y,
                 false,
@@ -370,7 +371,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
                 rows.push(row(
                     ContextMenuAction::TerminalHereFileTree(index),
                     "\u{ea85}",
-                    "在此处打开终端",
+                    "Abrir terminal aquí",
                     "",
                     cursor_y,
                     false,
@@ -379,7 +380,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
                 rows.push(row(
                     ContextMenuAction::OpenFileTree(index),
                     "\u{ea7b}",
-                    "打开",
+                    "Abrir",
                     "",
                     cursor_y,
                     false,
@@ -389,7 +390,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::RevealFileTree(index),
                 "\u{eaf7}",
-                "在资源管理器中显示",
+                "Mostrar en Explorador",
                 "",
                 cursor_y,
                 false,
@@ -398,7 +399,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::CopyFileTreePath(index),
                 ICON_COPY,
-                "复制路径",
+                "Copiar ruta",
                 "",
                 cursor_y,
                 false,
@@ -408,7 +409,7 @@ fn layout(menu: &ContextMenu, size: SizeInfo, scale: f32, animated_y_offset: f32
             rows.push(row(
                 ContextMenuAction::DeleteFileTree(index),
                 "\u{ea81}",
-                "删除",
+                "Eliminar",
                 "",
                 cursor_y,
                 true,
@@ -592,7 +593,7 @@ pub(super) fn draw(display: &mut Display) {
         }
     }
     if let Some((x, y)) = layout.color_label {
-        display.renderer.draw_chrome_text(&size, x, y, dim, "标签颜色", &mut display.glyph_cache);
+        display.renderer.draw_chrome_text(&size, x, y, dim, "Color de pestaña", &mut display.glyph_cache);
     }
     if let Some((None, _, rect)) = layout.colors.first() {
         display.renderer.draw_chrome_text(

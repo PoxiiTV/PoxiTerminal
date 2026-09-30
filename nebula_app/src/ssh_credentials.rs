@@ -31,7 +31,7 @@ pub fn classify_prompt(prompt: &str) -> AskpassPromptKind {
 }
 
 pub fn credential_target(destination: &str) -> String {
-    format!("Pebrel/SSH/{destination}")
+    format!("PoxiTerminal/SSH/{destination}")
 }
 
 pub fn private_key_credential_target(private_key: &[u8]) -> String {
@@ -43,7 +43,7 @@ pub fn private_key_credential_target(private_key: &[u8]) -> String {
     for byte in digest {
         let _ = write!(fingerprint, "{byte:02x}");
     }
-    format!("Pebrel/SSH/KeyPassphrase/{fingerprint}")
+    format!("PoxiTerminal/SSH/KeyPassphrase/{fingerprint}")
 }
 
 pub fn is_askpass_env(mut get: impl FnMut(&str) -> Option<String>) -> bool {
@@ -361,7 +361,7 @@ pub(crate) mod windows_store {
             IDYES, MB_ICONWARNING, MB_SETFOREGROUND, MB_YESNO, MessageBoxW,
         };
         let text = wide(prompt);
-        let title = wide("Pebrel SSH");
+        let title = wide("PoxiTerminal SSH");
         let answer = unsafe {
             MessageBoxW(
                 null_mut(),
@@ -465,10 +465,10 @@ mod tests {
 
     #[test]
     fn credential_target_is_stable_and_namespaced() {
-        assert_eq!(credential_target("root@example.com"), "Pebrel/SSH/root@example.com");
+        assert_eq!(credential_target("root@example.com"), "PoxiTerminal/SSH/root@example.com");
         assert_eq!(
             credential_target("ssh://admin@example.com:2222"),
-            "Pebrel/SSH/ssh://admin@example.com:2222"
+            "PoxiTerminal/SSH/ssh://admin@example.com:2222"
         );
     }
 
@@ -512,7 +512,7 @@ mod tests {
 
         assert_eq!(first, moved);
         assert_ne!(first, changed);
-        assert!(first.starts_with("Pebrel/SSH/KeyPassphrase/"));
+        assert!(first.starts_with("PoxiTerminal/SSH/KeyPassphrase/"));
         assert!(!first.contains("Users"));
         assert!(!first.contains(".ssh"));
     }

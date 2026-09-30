@@ -90,7 +90,7 @@ async fn register(
     let result: Result<bool, Box<dyn std::error::Error>> = async {
         let mut events = portal.receive_activated().await?;
         let trigger = preferred_trigger(combo);
-        let shortcut = NewShortcut::new("quick-terminal", "Pebrel quick terminal").preferred_trigger(trigger.as_deref());
+        let shortcut = NewShortcut::new("quick-terminal", "PoxiTerminal quick terminal").preferred_trigger(trigger.as_deref());
         let shortcuts = [shortcut];
         tokio::select! {
             result = portal.bind_shortcuts(&session, &shortcuts, None, Default::default()) => { result?.response()?; },

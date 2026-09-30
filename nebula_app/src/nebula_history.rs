@@ -1,4 +1,4 @@
-//! Persistent, scoped command history backing Pebrel's fish-style suggestions.
+//! Persistent, scoped command history backing PoxiTerminal's fish-style suggestions.
 //!
 //! Local Windows shells share one pool. WSL commands are isolated by distro,
 //! and SSH commands by destination, so a valid command on one machine never

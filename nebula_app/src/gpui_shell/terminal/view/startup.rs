@@ -215,7 +215,12 @@ impl TerminalView {
                 (Some(session), None)
             },
             Err(err) => {
-                let what = if is_ssh { "SSH 会话启动失败" } else { "PTY 启动失败" };
+                let language = crate::gpui_shell::config::ui_language(cx);
+                let what = if is_ssh {
+                    language.pick("SSH 会话启动失败", "Failed to start SSH session")
+                } else {
+                    language.pick("PTY 启动失败", "Failed to start PTY")
+                };
                 (None, Some(format!("{what}: {err}")))
             },
         };

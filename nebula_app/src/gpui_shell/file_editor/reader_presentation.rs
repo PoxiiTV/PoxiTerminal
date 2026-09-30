@@ -1,4 +1,4 @@
-//! Pebrel-owned reader geometry. GPUI supplies drawing, not document design.
+//! PoxiTerminal-owned reader geometry. GPUI supplies drawing, not document design.
 
 pub(super) const PAGE_WIDTH: f32 = 720.0;
 pub(super) const PAGE_MARGIN: f32 = 40.0;

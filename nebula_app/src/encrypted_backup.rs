@@ -1,4 +1,4 @@
-//! Password-protected backups of the files Pebrel owns in its data directory.
+//! Password-protected backups of the files PoxiTerminal owns in its data directory.
 //!
 //! This module deliberately does not discover files by walking the user's home
 //! directory. The allowlist below is the security boundary for both export and
@@ -216,7 +216,7 @@ fn decrypt_bytes(packet: &[u8], passphrase: &str) -> Result<zeroize::Zeroizing<V
     validate_passphrase(passphrase)?;
     let header_len = MAGIC.len() + SALT_LEN + NONCE_LEN;
     if packet.len() <= header_len || packet.get(..MAGIC.len()) != Some(MAGIC) {
-        return Err("not a Pebrel encrypted backup or unsupported version".to_owned());
+        return Err("not a PoxiTerminal encrypted backup or unsupported version".to_owned());
     }
     let salt = &packet[MAGIC.len()..MAGIC.len() + SALT_LEN];
     let nonce = &packet[MAGIC.len() + SALT_LEN..header_len];

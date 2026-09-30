@@ -158,14 +158,14 @@
     "reset_description": "設定とキーボードショートカットをリセットします。SSH ホスト、資格情報、履歴は保持され、現在の設定はバックアップされます。続行しますか？",
     "startup": {
       "launch_at_login": "ログイン時に起動",
-      "launch_at_login_help": "Windows へのサインイン時に Pebrel を起動します。インストーラーと同じスタートアップショートカットを使用します。",
+      "launch_at_login_help": "Windows へのサインイン時に PoxiTerminal を起動します。インストーラーと同じスタートアップショートカットを使用します。",
       "silent_start": "バックグラウンドで起動",
       "silent_start_help": "ウィンドウを表示せずにバックグラウンドで起動します。システムトレイが有効になり、アイコンをクリックすると再び開きます。トレイが有効な間に適用されます（ディレクトリを明示的に開く場合を除く）。",
       "save_failed": "起動設定を変更できませんでした: {error}"
     },
     "agents": {
       "title": "コーディングエージェント",
-      "description": "エージェントの動作状況、完了、承認リクエストを Pebrel に表示します。Claude Code と Codex は既定で有効です。",
+      "description": "エージェントの動作状況、完了、承認リクエストを PoxiTerminal に表示します。Claude Code と Codex は既定で有効です。",
       "refresh": "更新",
       "platform_unsupported": "フックの自動インストールは現在 Windows でのみ利用できます。",
       "checking": "インストール済みのエージェントとフックを確認中…",
@@ -181,7 +181,7 @@
       "enabled": "フックをインストールしました。反映するにはエージェントを再起動してください。",
       "disabled": "フックを削除しました。反映するにはエージェントを再起動してください。",
       "failed": "フックを更新できませんでした: {error}",
-      "helper_missing": "フックのヘルパーが見つかりません。フックを有効にするには Pebrel のインストールを修復してください。",
+      "helper_missing": "フックのヘルパーが見つかりません。フックを有効にするには PoxiTerminal のインストールを修復してください。",
       "needs_repair": "フックはインストール済み · 修復が必要",
       "initialize": "このエージェントを一度実行して構成を作成してから、更新してください。",
       "config_path": "構成: {path}"
@@ -336,7 +336,7 @@
     "session": "セッション",
     "key": "キー",
     "action": "アクション",
-    "update_notice": "Pebrel v{latest} を利用できます（現在 v{current}）",
+    "update_notice": "PoxiTerminal v{latest} を利用できます（現在 v{current}）",
     "copied_lines": "{lines} 行をクリップボードにコピーしました",
     "copy_working_directory": "作業ディレクトリをコピー",
     "cwd_copied": "作業ディレクトリをコピーしました",
@@ -674,7 +674,7 @@
     "edit": "編集",
     "delete": "削除",
     "default_saved": "{shell} を既定のシェルに設定しました。",
-    "admin_started": "新しい管理者の Pebrel ウィンドウで {shell} を開くよう要求しました。",
+    "admin_started": "新しい管理者の PoxiTerminal ウィンドウで {shell} を開くよう要求しました。",
     "admin_cancelled": "管理者としての起動をキャンセルしました。",
     "admin_failed": "管理者ターミナルを開けませんでした: {error}"
   },
@@ -833,11 +833,11 @@
     "skip_version": "このバージョンをスキップ",
     "restart_install": "再起動してインストール",
     "install_next_launch": "次回起動時にインストール",
-    "ready_hint": "更新の準備ができました。Pebrel はワークスペースを保存して終了し、インストール後に再び開きます。",
+    "ready_hint": "更新の準備ができました。PoxiTerminal はワークスペースを保存して終了し、インストール後に再び開きます。",
     "later": "後で",
-    "prepare_failed": "更新を準備できませんでした: {error}。Pebrel は開いたままになります。",
+    "prepare_failed": "更新を準備できませんでした: {error}。PoxiTerminal は開いたままになります。",
     "draft_changed": "終了の準備中にドキュメントが変更されました。最新の変更を保存または破棄してから再試行してください。",
-    "in_progress": "このインストールは更新中です。更新が完了するまでお待ちください。Pebrel は自動的に再び開きます。"
+    "in_progress": "このインストールは更新中です。更新が完了するまでお待ちください。PoxiTerminal は自動的に再び開きます。"
   },
   "files.search_failed": "検索を完了できません",
   "files.search_running": "検索中…",

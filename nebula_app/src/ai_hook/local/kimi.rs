@@ -253,7 +253,7 @@ mod tests {
         hook_command, remove_kimi_hooks_in,
     };
 
-    const HELPER: &str = "C:/Program Files/Pebrel/runtime/pebrel-hook.exe";
+    const HELPER: &str = "C:/Program Files/PoxiTerminal/runtime/pebrel-hook.exe";
 
     fn helper() -> &'static std::path::Path {
         std::path::Path::new(HELPER)
@@ -273,8 +273,8 @@ mod tests {
         // #80：kimi 的 command 走 shell，含空格路径必须双引号包裹；
         // 反斜杠归一成正斜杠，避免 TOML/shell 双层转义。
         let command =
-            hook_command(std::path::Path::new("D:\\Program Files\\Pebrel\\pebrel-hook.exe"));
-        assert_eq!(command, "\"D:/Program Files/Pebrel/pebrel-hook.exe\" kimi");
+            hook_command(std::path::Path::new("D:\\Program Files\\PoxiTerminal\\pebrel-hook.exe"));
+        assert_eq!(command, "\"D:/Program Files/PoxiTerminal/pebrel-hook.exe\" kimi");
     }
 
     #[test]

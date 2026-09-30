@@ -341,7 +341,7 @@ impl NebulaWorkspace {
         let Some(pane) = self.remote_browser.pane else { return };
         let Some(session) = self.remote_browser.browse_sessions.get(&pane).cloned() else {
             self.remote_browser.loading = false;
-            self.remote_browser.error = Some("远端浏览会话不可用，请重新打开文件抽屉".to_owned());
+            self.remote_browser.error = Some("Sesión de exploración remota no disponible; vuelve a abrir el panel de archivos".to_owned());
             cx.notify();
             return;
         };
@@ -371,7 +371,7 @@ impl NebulaWorkspace {
                     Some(Err(message)) => workspace.remote_browser.error = Some(message),
                     None => {
                         workspace.remote_browser.error =
-                            Some("远端连接不可用，请稍后重试".to_owned())
+                            Some("Conexión remota no disponible; inténtalo más tarde".to_owned())
                     },
                 }
                 cx.notify();

@@ -273,7 +273,7 @@ impl BridgeSession {
 
     pub(crate) fn open(allow_input: bool, output: Output) -> io::Result<Self> {
         let endpoint =
-            read_endpoint().ok_or_else(|| io::Error::other("no resident Pebrel runtime"))?;
+            read_endpoint().ok_or_else(|| io::Error::other("no resident PoxiTerminal runtime"))?;
         let stopped = Arc::new(AtomicBool::new(false));
         let (screen_stream, screen_grid) = screen_capabilities(&endpoint);
         write_frame(

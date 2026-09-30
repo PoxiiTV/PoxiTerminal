@@ -69,6 +69,10 @@ languages! {
 }
 
 impl LanguagePref {
+    /// PoxiTerminal: languages offered in the picker. A saved "system" resolves to Spanish.
+    pub const SHOWN: &'static [Self] = &[Self::EsEs, Self::EnUs];
+    pub const SHOWN_VALUES: &'static [&'static str] = &["es-ES", "en-US"];
+
     pub fn from_locale(locale: &str) -> Option<Self> {
         let locale = locale.trim().split(['.', '@']).next()?;
         let mut parts = locale.split(['-', '_']);

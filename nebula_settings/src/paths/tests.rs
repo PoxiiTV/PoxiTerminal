@@ -29,7 +29,7 @@ impl Drop for TestDir {
 fn migration_preserves_all_source_data_and_absolute_configuration_imports() {
     let temp = TestDir::new();
     let old = temp.join("Nebula");
-    let new = temp.join("Pebrel");
+    let new = temp.join("PoxiTerminal");
     fs::create_dir_all(old.join("modules")).unwrap();
     fs::write(old.join("nebula_settings.txt"), "theme=Paper\n").unwrap();
     fs::write(old.join("history.db-wal"), b"pending transactions").unwrap();
@@ -51,7 +51,7 @@ fn migration_preserves_all_source_data_and_absolute_configuration_imports() {
 fn existing_destination_is_filled_without_overwriting_new_preferences() {
     let temp = TestDir::new();
     let old = temp.join("Nebula");
-    let new = temp.join("Pebrel");
+    let new = temp.join("PoxiTerminal");
     for dir in [&old, &new] {
         fs::create_dir(dir).unwrap();
     }
@@ -82,7 +82,7 @@ fn portable_override_converts_legacy_names_once_and_prefers_existing_pebrel_file
 fn existing_pebrel_toml_cannot_be_shadowed_by_migrating_legacy_lua() {
     let temp = TestDir::new();
     let old = temp.join("Nebula");
-    let new = temp.join("Pebrel");
+    let new = temp.join("PoxiTerminal");
     for dir in [&old, &new] {
         fs::create_dir(dir).unwrap();
     }
@@ -99,7 +99,7 @@ fn existing_pebrel_toml_cannot_be_shadowed_by_migrating_legacy_lua() {
 fn simultaneous_initialization_observes_only_complete_files() {
     let temp = TestDir::new();
     let old = temp.join("Nebula");
-    let new = temp.join("Pebrel");
+    let new = temp.join("PoxiTerminal");
     fs::create_dir(&old).unwrap();
     let contents = "theme=Paper\n".repeat(65536);
     fs::write(old.join("nebula_settings.txt"), &contents).unwrap();
@@ -171,7 +171,7 @@ fn windows_publication_renames_without_hard_links_and_refuses_existing_destinati
 fn failure_is_reported_and_does_not_mark_the_migration_complete() {
     let temp = TestDir::new();
     let old = temp.join("Nebula");
-    let new = temp.join("Pebrel");
+    let new = temp.join("PoxiTerminal");
     fs::create_dir(&old).unwrap();
     fs::write(old.join("nebula.lua"), "return {}").unwrap();
     fs::write(&new, "not a directory").unwrap();
@@ -185,7 +185,7 @@ fn failure_is_reported_and_does_not_mark_the_migration_complete() {
 fn destination_symlinks_are_never_followed_or_overwritten() {
     let temp = TestDir::new();
     let old = temp.join("Nebula");
-    let new = temp.join("Pebrel");
+    let new = temp.join("PoxiTerminal");
     let outside = temp.join("unrelated");
     for dir in [&old, &new, &outside] {
         fs::create_dir(dir).unwrap();

@@ -55,7 +55,7 @@ pub fn prepare() {
 pub fn show(title: &str, body: &str) {
     #[cfg(target_os = "macos")]
     if !MACOS_READY.get().copied().unwrap_or(false) {
-        log::warn!("System notifications require a registered Pebrel application bundle");
+        log::warn!("System notifications require a registered PoxiTerminal application bundle");
         return;
     }
     let title = title.to_owned();
@@ -92,7 +92,7 @@ pub(crate) fn toast_actionable(
     #[cfg(target_os = "macos")]
     {
         if objc2_foundation::NSBundle::mainBundle().bundleIdentifier().is_none() {
-            log::warn!("System notifications require a registered Pebrel application bundle");
+            log::warn!("System notifications require a registered PoxiTerminal application bundle");
             return;
         }
         crate::platform::notifications::prepare();
@@ -166,7 +166,7 @@ pub fn notify_test() -> i32 {
     println!("[2/2] Showing toast ...");
     let mut toast = tauri_winrt_notification::Toast::new(win::AUMID)
         .title(crate::brand::NAME)
-        .text1("通知链路正常：pebrel notify-test")
+        .text1("Las notificaciones funcionan: pebrel notify-test")
         .duration(tauri_winrt_notification::Duration::Short);
     if let Some(icon) = win::icon_path() {
         toast = toast.icon(&icon, tauri_winrt_notification::IconCrop::Square, crate::brand::NAME);
@@ -195,7 +195,7 @@ pub fn notify_test() -> i32 {
     0
 }
 
-/// Windows-only: the Pebrel AppUserModelID and its registration.
+/// Windows-only: the PoxiTerminal AppUserModelID and its registration.
 ///
 /// A WinRT toast must be attributed to an AUMID that Windows can resolve to
 /// an app identity, or it silently refuses to show. For an unpackaged app the
@@ -212,8 +212,8 @@ mod win {
     use windows_sys::Win32::Foundation::ERROR_SUCCESS;
     use windows_sys::Win32::System::Registry::{HKEY_CURRENT_USER, REG_SZ, RegSetKeyValueW};
 
-    /// AppUserModelID for Pebrel. Toast notifications fire under this identity
-    /// so the system shows "Pebrel" instead of "PowerShell" / "cmd.exe".
+    /// AppUserModelID for PoxiTerminal. Toast notifications fire under this identity
+    /// so the system shows "PoxiTerminal" instead of "PowerShell" / "cmd.exe".
     pub const AUMID: &str = crate::brand::WINDOWS_APP_ID;
 
     /// Ensure the AUMID is registered. Best-effort, cached per process: the

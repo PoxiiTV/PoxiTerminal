@@ -166,7 +166,7 @@ pub(crate) async fn probe(destination: &str) -> RemoteCwd {
     {
         Ok(stdout) => parse_probe_output(&stdout),
         Err(err) => {
-            log::debug!("远端工作目录探测失败（{destination}）: {err}");
+            log::debug!("Error al detectar el directorio de trabajo remoto ({destination}): {err}");
             RemoteCwd::Unavailable
         },
     }

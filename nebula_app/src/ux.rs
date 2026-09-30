@@ -46,19 +46,19 @@ impl UserFacingError {
 
     pub fn message(&self) -> String {
         let mut message =
-            format!("{}\n原因：{}\n建议：{}", self.title, self.cause, self.suggestion);
+            format!("{}\nCausa: {}\nSugerencia: {}", self.title, self.cause, self.suggestion);
         let action = match self.retry {
             RetryAction::None => None,
-            RetryAction::Retry => Some("操作：请重试"),
-            RetryAction::OpenSettings => Some("操作：打开设置检查配置"),
-            RetryAction::OpenLogs => Some("操作：打开日志查看诊断信息"),
+            RetryAction::Retry => Some("Acción: vuelve a intentarlo"),
+            RetryAction::OpenSettings => Some("Acción: abre la configuración y revísala"),
+            RetryAction::OpenLogs => Some("Acción: abre el registro para ver el diagnóstico"),
         };
         if let Some(action) = action {
             message.push('\n');
             message.push_str(action);
         }
         if let Some(details) = &self.details {
-            message.push_str("\n详情：");
+            message.push_str("\nDetalles: ");
             message.push_str(details);
         }
         message
@@ -204,9 +204,9 @@ mod tests {
             .retry(RetryAction::Retry)
             .details("timeout");
         let message = error.message();
-        assert!(message.contains("原因：主机不可达"));
-        assert!(message.contains("建议：检查地址后重试"));
-        assert!(message.contains("操作：请重试"));
+        assert!(message.contains("Causa: 主机不可达"));
+        assert!(message.contains("Sugerencia: 检查地址后重试"));
+        assert!(message.contains("Acción: vuelve a intentarlo"));
     }
 
     #[test]

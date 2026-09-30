@@ -12,7 +12,7 @@ impl TestWindow {
             CreateWindowExW(
                 WS_EX_NOREDIRECTIONBITMAP,
                 windows_core::w!("STATIC").as_ptr(),
-                windows_core::w!("Pebrel Acrylic lifecycle test").as_ptr(),
+                windows_core::w!("PoxiTerminal Acrylic lifecycle test").as_ptr(),
                 WS_OVERLAPPEDWINDOW,
                 0,
                 0,

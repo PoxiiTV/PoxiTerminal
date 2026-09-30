@@ -1,6 +1,6 @@
 {
   "tray": {
-    "show": "顯示 Pebrel",
+    "show": "顯示 PoxiTerminal",
     "quit": "結束"
   },
   "notification": {
@@ -171,14 +171,14 @@
     "reset_description": "這會重設設定和快速鍵，但保留 SSH 主機、認證資訊與歷史紀錄，並備份目前的設定。要繼續嗎？",
     "startup": {
       "launch_at_login": "登入時自動啟動",
-      "launch_at_login_help": "登入 Windows 後啟動 Pebrel；使用與安裝程式相同的啟動捷徑。",
+      "launch_at_login_help": "登入 Windows 後啟動 PoxiTerminal；使用與安裝程式相同的啟動捷徑。",
       "silent_start": "在背景啟動",
       "silent_start_help": "啟動後在背景執行，不顯示視窗。啟用時也會開啟系統匣，可點選圖示重新顯示視窗。此設定只在系統匣啟用時生效；若指定了啟動目錄則不適用。",
       "save_failed": "無法變更啟動設定：{error}"
     },
     "agents": {
       "title": "程式設計代理程式",
-      "description": "在 Pebrel 中顯示執行狀態、完成通知和授權請求。Claude Code 與 Codex 預設開啟。",
+      "description": "在 PoxiTerminal 中顯示執行狀態、完成通知和授權請求。Claude Code 與 Codex 預設開啟。",
       "refresh": "重新整理",
       "platform_unsupported": "目前只有 Windows 支援自動安裝 hooks。",
       "checking": "正在偵測工具與 hooks…",
@@ -194,7 +194,7 @@
       "enabled": "Hooks 已安裝。請重新啟動 Agent 讓變更生效。",
       "disabled": "Hooks 已移除。請重新啟動 Agent 讓變更生效。",
       "failed": "無法更新 hooks：{error}",
-      "helper_missing": "缺少 hook 輔助程式，請修復 Pebrel 安裝後再啟用。",
+      "helper_missing": "缺少 hook 輔助程式，請修復 PoxiTerminal 安裝後再啟用。",
       "needs_repair": "Hook 已安裝 · 需修復",
       "initialize": "請先執行一次此工具以建立設定，然後重新整理。",
       "config_path": "設定：{path}"
@@ -349,7 +349,7 @@
     "session": "工作階段",
     "key": "按鍵",
     "action": "動作",
-    "update_notice": "Pebrel v{latest} 已推出（目前為 v{current}）",
+    "update_notice": "PoxiTerminal v{latest} 已推出（目前為 v{current}）",
     "copied_lines": "已複製 {lines} 行到剪貼簿",
     "copy_working_directory": "複製目前工作目錄",
     "cwd_copied": "已複製工作目錄",
@@ -687,7 +687,7 @@
     "edit": "編輯",
     "delete": "刪除",
     "default_saved": "已將 {shell} 設為預設 Shell。",
-    "admin_started": "已要求在新的 Pebrel 系統管理員視窗中開啟 {shell}。",
+    "admin_started": "已要求在新的 PoxiTerminal 系統管理員視窗中開啟 {shell}。",
     "admin_cancelled": "已取消以系統管理員身分啟動。",
     "admin_failed": "無法開啟系統管理員終端機：{error}"
   },
@@ -846,11 +846,11 @@
     "skip_version": "略過此版本",
     "restart_install": "重新啟動並安裝",
     "install_next_launch": "下次啟動時安裝",
-    "ready_hint": "更新已準備好。Pebrel 會儲存工作區、安裝更新，然後重新啟動。",
+    "ready_hint": "更新已準備好。PoxiTerminal 會儲存工作區、安裝更新，然後重新啟動。",
     "later": "稍後",
-    "prepare_failed": "更新準備失敗：{error}。Pebrel 將保持開啟。",
+    "prepare_failed": "更新準備失敗：{error}。PoxiTerminal 將保持開啟。",
     "draft_changed": "準備關閉期間檔案已變更。請儲存或捨棄最新變更後重試。",
-    "in_progress": "正在安裝更新。請稍候，完成後 Pebrel 會自動重新開啟。"
+    "in_progress": "正在安裝更新。請稍候，完成後 PoxiTerminal 會自動重新開啟。"
   },
   "files.search_failed": "無法完成搜尋",
   "files.search_running": "正在搜尋…",
@@ -869,7 +869,7 @@
     "exit_incomplete_title": "仍有 AI 工作階段無法辨識。確定要關閉嗎？",
     "exit_incomplete_body": "關閉前會儲存視窗版面配置及已知的對話 ID，並停止執行中的命令。尚未取得 ID 的對話，下次開啟時可能需要手動選擇。",
     "exit_anyway": "儲存已知狀態並關閉",
-    "save_failed": "無法儲存工作區，Pebrel 會保持開啟。請檢查剩餘空間和目錄權限後重試。",
+    "save_failed": "無法儲存工作區，PoxiTerminal 會保持開啟。請檢查剩餘空間和目錄權限後重試。",
     "identity_pending": "部分執行中的 AI 工作階段尚未提供可用於恢復的識別資訊。請等它們完成啟動後再試。",
     "restore_failed": "無法恢復此 AI 對話，原本的恢復紀錄已保留。你可以在分頁選單重試，或到工作階段歷史中尋找。",
     "restore_choose_codex": "儲存的 Codex 對話已無法使用。請在 Codex 的工作階段清單中選擇要繼續的對話。",

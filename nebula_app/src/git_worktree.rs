@@ -288,7 +288,7 @@ impl WorktreeTransaction {
 
 /// 本模块所有 `git` 子进程的统一构造口。
 ///
-/// Pebrel 是 `windows_subsystem = "windows"` 的 GUI 进程（见 `main.rs`），本身没有
+/// PoxiTerminal 是 `windows_subsystem = "windows"` 的 GUI 进程（见 `main.rs`），本身没有
 /// 控制台可给子进程继承；不加 `CREATE_NO_WINDOW` 时 Windows 会给每条 git 命令分配
 /// 一个新控制台——在默认终端应用会托管新控制台的机器上，那就是**每跑一条
 /// git 弹一扇窗口**。worktree 操作会连着跑好几条，用户看到的就是一串窗口。

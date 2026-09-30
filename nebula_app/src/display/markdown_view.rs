@@ -159,7 +159,7 @@ impl DocView {
         let blocks = match std::fs::read_to_string(&path) {
             Ok(raw) => blocks_for(&path, &raw),
             Err(err) => vec![FormattedTextLine::Line(vec![FormattedTextFragment::plain_text(
-                format!("无法读取 {}: {err}", path.display()),
+                format!("No se pudo leer {}: {err}", path.display()),
             )])],
         };
         Self {
@@ -946,7 +946,7 @@ impl LayoutCtx<'_> {
                 self.y += ch * 0.5;
             },
             FormattedTextLine::Image(image) => {
-                let caption = if image.alt_text.is_empty() { "图片" } else { &image.alt_text };
+                let caption = if image.alt_text.is_empty() { "Imagen" } else { &image.alt_text };
                 let mut span = Span::label(format!("🖼 {caption} — {}", image.source), true);
                 span.italic = true;
                 span.link = Some(image.source.clone());

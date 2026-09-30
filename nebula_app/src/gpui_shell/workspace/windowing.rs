@@ -310,7 +310,7 @@ pub(crate) fn open_initial_window(
         true,
         WindowRole::Regular,
     )
-    .expect("failed to open Pebrel GPUI window");
+    .expect("failed to open PoxiTerminal GPUI window");
 }
 
 fn initial_startup(

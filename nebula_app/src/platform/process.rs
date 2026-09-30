@@ -1,6 +1,6 @@
 //! 非交互子进程的平台适配：抑制控制台窗口，隔离并回收一次性进程树。
 //!
-//! Pebrel 是 `windows_subsystem = "windows"` 的 GUI 进程（见 `main.rs`），
+//! PoxiTerminal 是 `windows_subsystem = "windows"` 的 GUI 进程（见 `main.rs`），
 //! **自己没有控制台可以给子进程继承**；`cargo test --bin pebrel` 的测试二进制
 //! 从同一个 crate root 编出来，同样没有。于是任何没带 `CREATE_NO_WINDOW` 的
 //! 控制台子进程（`git`、`ssh -G`、`wsl.exe`…）都会被 Windows 分配一个新控制台
@@ -61,7 +61,7 @@ pub(crate) fn configure_process_group(command: &mut Command) {
 
 /// Windows：`pane.exec` 的子进程绝不允许弹出控制台窗口。
 ///
-/// Pebrel 自己是 `windows_subsystem = "windows"` 的 GUI 进程（见 `main.rs`），
+/// PoxiTerminal 自己是 `windows_subsystem = "windows"` 的 GUI 进程（见 `main.rs`），
 /// **没有控制台**可给子进程继承；不抑制的话 Windows 会给每条 exec 命令分配一个
 /// 新控制台，而默认终端应用会托管新控制台的机器上那就是**弹一整扇窗口**
 /// （同 [`crate::ssh_session`] 里 `ssh.exe -G` 那条注释说的现象）。

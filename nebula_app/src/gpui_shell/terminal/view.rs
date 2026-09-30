@@ -615,13 +615,13 @@ impl TerminalView {
                 self.write_bytes(formatter(self.window_size).into_bytes());
             },
             TermEvent::ChildExit(code) => {
-                self.mark_exited(format!("进程已退出（{code:?}）"), cx);
+                self.mark_exited(format!("Proceso finalizado ({code:?})"), cx);
             },
             TermEvent::PtyFailure(reason) => {
-                self.mark_exited(format!("PTY 故障：{reason}"), cx);
+                self.mark_exited(format!("Fallo del PTY: {reason}"), cx);
             },
             TermEvent::Exit => {
-                self.mark_exited(String::from("会话已结束"), cx);
+                self.mark_exited(String::from("Sesión finalizada"), cx);
             },
             TermEvent::CwdReport(_) => {
                 // 标准 OSC 7 / 9;9 的目录上报。只动 cwd，`NEBULA|` 标题带来的

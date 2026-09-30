@@ -75,7 +75,7 @@ pub(super) fn migrate_data_at(source: &Path, destination: &Path) -> io::Result<(
             if destination.starts_with(&source) || source.starts_with(&destination) {
                 return Err(io::Error::new(
                     io::ErrorKind::InvalidInput,
-                    "legacy and Pebrel data directories must not contain one another",
+                    "legacy and PoxiTerminal data directories must not contain one another",
                 ));
             }
             // Preserve the original paths for absolute imports and manual recovery.

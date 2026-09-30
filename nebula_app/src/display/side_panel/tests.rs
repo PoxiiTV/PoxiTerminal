@@ -759,7 +759,7 @@ mod tests {
         assert_eq!(summary.top_level, vec!["tags", "trunk"]);
         assert!(!summary.has_standard_layout(), "缺 branches 就不算标准布局");
         // 分支位是 UI 的主标题：版本库没有工作副本修订，放 HEAD 才有信息量。
-        assert_eq!(info.branch, "版本库 · HEAD r7");
+        assert_eq!(info.branch, "Repositorio · HEAD r7");
     }
 
     /// 侧栏定位必须接管 VCS 视图。

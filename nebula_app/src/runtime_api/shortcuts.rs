@@ -260,7 +260,7 @@ fn pane_resize(options: PaneResizeOptions) -> Result<(), Box<dyn Error>> {
 /// `pebrel env` —— 发现层入口。
 ///
 /// 环境那半段**不依赖 runtime**：即使控制面没起来、端口文件过期、或这根本不是
-/// Pebrel 的 pane，命令仍然成功返回并如实说明缺什么。这是刻意的——一个探测命令
+/// PoxiTerminal 的 pane，命令仍然成功返回并如实说明缺什么。这是刻意的——一个探测命令
 /// 若在"没连上"时整体失败，调用方唯一能学到的就是"不知道"，只好去猜。
 pub fn env(options: EnvOptions) -> Result<(), Box<dyn Error>> {
     let pretty = options.output.pretty;
@@ -651,7 +651,7 @@ fn agent_delegate(options: AgentDelegateOptions) -> Result<(), Box<dyn Error>> {
         .ok_or_else(|| {
             CliError::new(
                 "runtime_unavailable",
-                "agent delegation must be started inside a local Pebrel Agent pane with NEBULA_PANE_ID",
+                "agent delegation must be started inside a local PoxiTerminal Agent pane with NEBULA_PANE_ID",
             )
         })?;
     let response = request_once(

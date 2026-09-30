@@ -226,7 +226,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             .resolved_working_directory()
             .filter(|path| path.is_dir())
             .and_then(|path| std::path::absolute(path).ok());
-        // `--shell <id>`（右键菜单「在 Pebrel 中打开（Ubuntu）」用它）一路带到
+        // `--shell <id>`（右键菜单「在 PoxiTerminal 中打开（Ubuntu）」用它）一路带到
         // 首个标签；缺省仍然用设置里的默认 shell。
         let shell_id = terminal_options.shell_id();
         platform::startup::prepare_gui();

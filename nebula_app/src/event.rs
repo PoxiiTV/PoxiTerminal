@@ -54,7 +54,7 @@ use crate::display::NebulaPaneState;
 use crate::display::color::Rgb;
 use crate::display::hint::HintMatch;
 use crate::display::window::{ImeInhibitor, Window};
-use crate::display::{Display, Preedit, SizeInfo, ToastKind, UiLanguage};
+use crate::display::{Display, Preedit, SizeInfo, ToastKind};
 use crate::input::{self, ActionContext as _};
 use crate::logging::{LOG_TARGET_CONFIG, LOG_TARGET_WINIT};
 use crate::message_bar::{Message, MessageBuffer, MessageType};
@@ -259,7 +259,7 @@ impl Processor {
                 Some(mut session) if crate::session::should_restore(&session) => {
                     if crate::session::was_crash(&session) {
                         restored_notice = Some(format!(
-                            "已从上次异常退出恢复 {} 个标签（进程未正常收尾）。",
+                            "Se han recuperado {} pestañas tras el cierre inesperado anterior.",
                             session.tabs.len()
                         ));
                     }
@@ -274,10 +274,10 @@ impl Processor {
                 Some(session) if !session.tabs.is_empty() => {
                     blocked_notice = Some(match crate::session::quarantine() {
                         Some(path) => format!(
-                            "连续三次启动失败，已跳过会话恢复；上次的会话保存在 {}。",
+                            "Tres arranques fallidos seguidos: se omitió la restauración de la sesión. La sesión anterior se guardó en {}.",
                             path.display()
                         ),
-                        None => "连续三次启动失败，已跳过会话恢复。".to_owned(),
+                        None => "Tres arranques fallidos seguidos: se omitió la restauración de la sesión.".to_owned(),
                     });
                     None
                 },
@@ -657,7 +657,7 @@ impl ApplicationHandler<Event> for Processor {
                     } else {
                         crate::backup_remote::pull_latest().and_then(|(name, packet)| {
                             crate::encrypted_backup::restore(&packet, &passphrase)
-                                .map(|()| format!("已从远端恢复 {name}，重启后应用全部设置"))
+                                .map(|()| format!("{name} restaurada desde el remoto; reinicia para aplicar todos los ajustes"))
                         })
                     };
                     crate::backup_remote::warn_result(&result);
@@ -1309,10 +1309,9 @@ impl<'a, N: Notify + 'a, T: EventListener> input::ActionContext<T> for ActionCon
     fn notify_copy(&mut self, text: &str) {
         let lines = text.lines().count().max(1);
         let language = self.display.ui_language();
-        let message = match language {
-            UiLanguage::ZhCn => format!("已复制 {lines} 行到剪贴板"),
-            _ => format!("Copied {lines} lines to clipboard"),
-        };
+        let message = language
+            .pick("已复制 {lines} 行到剪贴板", "Copied {lines} lines to clipboard")
+            .replace("{lines}", &lines.to_string());
         self.display.push_toast(message, ToastKind::Info);
     }
 
@@ -1671,7 +1670,11 @@ impl<'a, N: Notify + 'a, T: EventListener> input::ActionContext<T> for ActionCon
                 request_id,
                 &destination,
                 false,
-                &format!("无法启动测试任务：{err}"),
+                &self
+                    .display
+                    .ui_language()
+                    .pick("无法启动测试任务：{err}", "Could not start the test task: {err}")
+                    .replace("{err}", &err.to_string()),
                 0,
             );
         }
@@ -3148,7 +3151,14 @@ impl input::Processor<EventProxy, ActionContext<'_, Notifier, EventProxy>> {
                         // 随后到来的 `Exit` 走既有的 tab 关闭路径。
                         crate::display::nebula_debug_log(format!("pty failure: {reason}"));
                         self.ctx.message_buffer.push(Message::new(
-                            format!("终端会话异常终止(宿主或管道故障):{reason}"),
+                            self.ctx
+                                .display
+                                .ui_language()
+                                .pick(
+                                    "终端会话异常终止(宿主或管道故障):{reason}",
+                                    "Terminal session ended unexpectedly (host or pipe failure): {reason}",
+                                )
+                                .replace("{reason}", &reason.to_string()),
                             MessageType::Error,
                         ));
                         self.ctx.display.pending_update.dirty = true;

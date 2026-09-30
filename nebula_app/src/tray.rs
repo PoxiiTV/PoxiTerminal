@@ -352,7 +352,7 @@ mod win {
                 // 状态点进文案：菜单不画自定义图形，实心/空心圈已经把
                 // 「等你」和「在跑」分开。
                 let mark = if agent.needs_attention { "● " } else { "○ " };
-                let suffix = if agent.needs_attention { " — 等待输入" } else { "" };
+                let suffix = if agent.needs_attention { " — esperando entrada" } else { "" };
                 let text = wide(&format!("{mark}{}{suffix}", agent.label));
                 AppendMenuW(menu, MF_STRING, MENU_AGENT_BASE + index, text.as_ptr());
             }
@@ -360,12 +360,12 @@ mod win {
             if !agents.is_empty() {
                 AppendMenuW(menu, MF_SEPARATOR, 0, std::ptr::null());
             }
-            let show = wide(&format!("显示 {}", crate::brand::NAME));
+            let show = wide(&format!("Mostrar {}", crate::brand::NAME));
             AppendMenuW(menu, MF_STRING, MENU_SHOW, show.as_ptr());
             // 旧壳没有托盘「退出」：真退出是 window+detached 都空。GPUI hide
             // 之后可能只剩托盘，所以只在 GPUI 回调路径上加这一项。
             if include_quit {
-                let quit = wide(&format!("退出 {}", crate::brand::NAME));
+                let quit = wide(&format!("Salir de {}", crate::brand::NAME));
                 AppendMenuW(menu, MF_STRING, MENU_QUIT, quit.as_ptr());
             }
             menu
@@ -449,9 +449,9 @@ mod win {
             let tip = if agent_count == 0 {
                 crate::brand::NAME.to_owned()
             } else if attention_count > 0 {
-                format!("{} — {attention_count} 个 agent 等待输入", crate::brand::NAME)
+                format!("{} — {attention_count} agent(s) esperando entrada", crate::brand::NAME)
             } else {
-                format!("{} — {agent_count} 个 agent 运行中", crate::brand::NAME)
+                format!("{} — {agent_count} agent(s) en ejecución", crate::brand::NAME)
             };
             copy_tip(&mut data.szTip, &tip);
             // SAFETY: data 完整初始化且 hwnd 属于本线程。
@@ -717,7 +717,7 @@ mod win {
                             );
                             assert_eq!(
                                 String::from_utf16(&text[..count as usize]).unwrap(),
-                                "● Claude — 等待输入"
+                                "● Claude — esperando entrada"
                             );
                         }
                     }

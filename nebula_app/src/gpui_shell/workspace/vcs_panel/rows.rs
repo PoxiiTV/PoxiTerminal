@@ -64,7 +64,9 @@ impl NebulaWorkspace {
                 .items_center()
                 .text_xs()
                 .text_color(muted)
-                .child(message.map(|m| language.text(m)).unwrap_or("修改"))
+                .child(
+                    message.map(|m| language.text(m)).unwrap_or(language.pick("修改", "Changes")),
+                )
                 .child(div().ml_2().child(count.to_string()))
                 .into_any_element(),
             VcsRow::Empty(message) => div()
@@ -227,7 +229,7 @@ impl NebulaWorkspace {
                                 if discard_armed {
                                     button
                                         .label(if svn_revert {
-                                            "确认还原"
+                                            language.pick("确认还原", "Confirm revert")
                                         } else {
                                             language.text(Message::VcsConfirmDiscard)
                                         })
@@ -236,7 +238,7 @@ impl NebulaWorkspace {
                                 } else {
                                     button.icon(IconName::Undo2).ghost().xsmall().tooltip(
                                         if svn_revert {
-                                            "还原 SVN 改动"
+                                            language.pick("还原 SVN 改动", "Revert SVN changes")
                                         } else {
                                             language.text(Message::VcsDiscard)
                                         },
@@ -295,7 +297,7 @@ impl NebulaWorkspace {
                             .icon(IconName::Plus)
                             .ghost()
                             .xsmall()
-                            .tooltip("添加到 SVN")
+                            .tooltip(language.pick("添加到 SVN", "Add to SVN"))
                             .invisible()
                             .group_hover(row_group.clone(), |button| button.visible())
                             .on_click(cx.listener(
@@ -312,10 +314,13 @@ impl NebulaWorkspace {
                             Button::new(SharedString::from(format!(
                                 "svn-resolve-{section_id}-{index}"
                             )))
-                            .label("解决")
+                            .label(language.pick("解决", "Resolve"))
                             .ghost()
                             .xsmall()
-                            .tooltip("保留当前内容并标记冲突已解决")
+                            .tooltip(language.pick(
+                                "保留当前内容并标记冲突已解决",
+                                "Keep current content and mark the conflict resolved",
+                            ))
                             .invisible()
                             .group_hover(row_group.clone(), |button| button.visible())
                             .on_click(cx.listener(

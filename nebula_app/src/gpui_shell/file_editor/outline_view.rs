@@ -1,4 +1,4 @@
-//! Document navigation belongs to Pebrel: hierarchy, folding and row feedback
+//! Document navigation belongs to PoxiTerminal: hierarchy, folding and row feedback
 //! share the same heading model as the reader and source navigation.
 
 use super::*;

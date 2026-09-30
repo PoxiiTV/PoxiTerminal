@@ -35,7 +35,7 @@ fn key(name: &str) -> String {
         format!("{}:{}", path.display(), crate::platform::elevation::requires_isolation());
     let digest = Sha256::digest(identity.as_bytes());
     let scope: String = digest[..12].iter().map(|b| format!("{b:02x}")).collect();
-    format!("Pebrel/Mobile/V2/{scope}/{name}")
+    format!("PoxiTerminal/Mobile/V2/{scope}/{name}")
 }
 
 pub(super) fn load(name: &str) -> Result<Option<Vec<u8>>, Failure> {

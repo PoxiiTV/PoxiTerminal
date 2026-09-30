@@ -144,6 +144,11 @@ fn show_download_outcome_notification(
                             format_bytes(bytes)
                         )
                     },
+                    crate::display::UiLanguage::EsEs => format!(
+                        "El instalador v{} ha superado la verificación SHA-256 ({})",
+                        downloaded_version,
+                        format_bytes(bytes)
+                    ),
                     _ => format!(
                         "The v{} installer passed SHA-256 verification ({})",
                         downloaded_version,
@@ -202,7 +207,7 @@ pub(crate) fn open_update_dialog(
     let dialog_result = result.clone();
     window.open_dialog(cx, move |dialog, window, cx| {
         let language = crate::gpui_shell::config::ui_language(cx);
-        let title: SharedString = language.pick("Pebrel 更新", "Pebrel Update").into();
+        let title: SharedString = language.pick("PoxiTerminal 更新", "PoxiTerminal Update").into();
         let current_label: SharedString = language.pick("当前版本", "Current").into();
         let latest_label: SharedString = language.pick("最新版本", "Latest").into();
         let current_version: SharedString = format!("v{}", dialog_result.current).into();
@@ -243,8 +248,8 @@ pub(crate) fn open_update_dialog(
                 .into(),
             (_, Some(_)) if verified_asset => language
                 .pick(
-                    "Pebrel 将自动下载并校验安装包；校验完成后由你确认安装。",
-                    "Pebrel will download and verify the installer, then wait for your confirmation before installing.",
+                    "PoxiTerminal 将自动下载并校验安装包；校验完成后由你确认安装。",
+                    "PoxiTerminal will download and verify the installer, then wait for your confirmation before installing.",
                 )
                 .into(),
             // Platforms without an installation adapter retain manual downloads.

@@ -73,7 +73,7 @@ impl Fixture {
     fn new(binary: &Path, fails: bool) -> Self {
         let root = tempfile::tempdir().unwrap();
         let path = fs::canonicalize(root.path()).unwrap();
-        let installation = path.join("Pebrel.app");
+        let installation = path.join("PoxiTerminal.app");
         let config = path.join("config");
         let transaction = "native-acceptance".to_owned();
         let directory = config.join("updates/handoffs").join(&transaction);
@@ -82,7 +82,7 @@ impl Fixture {
         app(&installation, env!("CARGO_PKG_VERSION"), false);
         let source = path.join("image");
         fs::create_dir(&source).unwrap();
-        app(&source.join("Pebrel.app"), version, fails);
+        app(&source.join("PoxiTerminal.app"), version, fails);
         let name = crate::update_check::assets::native_names(version).remove(0);
         let installer = config.join("updates").join(&name);
         native::run(

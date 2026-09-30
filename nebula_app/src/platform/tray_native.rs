@@ -165,7 +165,7 @@ fn render(
     } else {
         TrayIconBuilder::new()
             .with_id("pebrel-tray")
-            .with_tooltip("Pebrel")
+            .with_tooltip("PoxiTerminal")
             .with_menu(Box::new(menu))
             .with_icon(icon)
             .build()?

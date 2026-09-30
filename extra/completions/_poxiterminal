@@ -1,8 +1,8 @@
-#compdef pebrel
+#compdef poxiterminal
 
 autoload -U is-at-least
 
-_pebrel() {
+_poxiterminal() {
     typeset -A opt_args
     typeset -a _arguments_options
     local ret=1
@@ -15,16 +15,15 @@ _pebrel() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" : \
-'--embed=[X11 window ID to embed Pebrel within (decimal or hexadecimal with "0x" prefix)]:EMBED:_default' \
+'--embed=[X11 window ID to embed PoxiTerminal within (decimal or hexadecimal with "0x" prefix)]:EMBED:_default' \
 '--config-file=[Specify an alternative configuration file.]:CONFIG_FILE:_files' \
-'--socket=[Path for IPC socket creation]:SOCKET:_files' \
 '--working-directory=[Start the shell in the specified working directory]:WORKING_DIRECTORY:_files' \
 '(-e --command)--shell=[Start this shell instead of the configured default one, by the same id the \`shell\` setting uses (\`pwsh\`, \`cmd\`, \`wsl\:Ubuntu\`, or a profile'\''s settings id)]:ID:_default' \
 '*-e+[Command and args to execute (must be last argument)]:COMMAND:_default' \
 '*--command=[Command and args to execute (must be last argument)]:COMMAND:_default' \
-'-T+[Defines the window title \[default\: Pebrel\]]:TITLE:_default' \
-'--title=[Defines the window title \[default\: Pebrel\]]:TITLE:_default' \
-'--class=[Defines window class/app_id on X11/Wayland \[default\: Pebrel\]]:general> | <general>,<instance:_default' \
+'-T+[Defines the window title \[default\: PoxiTerminal\]]:TITLE:_default' \
+'--title=[Defines the window title \[default\: PoxiTerminal\]]:TITLE:_default' \
+'--class=[Defines window class/app_id on X11/Wayland \[default\: PoxiTerminal\]]:general> | <general>,<instance:_default' \
 '*-o+[Override configuration file options \[example\: '\''cursor.style="Beam"'\''\]]:OPTION:_default' \
 '*--option=[Override configuration file options \[example\: '\''cursor.style="Beam"'\''\]]:OPTION:_default' \
 '--print-events[Print all events to STDOUT]' \
@@ -39,14 +38,14 @@ _pebrel() {
 '-V[Print version]' \
 '--version[Print version]' \
 '::directory -- Open a directory supplied by the desktop file manager:_files -/' \
-":: :_pebrel_commands" \
-"*::: :->Pebrel" \
+":: :_poxiterminal_commands" \
+"*::: :->PoxiTerminal" \
 && ret=0
     case $state in
-    (Pebrel)
+    (PoxiTerminal)
         words=($line[2] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-command-$line[2]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-command-$line[2]:"
         case $line[2] in
             (ctl)
 _arguments "${_arguments_options[@]}" : \
@@ -54,7 +53,7 @@ _arguments "${_arguments_options[@]}" : \
 '--pretty[Pretty-print one-shot JSON responses. Streaming subscriptions stay JSON Lines]' \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_pebrel__ctl_commands" \
+":: :_poxiterminal__ctl_commands" \
 "*::: :->ctl" \
 && ret=0
 
@@ -62,7 +61,7 @@ _arguments "${_arguments_options[@]}" : \
     (ctl)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-ctl-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-ctl-command-$line[1]:"
         case $line[1] in
             (describe)
 _arguments "${_arguments_options[@]}" : \
@@ -432,7 +431,7 @@ settled\:"Any non-running terminal state"))' \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__ctl__help_commands" \
+":: :_poxiterminal__ctl__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -440,7 +439,7 @@ _arguments "${_arguments_options[@]}" : \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-ctl-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-ctl-help-command-$line[1]:"
         case $line[1] in
             (describe)
 _arguments "${_arguments_options[@]}" : \
@@ -590,7 +589,7 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_pebrel__window_commands" \
+":: :_poxiterminal__window_commands" \
 "*::: :->window" \
 && ret=0
 
@@ -598,7 +597,7 @@ _arguments "${_arguments_options[@]}" : \
     (window)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-window-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-window-command-$line[1]:"
         case $line[1] in
             (close)
 _arguments "${_arguments_options[@]}" : \
@@ -611,7 +610,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__window__help_commands" \
+":: :_poxiterminal__window__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -619,7 +618,7 @@ _arguments "${_arguments_options[@]}" : \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-window-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-window-help-command-$line[1]:"
         case $line[1] in
             (close)
 _arguments "${_arguments_options[@]}" : \
@@ -641,7 +640,7 @@ esac
 _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_pebrel__tab_commands" \
+":: :_poxiterminal__tab_commands" \
 "*::: :->tab" \
 && ret=0
 
@@ -649,7 +648,7 @@ _arguments "${_arguments_options[@]}" : \
     (tab)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-tab-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-tab-command-$line[1]:"
         case $line[1] in
             (close)
 _arguments "${_arguments_options[@]}" : \
@@ -685,7 +684,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__tab__help_commands" \
+":: :_poxiterminal__tab__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -693,7 +692,7 @@ _arguments "${_arguments_options[@]}" : \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-tab-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-tab-help-command-$line[1]:"
         case $line[1] in
             (close)
 _arguments "${_arguments_options[@]}" : \
@@ -723,7 +722,7 @@ esac
 _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_pebrel__pane_commands" \
+":: :_poxiterminal__pane_commands" \
 "*::: :->pane" \
 && ret=0
 
@@ -731,7 +730,7 @@ _arguments "${_arguments_options[@]}" : \
     (pane)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-pane-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-pane-command-$line[1]:"
         case $line[1] in
             (list)
 _arguments "${_arguments_options[@]}" : \
@@ -810,7 +809,7 @@ _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
 ':pane -- Pane id from `pebrel pane list`; its current cwd and local environment are reused:_default' \
-'*::argv -- Program and arguments. `--` is required so child flags cannot be parsed by Pebrel:_default' \
+'*::argv -- Program and arguments. `--` is required so child flags cannot be parsed by PoxiTerminal:_default' \
 && ret=0
 ;;
 (close)
@@ -847,7 +846,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__pane__help_commands" \
+":: :_poxiterminal__pane__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -855,7 +854,7 @@ _arguments "${_arguments_options[@]}" : \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-pane-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-pane-help-command-$line[1]:"
         case $line[1] in
             (list)
 _arguments "${_arguments_options[@]}" : \
@@ -909,7 +908,7 @@ esac
 _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_pebrel__agent_commands" \
+":: :_poxiterminal__agent_commands" \
 "*::: :->agent" \
 && ret=0
 
@@ -917,7 +916,7 @@ _arguments "${_arguments_options[@]}" : \
     (agent)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-agent-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-agent-command-$line[1]:"
         case $line[1] in
             (list)
 _arguments "${_arguments_options[@]}" : \
@@ -1000,7 +999,7 @@ settled\:"Any non-running terminal state"))' \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__agent__help_commands" \
+":: :_poxiterminal__agent__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -1008,7 +1007,7 @@ _arguments "${_arguments_options[@]}" : \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-agent-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-agent-help-command-$line[1]:"
         case $line[1] in
             (list)
 _arguments "${_arguments_options[@]}" : \
@@ -1065,7 +1064,7 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_pebrel__config_commands" \
+":: :_poxiterminal__config_commands" \
 "*::: :->config" \
 && ret=0
 
@@ -1073,7 +1072,7 @@ _arguments "${_arguments_options[@]}" : \
     (config)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-config-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-config-command-$line[1]:"
         case $line[1] in
             (check)
 _arguments "${_arguments_options[@]}" : \
@@ -1093,7 +1092,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__config__help_commands" \
+":: :_poxiterminal__config__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -1101,7 +1100,7 @@ _arguments "${_arguments_options[@]}" : \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-config-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-config-help-command-$line[1]:"
         case $line[1] in
             (check)
 _arguments "${_arguments_options[@]}" : \
@@ -1128,7 +1127,7 @@ _arguments "${_arguments_options[@]}" : \
 '--pretty[Pretty-print the JSON result]' \
 '-h[Print help]' \
 '--help[Print help]' \
-":: :_pebrel__plugin_commands" \
+":: :_poxiterminal__plugin_commands" \
 "*::: :->plugin" \
 && ret=0
 
@@ -1136,7 +1135,7 @@ _arguments "${_arguments_options[@]}" : \
     (plugin)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-plugin-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-plugin-command-$line[1]:"
         case $line[1] in
             (check)
 _arguments "${_arguments_options[@]}" : \
@@ -1159,7 +1158,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__plugin__help_commands" \
+":: :_poxiterminal__plugin__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -1167,7 +1166,7 @@ _arguments "${_arguments_options[@]}" : \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-plugin-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-plugin-help-command-$line[1]:"
         case $line[1] in
             (check)
 _arguments "${_arguments_options[@]}" : \
@@ -1189,19 +1188,32 @@ esac
     ;;
 esac
 ;;
+(notify-test)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
 (setup-ai)
 _arguments "${_arguments_options[@]}" : \
 '(--wsl)--ssh=[Install or remove hooks on an SSH host (alias or user@host)]:DESTINATION:_default' \
 '--wsl=[Install or remove hooks in a WSL distribution'\''s own user configuration]:DISTRIBUTION:_default' \
 '--wsl-user=[WSL user; defaults to that distribution'\''s configured user]:USER:_default' \
-'--remove[Remove Pebrel-managed hooks for every supported agent and preserve other integrations. Without this flag, enable Claude Code and Codex plus agents explicitly enabled in settings]' \
+'--remove[Remove PoxiTerminal-managed hooks for every supported agent and preserve other integrations. Without this flag, enable Claude Code and Codex plus agents explicitly enabled in settings]' \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0
 ;;
+(ssh)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+'*::args -- All arguments forwarded verbatim to `ssh` (destination and flags):_default' \
+&& ret=0
+;;
 (help)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__help_commands" \
+":: :_poxiterminal__help_commands" \
 "*::: :->help" \
 && ret=0
 
@@ -1209,11 +1221,11 @@ _arguments "${_arguments_options[@]}" : \
     (help)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-help-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-help-command-$line[1]:"
         case $line[1] in
             (ctl)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__help__ctl_commands" \
+":: :_poxiterminal__help__ctl_commands" \
 "*::: :->ctl" \
 && ret=0
 
@@ -1221,7 +1233,7 @@ _arguments "${_arguments_options[@]}" : \
     (ctl)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-help-ctl-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-help-ctl-command-$line[1]:"
         case $line[1] in
             (describe)
 _arguments "${_arguments_options[@]}" : \
@@ -1357,7 +1369,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (window)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__help__window_commands" \
+":: :_poxiterminal__help__window_commands" \
 "*::: :->window" \
 && ret=0
 
@@ -1365,7 +1377,7 @@ _arguments "${_arguments_options[@]}" : \
     (window)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-help-window-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-help-window-command-$line[1]:"
         case $line[1] in
             (close)
 _arguments "${_arguments_options[@]}" : \
@@ -1377,7 +1389,7 @@ esac
 ;;
 (tab)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__help__tab_commands" \
+":: :_poxiterminal__help__tab_commands" \
 "*::: :->tab" \
 && ret=0
 
@@ -1385,7 +1397,7 @@ _arguments "${_arguments_options[@]}" : \
     (tab)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-help-tab-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-help-tab-command-$line[1]:"
         case $line[1] in
             (close)
 _arguments "${_arguments_options[@]}" : \
@@ -1405,7 +1417,7 @@ esac
 ;;
 (pane)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__help__pane_commands" \
+":: :_poxiterminal__help__pane_commands" \
 "*::: :->pane" \
 && ret=0
 
@@ -1413,7 +1425,7 @@ _arguments "${_arguments_options[@]}" : \
     (pane)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-help-pane-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-help-pane-command-$line[1]:"
         case $line[1] in
             (list)
 _arguments "${_arguments_options[@]}" : \
@@ -1457,7 +1469,7 @@ esac
 ;;
 (agent)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__help__agent_commands" \
+":: :_poxiterminal__help__agent_commands" \
 "*::: :->agent" \
 && ret=0
 
@@ -1465,7 +1477,7 @@ _arguments "${_arguments_options[@]}" : \
     (agent)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-help-agent-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-help-agent-command-$line[1]:"
         case $line[1] in
             (list)
 _arguments "${_arguments_options[@]}" : \
@@ -1501,7 +1513,7 @@ _arguments "${_arguments_options[@]}" : \
 ;;
 (config)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__help__config_commands" \
+":: :_poxiterminal__help__config_commands" \
 "*::: :->config" \
 && ret=0
 
@@ -1509,7 +1521,7 @@ _arguments "${_arguments_options[@]}" : \
     (config)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-help-config-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-help-config-command-$line[1]:"
         case $line[1] in
             (check)
 _arguments "${_arguments_options[@]}" : \
@@ -1525,7 +1537,7 @@ esac
 ;;
 (plugin)
 _arguments "${_arguments_options[@]}" : \
-":: :_pebrel__help__plugin_commands" \
+":: :_poxiterminal__help__plugin_commands" \
 "*::: :->plugin" \
 && ret=0
 
@@ -1533,7 +1545,7 @@ _arguments "${_arguments_options[@]}" : \
     (plugin)
         words=($line[1] "${words[@]}")
         (( CURRENT += 1 ))
-        curcontext="${curcontext%:*:*}:pebrel-help-plugin-command-$line[1]:"
+        curcontext="${curcontext%:*:*}:poxiterminal-help-plugin-command-$line[1]:"
         case $line[1] in
             (check)
 _arguments "${_arguments_options[@]}" : \
@@ -1547,7 +1559,15 @@ _arguments "${_arguments_options[@]}" : \
     ;;
 esac
 ;;
+(notify-test)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
 (setup-ai)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(ssh)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
@@ -1564,8 +1584,8 @@ esac
 esac
 }
 
-(( $+functions[_pebrel_commands] )) ||
-_pebrel_commands() {
+(( $+functions[_poxiterminal_commands] )) ||
+_poxiterminal_commands() {
     local commands; commands=(
 'ctl:Agent-oriented terminal control\: split panes, run commands, start Codex/Claude, send prompts, wait for state changes, and read verified terminal output' \
 'env:Report this pane'\''s terminal identity, the control-plane path, and every command available to it. Answers even with no runtime reachable, so an agent can always discover what it has instead of guessing' \
@@ -1574,15 +1594,17 @@ _pebrel_commands() {
 'pane:Inspect and drive terminal panes\: list, read, send, paste, wait, and change layout' \
 'agent:Inspect and drive the AI agents running in panes\: list, send, read, wait' \
 'migrate:Migrate the configuration file' \
-'config:Validate or create the Pebrel configuration' \
+'config:Validate or create the PoxiTerminal configuration' \
 'plugin:Check or invoke a local plugin package without starting a GUI or plugin daemon' \
-'setup-ai:Install (or --remove) AI hooks plus the Pebrel Runtime Skill for Codex and Claude Code' \
+'notify-test:Test system notification (toast) delivery' \
+'setup-ai:Install (or --remove) AI hooks plus the PoxiTerminal Runtime Skill for Codex and Claude Code' \
+'ssh:SSH with PoxiTerminal shell integration bootstrapped on the remote host, so tab icons / spinner / cwd track the program running over the connection (claude, vim, cargo…). All arguments are forwarded to the system \`ssh\`' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel commands' commands "$@"
+    _describe -t commands 'poxiterminal commands' commands "$@"
 }
-(( $+functions[_pebrel__agent_commands] )) ||
-_pebrel__agent_commands() {
+(( $+functions[_poxiterminal__agent_commands] )) ||
+_poxiterminal__agent_commands() {
     local commands; commands=(
 'list:List the panes running an AI CLI, with session identity and generation' \
 'send:Hand one task to an agent and submit it' \
@@ -1592,15 +1614,15 @@ _pebrel__agent_commands() {
 'wait:Block until an agent'\''s turn ends' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel agent commands' commands "$@"
+    _describe -t commands 'poxiterminal agent commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__delegate_commands] )) ||
-_pebrel__agent__delegate_commands() {
+(( $+functions[_poxiterminal__agent__delegate_commands] )) ||
+_poxiterminal__agent__delegate_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent delegate commands' commands "$@"
+    _describe -t commands 'poxiterminal agent delegate commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__help_commands] )) ||
-_pebrel__agent__help_commands() {
+(( $+functions[_poxiterminal__agent__help_commands] )) ||
+_poxiterminal__agent__help_commands() {
     local commands; commands=(
 'list:List the panes running an AI CLI, with session identity and generation' \
 'send:Hand one task to an agent and submit it' \
@@ -1610,118 +1632,118 @@ _pebrel__agent__help_commands() {
 'wait:Block until an agent'\''s turn ends' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel agent help commands' commands "$@"
+    _describe -t commands 'poxiterminal agent help commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__help__delegate_commands] )) ||
-_pebrel__agent__help__delegate_commands() {
+(( $+functions[_poxiterminal__agent__help__delegate_commands] )) ||
+_poxiterminal__agent__help__delegate_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent help delegate commands' commands "$@"
+    _describe -t commands 'poxiterminal agent help delegate commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__help__help_commands] )) ||
-_pebrel__agent__help__help_commands() {
+(( $+functions[_poxiterminal__agent__help__help_commands] )) ||
+_poxiterminal__agent__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent help help commands' commands "$@"
+    _describe -t commands 'poxiterminal agent help help commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__help__list_commands] )) ||
-_pebrel__agent__help__list_commands() {
+(( $+functions[_poxiterminal__agent__help__list_commands] )) ||
+_poxiterminal__agent__help__list_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent help list commands' commands "$@"
+    _describe -t commands 'poxiterminal agent help list commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__help__paste_commands] )) ||
-_pebrel__agent__help__paste_commands() {
+(( $+functions[_poxiterminal__agent__help__paste_commands] )) ||
+_poxiterminal__agent__help__paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent help paste commands' commands "$@"
+    _describe -t commands 'poxiterminal agent help paste commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__help__read_commands] )) ||
-_pebrel__agent__help__read_commands() {
+(( $+functions[_poxiterminal__agent__help__read_commands] )) ||
+_poxiterminal__agent__help__read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent help read commands' commands "$@"
+    _describe -t commands 'poxiterminal agent help read commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__help__send_commands] )) ||
-_pebrel__agent__help__send_commands() {
+(( $+functions[_poxiterminal__agent__help__send_commands] )) ||
+_poxiterminal__agent__help__send_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent help send commands' commands "$@"
+    _describe -t commands 'poxiterminal agent help send commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__help__wait_commands] )) ||
-_pebrel__agent__help__wait_commands() {
+(( $+functions[_poxiterminal__agent__help__wait_commands] )) ||
+_poxiterminal__agent__help__wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent help wait commands' commands "$@"
+    _describe -t commands 'poxiterminal agent help wait commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__list_commands] )) ||
-_pebrel__agent__list_commands() {
+(( $+functions[_poxiterminal__agent__list_commands] )) ||
+_poxiterminal__agent__list_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent list commands' commands "$@"
+    _describe -t commands 'poxiterminal agent list commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__paste_commands] )) ||
-_pebrel__agent__paste_commands() {
+(( $+functions[_poxiterminal__agent__paste_commands] )) ||
+_poxiterminal__agent__paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent paste commands' commands "$@"
+    _describe -t commands 'poxiterminal agent paste commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__read_commands] )) ||
-_pebrel__agent__read_commands() {
+(( $+functions[_poxiterminal__agent__read_commands] )) ||
+_poxiterminal__agent__read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent read commands' commands "$@"
+    _describe -t commands 'poxiterminal agent read commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__send_commands] )) ||
-_pebrel__agent__send_commands() {
+(( $+functions[_poxiterminal__agent__send_commands] )) ||
+_poxiterminal__agent__send_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent send commands' commands "$@"
+    _describe -t commands 'poxiterminal agent send commands' commands "$@"
 }
-(( $+functions[_pebrel__agent__wait_commands] )) ||
-_pebrel__agent__wait_commands() {
+(( $+functions[_poxiterminal__agent__wait_commands] )) ||
+_poxiterminal__agent__wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel agent wait commands' commands "$@"
+    _describe -t commands 'poxiterminal agent wait commands' commands "$@"
 }
-(( $+functions[_pebrel__config_commands] )) ||
-_pebrel__config_commands() {
+(( $+functions[_poxiterminal__config_commands] )) ||
+_poxiterminal__config_commands() {
     local commands; commands=(
 'check:Validate a Lua, TOML, or YAML configuration without opening the GUI' \
 'init:Create an annotated Lua configuration template' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel config commands' commands "$@"
+    _describe -t commands 'poxiterminal config commands' commands "$@"
 }
-(( $+functions[_pebrel__config__check_commands] )) ||
-_pebrel__config__check_commands() {
+(( $+functions[_poxiterminal__config__check_commands] )) ||
+_poxiterminal__config__check_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel config check commands' commands "$@"
+    _describe -t commands 'poxiterminal config check commands' commands "$@"
 }
-(( $+functions[_pebrel__config__help_commands] )) ||
-_pebrel__config__help_commands() {
+(( $+functions[_poxiterminal__config__help_commands] )) ||
+_poxiterminal__config__help_commands() {
     local commands; commands=(
 'check:Validate a Lua, TOML, or YAML configuration without opening the GUI' \
 'init:Create an annotated Lua configuration template' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel config help commands' commands "$@"
+    _describe -t commands 'poxiterminal config help commands' commands "$@"
 }
-(( $+functions[_pebrel__config__help__check_commands] )) ||
-_pebrel__config__help__check_commands() {
+(( $+functions[_poxiterminal__config__help__check_commands] )) ||
+_poxiterminal__config__help__check_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel config help check commands' commands "$@"
+    _describe -t commands 'poxiterminal config help check commands' commands "$@"
 }
-(( $+functions[_pebrel__config__help__help_commands] )) ||
-_pebrel__config__help__help_commands() {
+(( $+functions[_poxiterminal__config__help__help_commands] )) ||
+_poxiterminal__config__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel config help help commands' commands "$@"
+    _describe -t commands 'poxiterminal config help help commands' commands "$@"
 }
-(( $+functions[_pebrel__config__help__init_commands] )) ||
-_pebrel__config__help__init_commands() {
+(( $+functions[_poxiterminal__config__help__init_commands] )) ||
+_poxiterminal__config__help__init_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel config help init commands' commands "$@"
+    _describe -t commands 'poxiterminal config help init commands' commands "$@"
 }
-(( $+functions[_pebrel__config__init_commands] )) ||
-_pebrel__config__init_commands() {
+(( $+functions[_poxiterminal__config__init_commands] )) ||
+_poxiterminal__config__init_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel config init commands' commands "$@"
+    _describe -t commands 'poxiterminal config init commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl_commands] )) ||
-_pebrel__ctl_commands() {
+(( $+functions[_poxiterminal__ctl_commands] )) ||
+_poxiterminal__ctl_commands() {
     local commands; commands=(
 'describe:Describe the protocol version, runtime version, and available capabilities' \
 'snapshot:Read the authoritative window, tab, pane, and task-state projection' \
 'orchestrate:Execute one typed multi-step terminal workflow in a single Runtime request' \
-'agents:List only panes Pebrel recognizes as AI agents, with semantic state and session identity' \
+'agents:List only panes PoxiTerminal recognizes as AI agents, with semantic state and session identity' \
 'agent-start:Start a verified AI CLI in a new terminal tab and assign a stable name' \
 'agent-fork:Create an isolated Git worktree, then start a named AI CLI in that checkout' \
 'agent-get:Resolve one managed agent by stable id or active name' \
@@ -1751,85 +1773,85 @@ _pebrel__ctl_commands() {
 'wait:Wait until a pane reaches a semantic task state' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel ctl commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__agent-fork_commands] )) ||
-_pebrel__ctl__agent-fork_commands() {
+(( $+functions[_poxiterminal__ctl__agent-fork_commands] )) ||
+_poxiterminal__ctl__agent-fork_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl agent-fork commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl agent-fork commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__agent-get_commands] )) ||
-_pebrel__ctl__agent-get_commands() {
+(( $+functions[_poxiterminal__ctl__agent-get_commands] )) ||
+_poxiterminal__ctl__agent-get_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl agent-get commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl agent-get commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__agent-paste_commands] )) ||
-_pebrel__ctl__agent-paste_commands() {
+(( $+functions[_poxiterminal__ctl__agent-paste_commands] )) ||
+_poxiterminal__ctl__agent-paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl agent-paste commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl agent-paste commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__agent-prompt_commands] )) ||
-_pebrel__ctl__agent-prompt_commands() {
+(( $+functions[_poxiterminal__ctl__agent-prompt_commands] )) ||
+_poxiterminal__ctl__agent-prompt_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl agent-prompt commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl agent-prompt commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__agent-read_commands] )) ||
-_pebrel__ctl__agent-read_commands() {
+(( $+functions[_poxiterminal__ctl__agent-read_commands] )) ||
+_poxiterminal__ctl__agent-read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl agent-read commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl agent-read commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__agent-start_commands] )) ||
-_pebrel__ctl__agent-start_commands() {
+(( $+functions[_poxiterminal__ctl__agent-start_commands] )) ||
+_poxiterminal__ctl__agent-start_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl agent-start commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl agent-start commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__agent-wait_commands] )) ||
-_pebrel__ctl__agent-wait_commands() {
+(( $+functions[_poxiterminal__ctl__agent-wait_commands] )) ||
+_poxiterminal__ctl__agent-wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl agent-wait commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl agent-wait commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__agents_commands] )) ||
-_pebrel__ctl__agents_commands() {
+(( $+functions[_poxiterminal__ctl__agents_commands] )) ||
+_poxiterminal__ctl__agents_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl agents commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl agents commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__close-pane_commands] )) ||
-_pebrel__ctl__close-pane_commands() {
+(( $+functions[_poxiterminal__ctl__close-pane_commands] )) ||
+_poxiterminal__ctl__close-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl close-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl close-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__close-tab_commands] )) ||
-_pebrel__ctl__close-tab_commands() {
+(( $+functions[_poxiterminal__ctl__close-tab_commands] )) ||
+_poxiterminal__ctl__close-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl close-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl close-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__close-window_commands] )) ||
-_pebrel__ctl__close-window_commands() {
+(( $+functions[_poxiterminal__ctl__close-window_commands] )) ||
+_poxiterminal__ctl__close-window_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl close-window commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl close-window commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__describe_commands] )) ||
-_pebrel__ctl__describe_commands() {
+(( $+functions[_poxiterminal__ctl__describe_commands] )) ||
+_poxiterminal__ctl__describe_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl describe commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl describe commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__exec-pane_commands] )) ||
-_pebrel__ctl__exec-pane_commands() {
+(( $+functions[_poxiterminal__ctl__exec-pane_commands] )) ||
+_poxiterminal__ctl__exec-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl exec-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl exec-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__focus_commands] )) ||
-_pebrel__ctl__focus_commands() {
+(( $+functions[_poxiterminal__ctl__focus_commands] )) ||
+_poxiterminal__ctl__focus_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl focus commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl focus commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help_commands] )) ||
-_pebrel__ctl__help_commands() {
+(( $+functions[_poxiterminal__ctl__help_commands] )) ||
+_poxiterminal__ctl__help_commands() {
     local commands; commands=(
 'describe:Describe the protocol version, runtime version, and available capabilities' \
 'snapshot:Read the authoritative window, tab, pane, and task-state projection' \
 'orchestrate:Execute one typed multi-step terminal workflow in a single Runtime request' \
-'agents:List only panes Pebrel recognizes as AI agents, with semantic state and session identity' \
+'agents:List only panes PoxiTerminal recognizes as AI agents, with semantic state and session identity' \
 'agent-start:Start a verified AI CLI in a new terminal tab and assign a stable name' \
 'agent-fork:Create an isolated Git worktree, then start a named AI CLI in that checkout' \
 'agent-get:Resolve one managed agent by stable id or active name' \
@@ -1859,260 +1881,260 @@ _pebrel__ctl__help_commands() {
 'wait:Wait until a pane reaches a semantic task state' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel ctl help commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__agent-fork_commands] )) ||
-_pebrel__ctl__help__agent-fork_commands() {
+(( $+functions[_poxiterminal__ctl__help__agent-fork_commands] )) ||
+_poxiterminal__ctl__help__agent-fork_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help agent-fork commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help agent-fork commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__agent-get_commands] )) ||
-_pebrel__ctl__help__agent-get_commands() {
+(( $+functions[_poxiterminal__ctl__help__agent-get_commands] )) ||
+_poxiterminal__ctl__help__agent-get_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help agent-get commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help agent-get commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__agent-paste_commands] )) ||
-_pebrel__ctl__help__agent-paste_commands() {
+(( $+functions[_poxiterminal__ctl__help__agent-paste_commands] )) ||
+_poxiterminal__ctl__help__agent-paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help agent-paste commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help agent-paste commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__agent-prompt_commands] )) ||
-_pebrel__ctl__help__agent-prompt_commands() {
+(( $+functions[_poxiterminal__ctl__help__agent-prompt_commands] )) ||
+_poxiterminal__ctl__help__agent-prompt_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help agent-prompt commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help agent-prompt commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__agent-read_commands] )) ||
-_pebrel__ctl__help__agent-read_commands() {
+(( $+functions[_poxiterminal__ctl__help__agent-read_commands] )) ||
+_poxiterminal__ctl__help__agent-read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help agent-read commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help agent-read commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__agent-start_commands] )) ||
-_pebrel__ctl__help__agent-start_commands() {
+(( $+functions[_poxiterminal__ctl__help__agent-start_commands] )) ||
+_poxiterminal__ctl__help__agent-start_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help agent-start commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help agent-start commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__agent-wait_commands] )) ||
-_pebrel__ctl__help__agent-wait_commands() {
+(( $+functions[_poxiterminal__ctl__help__agent-wait_commands] )) ||
+_poxiterminal__ctl__help__agent-wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help agent-wait commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help agent-wait commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__agents_commands] )) ||
-_pebrel__ctl__help__agents_commands() {
+(( $+functions[_poxiterminal__ctl__help__agents_commands] )) ||
+_poxiterminal__ctl__help__agents_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help agents commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help agents commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__close-pane_commands] )) ||
-_pebrel__ctl__help__close-pane_commands() {
+(( $+functions[_poxiterminal__ctl__help__close-pane_commands] )) ||
+_poxiterminal__ctl__help__close-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help close-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help close-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__close-tab_commands] )) ||
-_pebrel__ctl__help__close-tab_commands() {
+(( $+functions[_poxiterminal__ctl__help__close-tab_commands] )) ||
+_poxiterminal__ctl__help__close-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help close-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help close-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__close-window_commands] )) ||
-_pebrel__ctl__help__close-window_commands() {
+(( $+functions[_poxiterminal__ctl__help__close-window_commands] )) ||
+_poxiterminal__ctl__help__close-window_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help close-window commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help close-window commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__describe_commands] )) ||
-_pebrel__ctl__help__describe_commands() {
+(( $+functions[_poxiterminal__ctl__help__describe_commands] )) ||
+_poxiterminal__ctl__help__describe_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help describe commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help describe commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__exec-pane_commands] )) ||
-_pebrel__ctl__help__exec-pane_commands() {
+(( $+functions[_poxiterminal__ctl__help__exec-pane_commands] )) ||
+_poxiterminal__ctl__help__exec-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help exec-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help exec-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__focus_commands] )) ||
-_pebrel__ctl__help__focus_commands() {
+(( $+functions[_poxiterminal__ctl__help__focus_commands] )) ||
+_poxiterminal__ctl__help__focus_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help focus commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help focus commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__help_commands] )) ||
-_pebrel__ctl__help__help_commands() {
+(( $+functions[_poxiterminal__ctl__help__help_commands] )) ||
+_poxiterminal__ctl__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help help commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help help commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__move-tab_commands] )) ||
-_pebrel__ctl__help__move-tab_commands() {
+(( $+functions[_poxiterminal__ctl__help__move-tab_commands] )) ||
+_poxiterminal__ctl__help__move-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help move-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help move-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__new-tab_commands] )) ||
-_pebrel__ctl__help__new-tab_commands() {
+(( $+functions[_poxiterminal__ctl__help__new-tab_commands] )) ||
+_poxiterminal__ctl__help__new-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help new-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help new-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__new-window_commands] )) ||
-_pebrel__ctl__help__new-window_commands() {
+(( $+functions[_poxiterminal__ctl__help__new-window_commands] )) ||
+_poxiterminal__ctl__help__new-window_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help new-window commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help new-window commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__orchestrate_commands] )) ||
-_pebrel__ctl__help__orchestrate_commands() {
+(( $+functions[_poxiterminal__ctl__help__orchestrate_commands] )) ||
+_poxiterminal__ctl__help__orchestrate_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help orchestrate commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help orchestrate commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__paste_commands] )) ||
-_pebrel__ctl__help__paste_commands() {
+(( $+functions[_poxiterminal__ctl__help__paste_commands] )) ||
+_poxiterminal__ctl__help__paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help paste commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help paste commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__procs_commands] )) ||
-_pebrel__ctl__help__procs_commands() {
+(( $+functions[_poxiterminal__ctl__help__procs_commands] )) ||
+_poxiterminal__ctl__help__procs_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help procs commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help procs commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__prompt_commands] )) ||
-_pebrel__ctl__help__prompt_commands() {
+(( $+functions[_poxiterminal__ctl__help__prompt_commands] )) ||
+_poxiterminal__ctl__help__prompt_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help prompt commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help prompt commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__read_commands] )) ||
-_pebrel__ctl__help__read_commands() {
+(( $+functions[_poxiterminal__ctl__help__read_commands] )) ||
+_poxiterminal__ctl__help__read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help read commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help read commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__rename-tab_commands] )) ||
-_pebrel__ctl__help__rename-tab_commands() {
+(( $+functions[_poxiterminal__ctl__help__rename-tab_commands] )) ||
+_poxiterminal__ctl__help__rename-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help rename-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help rename-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__resize-pane_commands] )) ||
-_pebrel__ctl__help__resize-pane_commands() {
+(( $+functions[_poxiterminal__ctl__help__resize-pane_commands] )) ||
+_poxiterminal__ctl__help__resize-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help resize-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help resize-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__run_commands] )) ||
-_pebrel__ctl__help__run_commands() {
+(( $+functions[_poxiterminal__ctl__help__run_commands] )) ||
+_poxiterminal__ctl__help__run_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help run commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help run commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__send-key_commands] )) ||
-_pebrel__ctl__help__send-key_commands() {
+(( $+functions[_poxiterminal__ctl__help__send-key_commands] )) ||
+_poxiterminal__ctl__help__send-key_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help send-key commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help send-key commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__snapshot_commands] )) ||
-_pebrel__ctl__help__snapshot_commands() {
+(( $+functions[_poxiterminal__ctl__help__snapshot_commands] )) ||
+_poxiterminal__ctl__help__snapshot_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help snapshot commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help snapshot commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__split_commands] )) ||
-_pebrel__ctl__help__split_commands() {
+(( $+functions[_poxiterminal__ctl__help__split_commands] )) ||
+_poxiterminal__ctl__help__split_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help split commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help split commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__subscribe_commands] )) ||
-_pebrel__ctl__help__subscribe_commands() {
+(( $+functions[_poxiterminal__ctl__help__subscribe_commands] )) ||
+_poxiterminal__ctl__help__subscribe_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help subscribe commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help subscribe commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__wait_commands] )) ||
-_pebrel__ctl__help__wait_commands() {
+(( $+functions[_poxiterminal__ctl__help__wait_commands] )) ||
+_poxiterminal__ctl__help__wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help wait commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help wait commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__help__zoom-pane_commands] )) ||
-_pebrel__ctl__help__zoom-pane_commands() {
+(( $+functions[_poxiterminal__ctl__help__zoom-pane_commands] )) ||
+_poxiterminal__ctl__help__zoom-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl help zoom-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl help zoom-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__move-tab_commands] )) ||
-_pebrel__ctl__move-tab_commands() {
+(( $+functions[_poxiterminal__ctl__move-tab_commands] )) ||
+_poxiterminal__ctl__move-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl move-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl move-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__new-tab_commands] )) ||
-_pebrel__ctl__new-tab_commands() {
+(( $+functions[_poxiterminal__ctl__new-tab_commands] )) ||
+_poxiterminal__ctl__new-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl new-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl new-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__new-window_commands] )) ||
-_pebrel__ctl__new-window_commands() {
+(( $+functions[_poxiterminal__ctl__new-window_commands] )) ||
+_poxiterminal__ctl__new-window_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl new-window commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl new-window commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__orchestrate_commands] )) ||
-_pebrel__ctl__orchestrate_commands() {
+(( $+functions[_poxiterminal__ctl__orchestrate_commands] )) ||
+_poxiterminal__ctl__orchestrate_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl orchestrate commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl orchestrate commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__paste_commands] )) ||
-_pebrel__ctl__paste_commands() {
+(( $+functions[_poxiterminal__ctl__paste_commands] )) ||
+_poxiterminal__ctl__paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl paste commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl paste commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__procs_commands] )) ||
-_pebrel__ctl__procs_commands() {
+(( $+functions[_poxiterminal__ctl__procs_commands] )) ||
+_poxiterminal__ctl__procs_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl procs commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl procs commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__prompt_commands] )) ||
-_pebrel__ctl__prompt_commands() {
+(( $+functions[_poxiterminal__ctl__prompt_commands] )) ||
+_poxiterminal__ctl__prompt_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl prompt commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl prompt commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__read_commands] )) ||
-_pebrel__ctl__read_commands() {
+(( $+functions[_poxiterminal__ctl__read_commands] )) ||
+_poxiterminal__ctl__read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl read commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl read commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__rename-tab_commands] )) ||
-_pebrel__ctl__rename-tab_commands() {
+(( $+functions[_poxiterminal__ctl__rename-tab_commands] )) ||
+_poxiterminal__ctl__rename-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl rename-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl rename-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__resize-pane_commands] )) ||
-_pebrel__ctl__resize-pane_commands() {
+(( $+functions[_poxiterminal__ctl__resize-pane_commands] )) ||
+_poxiterminal__ctl__resize-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl resize-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl resize-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__run_commands] )) ||
-_pebrel__ctl__run_commands() {
+(( $+functions[_poxiterminal__ctl__run_commands] )) ||
+_poxiterminal__ctl__run_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl run commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl run commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__send-key_commands] )) ||
-_pebrel__ctl__send-key_commands() {
+(( $+functions[_poxiterminal__ctl__send-key_commands] )) ||
+_poxiterminal__ctl__send-key_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl send-key commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl send-key commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__snapshot_commands] )) ||
-_pebrel__ctl__snapshot_commands() {
+(( $+functions[_poxiterminal__ctl__snapshot_commands] )) ||
+_poxiterminal__ctl__snapshot_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl snapshot commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl snapshot commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__split_commands] )) ||
-_pebrel__ctl__split_commands() {
+(( $+functions[_poxiterminal__ctl__split_commands] )) ||
+_poxiterminal__ctl__split_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl split commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl split commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__subscribe_commands] )) ||
-_pebrel__ctl__subscribe_commands() {
+(( $+functions[_poxiterminal__ctl__subscribe_commands] )) ||
+_poxiterminal__ctl__subscribe_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl subscribe commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl subscribe commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__wait_commands] )) ||
-_pebrel__ctl__wait_commands() {
+(( $+functions[_poxiterminal__ctl__wait_commands] )) ||
+_poxiterminal__ctl__wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl wait commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl wait commands' commands "$@"
 }
-(( $+functions[_pebrel__ctl__zoom-pane_commands] )) ||
-_pebrel__ctl__zoom-pane_commands() {
+(( $+functions[_poxiterminal__ctl__zoom-pane_commands] )) ||
+_poxiterminal__ctl__zoom-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel ctl zoom-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal ctl zoom-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__env_commands] )) ||
-_pebrel__env_commands() {
+(( $+functions[_poxiterminal__env_commands] )) ||
+_poxiterminal__env_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel env commands' commands "$@"
+    _describe -t commands 'poxiterminal env commands' commands "$@"
 }
-(( $+functions[_pebrel__help_commands] )) ||
-_pebrel__help_commands() {
+(( $+functions[_poxiterminal__help_commands] )) ||
+_poxiterminal__help_commands() {
     local commands; commands=(
 'ctl:Agent-oriented terminal control\: split panes, run commands, start Codex/Claude, send prompts, wait for state changes, and read verified terminal output' \
 'env:Report this pane'\''s terminal identity, the control-plane path, and every command available to it. Answers even with no runtime reachable, so an agent can always discover what it has instead of guessing' \
@@ -2121,15 +2143,17 @@ _pebrel__help_commands() {
 'pane:Inspect and drive terminal panes\: list, read, send, paste, wait, and change layout' \
 'agent:Inspect and drive the AI agents running in panes\: list, send, read, wait' \
 'migrate:Migrate the configuration file' \
-'config:Validate or create the Pebrel configuration' \
+'config:Validate or create the PoxiTerminal configuration' \
 'plugin:Check or invoke a local plugin package without starting a GUI or plugin daemon' \
-'setup-ai:Install (or --remove) AI hooks plus the Pebrel Runtime Skill for Codex and Claude Code' \
+'notify-test:Test system notification (toast) delivery' \
+'setup-ai:Install (or --remove) AI hooks plus the PoxiTerminal Runtime Skill for Codex and Claude Code' \
+'ssh:SSH with PoxiTerminal shell integration bootstrapped on the remote host, so tab icons / spinner / cwd track the program running over the connection (claude, vim, cargo…). All arguments are forwarded to the system \`ssh\`' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel help commands' commands "$@"
+    _describe -t commands 'poxiterminal help commands' commands "$@"
 }
-(( $+functions[_pebrel__help__agent_commands] )) ||
-_pebrel__help__agent_commands() {
+(( $+functions[_poxiterminal__help__agent_commands] )) ||
+_poxiterminal__help__agent_commands() {
     local commands; commands=(
 'list:List the panes running an AI CLI, with session identity and generation' \
 'send:Hand one task to an agent and submit it' \
@@ -2138,63 +2162,63 @@ _pebrel__help__agent_commands() {
 'read:Read the tail of what an agent printed' \
 'wait:Block until an agent'\''s turn ends' \
     )
-    _describe -t commands 'pebrel help agent commands' commands "$@"
+    _describe -t commands 'poxiterminal help agent commands' commands "$@"
 }
-(( $+functions[_pebrel__help__agent__delegate_commands] )) ||
-_pebrel__help__agent__delegate_commands() {
+(( $+functions[_poxiterminal__help__agent__delegate_commands] )) ||
+_poxiterminal__help__agent__delegate_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help agent delegate commands' commands "$@"
+    _describe -t commands 'poxiterminal help agent delegate commands' commands "$@"
 }
-(( $+functions[_pebrel__help__agent__list_commands] )) ||
-_pebrel__help__agent__list_commands() {
+(( $+functions[_poxiterminal__help__agent__list_commands] )) ||
+_poxiterminal__help__agent__list_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help agent list commands' commands "$@"
+    _describe -t commands 'poxiterminal help agent list commands' commands "$@"
 }
-(( $+functions[_pebrel__help__agent__paste_commands] )) ||
-_pebrel__help__agent__paste_commands() {
+(( $+functions[_poxiterminal__help__agent__paste_commands] )) ||
+_poxiterminal__help__agent__paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help agent paste commands' commands "$@"
+    _describe -t commands 'poxiterminal help agent paste commands' commands "$@"
 }
-(( $+functions[_pebrel__help__agent__read_commands] )) ||
-_pebrel__help__agent__read_commands() {
+(( $+functions[_poxiterminal__help__agent__read_commands] )) ||
+_poxiterminal__help__agent__read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help agent read commands' commands "$@"
+    _describe -t commands 'poxiterminal help agent read commands' commands "$@"
 }
-(( $+functions[_pebrel__help__agent__send_commands] )) ||
-_pebrel__help__agent__send_commands() {
+(( $+functions[_poxiterminal__help__agent__send_commands] )) ||
+_poxiterminal__help__agent__send_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help agent send commands' commands "$@"
+    _describe -t commands 'poxiterminal help agent send commands' commands "$@"
 }
-(( $+functions[_pebrel__help__agent__wait_commands] )) ||
-_pebrel__help__agent__wait_commands() {
+(( $+functions[_poxiterminal__help__agent__wait_commands] )) ||
+_poxiterminal__help__agent__wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help agent wait commands' commands "$@"
+    _describe -t commands 'poxiterminal help agent wait commands' commands "$@"
 }
-(( $+functions[_pebrel__help__config_commands] )) ||
-_pebrel__help__config_commands() {
+(( $+functions[_poxiterminal__help__config_commands] )) ||
+_poxiterminal__help__config_commands() {
     local commands; commands=(
 'check:Validate a Lua, TOML, or YAML configuration without opening the GUI' \
 'init:Create an annotated Lua configuration template' \
     )
-    _describe -t commands 'pebrel help config commands' commands "$@"
+    _describe -t commands 'poxiterminal help config commands' commands "$@"
 }
-(( $+functions[_pebrel__help__config__check_commands] )) ||
-_pebrel__help__config__check_commands() {
+(( $+functions[_poxiterminal__help__config__check_commands] )) ||
+_poxiterminal__help__config__check_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help config check commands' commands "$@"
+    _describe -t commands 'poxiterminal help config check commands' commands "$@"
 }
-(( $+functions[_pebrel__help__config__init_commands] )) ||
-_pebrel__help__config__init_commands() {
+(( $+functions[_poxiterminal__help__config__init_commands] )) ||
+_poxiterminal__help__config__init_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help config init commands' commands "$@"
+    _describe -t commands 'poxiterminal help config init commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl_commands] )) ||
-_pebrel__help__ctl_commands() {
+(( $+functions[_poxiterminal__help__ctl_commands] )) ||
+_poxiterminal__help__ctl_commands() {
     local commands; commands=(
 'describe:Describe the protocol version, runtime version, and available capabilities' \
 'snapshot:Read the authoritative window, tab, pane, and task-state projection' \
 'orchestrate:Execute one typed multi-step terminal workflow in a single Runtime request' \
-'agents:List only panes Pebrel recognizes as AI agents, with semantic state and session identity' \
+'agents:List only panes PoxiTerminal recognizes as AI agents, with semantic state and session identity' \
 'agent-start:Start a verified AI CLI in a new terminal tab and assign a stable name' \
 'agent-fork:Create an isolated Git worktree, then start a named AI CLI in that checkout' \
 'agent-get:Resolve one managed agent by stable id or active name' \
@@ -2223,180 +2247,185 @@ _pebrel__help__ctl_commands() {
 'exec-pane:Execute argv as an independent non-TTY child and capture stdout/stderr separately' \
 'wait:Wait until a pane reaches a semantic task state' \
     )
-    _describe -t commands 'pebrel help ctl commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__agent-fork_commands] )) ||
-_pebrel__help__ctl__agent-fork_commands() {
+(( $+functions[_poxiterminal__help__ctl__agent-fork_commands] )) ||
+_poxiterminal__help__ctl__agent-fork_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl agent-fork commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl agent-fork commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__agent-get_commands] )) ||
-_pebrel__help__ctl__agent-get_commands() {
+(( $+functions[_poxiterminal__help__ctl__agent-get_commands] )) ||
+_poxiterminal__help__ctl__agent-get_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl agent-get commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl agent-get commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__agent-paste_commands] )) ||
-_pebrel__help__ctl__agent-paste_commands() {
+(( $+functions[_poxiterminal__help__ctl__agent-paste_commands] )) ||
+_poxiterminal__help__ctl__agent-paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl agent-paste commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl agent-paste commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__agent-prompt_commands] )) ||
-_pebrel__help__ctl__agent-prompt_commands() {
+(( $+functions[_poxiterminal__help__ctl__agent-prompt_commands] )) ||
+_poxiterminal__help__ctl__agent-prompt_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl agent-prompt commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl agent-prompt commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__agent-read_commands] )) ||
-_pebrel__help__ctl__agent-read_commands() {
+(( $+functions[_poxiterminal__help__ctl__agent-read_commands] )) ||
+_poxiterminal__help__ctl__agent-read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl agent-read commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl agent-read commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__agent-start_commands] )) ||
-_pebrel__help__ctl__agent-start_commands() {
+(( $+functions[_poxiterminal__help__ctl__agent-start_commands] )) ||
+_poxiterminal__help__ctl__agent-start_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl agent-start commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl agent-start commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__agent-wait_commands] )) ||
-_pebrel__help__ctl__agent-wait_commands() {
+(( $+functions[_poxiterminal__help__ctl__agent-wait_commands] )) ||
+_poxiterminal__help__ctl__agent-wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl agent-wait commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl agent-wait commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__agents_commands] )) ||
-_pebrel__help__ctl__agents_commands() {
+(( $+functions[_poxiterminal__help__ctl__agents_commands] )) ||
+_poxiterminal__help__ctl__agents_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl agents commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl agents commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__close-pane_commands] )) ||
-_pebrel__help__ctl__close-pane_commands() {
+(( $+functions[_poxiterminal__help__ctl__close-pane_commands] )) ||
+_poxiterminal__help__ctl__close-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl close-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl close-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__close-tab_commands] )) ||
-_pebrel__help__ctl__close-tab_commands() {
+(( $+functions[_poxiterminal__help__ctl__close-tab_commands] )) ||
+_poxiterminal__help__ctl__close-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl close-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl close-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__close-window_commands] )) ||
-_pebrel__help__ctl__close-window_commands() {
+(( $+functions[_poxiterminal__help__ctl__close-window_commands] )) ||
+_poxiterminal__help__ctl__close-window_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl close-window commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl close-window commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__describe_commands] )) ||
-_pebrel__help__ctl__describe_commands() {
+(( $+functions[_poxiterminal__help__ctl__describe_commands] )) ||
+_poxiterminal__help__ctl__describe_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl describe commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl describe commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__exec-pane_commands] )) ||
-_pebrel__help__ctl__exec-pane_commands() {
+(( $+functions[_poxiterminal__help__ctl__exec-pane_commands] )) ||
+_poxiterminal__help__ctl__exec-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl exec-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl exec-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__focus_commands] )) ||
-_pebrel__help__ctl__focus_commands() {
+(( $+functions[_poxiterminal__help__ctl__focus_commands] )) ||
+_poxiterminal__help__ctl__focus_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl focus commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl focus commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__move-tab_commands] )) ||
-_pebrel__help__ctl__move-tab_commands() {
+(( $+functions[_poxiterminal__help__ctl__move-tab_commands] )) ||
+_poxiterminal__help__ctl__move-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl move-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl move-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__new-tab_commands] )) ||
-_pebrel__help__ctl__new-tab_commands() {
+(( $+functions[_poxiterminal__help__ctl__new-tab_commands] )) ||
+_poxiterminal__help__ctl__new-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl new-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl new-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__new-window_commands] )) ||
-_pebrel__help__ctl__new-window_commands() {
+(( $+functions[_poxiterminal__help__ctl__new-window_commands] )) ||
+_poxiterminal__help__ctl__new-window_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl new-window commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl new-window commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__orchestrate_commands] )) ||
-_pebrel__help__ctl__orchestrate_commands() {
+(( $+functions[_poxiterminal__help__ctl__orchestrate_commands] )) ||
+_poxiterminal__help__ctl__orchestrate_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl orchestrate commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl orchestrate commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__paste_commands] )) ||
-_pebrel__help__ctl__paste_commands() {
+(( $+functions[_poxiterminal__help__ctl__paste_commands] )) ||
+_poxiterminal__help__ctl__paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl paste commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl paste commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__procs_commands] )) ||
-_pebrel__help__ctl__procs_commands() {
+(( $+functions[_poxiterminal__help__ctl__procs_commands] )) ||
+_poxiterminal__help__ctl__procs_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl procs commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl procs commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__prompt_commands] )) ||
-_pebrel__help__ctl__prompt_commands() {
+(( $+functions[_poxiterminal__help__ctl__prompt_commands] )) ||
+_poxiterminal__help__ctl__prompt_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl prompt commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl prompt commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__read_commands] )) ||
-_pebrel__help__ctl__read_commands() {
+(( $+functions[_poxiterminal__help__ctl__read_commands] )) ||
+_poxiterminal__help__ctl__read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl read commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl read commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__rename-tab_commands] )) ||
-_pebrel__help__ctl__rename-tab_commands() {
+(( $+functions[_poxiterminal__help__ctl__rename-tab_commands] )) ||
+_poxiterminal__help__ctl__rename-tab_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl rename-tab commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl rename-tab commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__resize-pane_commands] )) ||
-_pebrel__help__ctl__resize-pane_commands() {
+(( $+functions[_poxiterminal__help__ctl__resize-pane_commands] )) ||
+_poxiterminal__help__ctl__resize-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl resize-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl resize-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__run_commands] )) ||
-_pebrel__help__ctl__run_commands() {
+(( $+functions[_poxiterminal__help__ctl__run_commands] )) ||
+_poxiterminal__help__ctl__run_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl run commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl run commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__send-key_commands] )) ||
-_pebrel__help__ctl__send-key_commands() {
+(( $+functions[_poxiterminal__help__ctl__send-key_commands] )) ||
+_poxiterminal__help__ctl__send-key_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl send-key commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl send-key commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__snapshot_commands] )) ||
-_pebrel__help__ctl__snapshot_commands() {
+(( $+functions[_poxiterminal__help__ctl__snapshot_commands] )) ||
+_poxiterminal__help__ctl__snapshot_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl snapshot commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl snapshot commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__split_commands] )) ||
-_pebrel__help__ctl__split_commands() {
+(( $+functions[_poxiterminal__help__ctl__split_commands] )) ||
+_poxiterminal__help__ctl__split_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl split commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl split commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__subscribe_commands] )) ||
-_pebrel__help__ctl__subscribe_commands() {
+(( $+functions[_poxiterminal__help__ctl__subscribe_commands] )) ||
+_poxiterminal__help__ctl__subscribe_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl subscribe commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl subscribe commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__wait_commands] )) ||
-_pebrel__help__ctl__wait_commands() {
+(( $+functions[_poxiterminal__help__ctl__wait_commands] )) ||
+_poxiterminal__help__ctl__wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl wait commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl wait commands' commands "$@"
 }
-(( $+functions[_pebrel__help__ctl__zoom-pane_commands] )) ||
-_pebrel__help__ctl__zoom-pane_commands() {
+(( $+functions[_poxiterminal__help__ctl__zoom-pane_commands] )) ||
+_poxiterminal__help__ctl__zoom-pane_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help ctl zoom-pane commands' commands "$@"
+    _describe -t commands 'poxiterminal help ctl zoom-pane commands' commands "$@"
 }
-(( $+functions[_pebrel__help__env_commands] )) ||
-_pebrel__help__env_commands() {
+(( $+functions[_poxiterminal__help__env_commands] )) ||
+_poxiterminal__help__env_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help env commands' commands "$@"
+    _describe -t commands 'poxiterminal help env commands' commands "$@"
 }
-(( $+functions[_pebrel__help__help_commands] )) ||
-_pebrel__help__help_commands() {
+(( $+functions[_poxiterminal__help__help_commands] )) ||
+_poxiterminal__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help help commands' commands "$@"
+    _describe -t commands 'poxiterminal help help commands' commands "$@"
 }
-(( $+functions[_pebrel__help__migrate_commands] )) ||
-_pebrel__help__migrate_commands() {
+(( $+functions[_poxiterminal__help__migrate_commands] )) ||
+_poxiterminal__help__migrate_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help migrate commands' commands "$@"
+    _describe -t commands 'poxiterminal help migrate commands' commands "$@"
 }
-(( $+functions[_pebrel__help__pane_commands] )) ||
-_pebrel__help__pane_commands() {
+(( $+functions[_poxiterminal__help__notify-test_commands] )) ||
+_poxiterminal__help__notify-test_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal help notify-test commands' commands "$@"
+}
+(( $+functions[_poxiterminal__help__pane_commands] )) ||
+_poxiterminal__help__pane_commands() {
     local commands; commands=(
 'list:List every pane with its id, task state, cwd, and Git branch' \
 'read:Read the tail of a pane'\''s real terminal buffer' \
@@ -2408,145 +2437,129 @@ _pebrel__help__pane_commands() {
 'zoom:Explicitly enable or disable focused-pane zoom for the pane'\''s tab' \
 'resize:Set this pane'\''s share of its direct parent split' \
     )
-    _describe -t commands 'pebrel help pane commands' commands "$@"
+    _describe -t commands 'poxiterminal help pane commands' commands "$@"
 }
-(( $+functions[_pebrel__help__pane__close_commands] )) ||
-_pebrel__help__pane__close_commands() {
+(( $+functions[_poxiterminal__help__pane__close_commands] )) ||
+_poxiterminal__help__pane__close_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help pane close commands' commands "$@"
+    _describe -t commands 'poxiterminal help pane close commands' commands "$@"
 }
-(( $+functions[_pebrel__help__pane__exec_commands] )) ||
-_pebrel__help__pane__exec_commands() {
+(( $+functions[_poxiterminal__help__pane__exec_commands] )) ||
+_poxiterminal__help__pane__exec_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help pane exec commands' commands "$@"
+    _describe -t commands 'poxiterminal help pane exec commands' commands "$@"
 }
-(( $+functions[_pebrel__help__pane__list_commands] )) ||
-_pebrel__help__pane__list_commands() {
+(( $+functions[_poxiterminal__help__pane__list_commands] )) ||
+_poxiterminal__help__pane__list_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help pane list commands' commands "$@"
+    _describe -t commands 'poxiterminal help pane list commands' commands "$@"
 }
-(( $+functions[_pebrel__help__pane__paste_commands] )) ||
-_pebrel__help__pane__paste_commands() {
+(( $+functions[_poxiterminal__help__pane__paste_commands] )) ||
+_poxiterminal__help__pane__paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help pane paste commands' commands "$@"
+    _describe -t commands 'poxiterminal help pane paste commands' commands "$@"
 }
-(( $+functions[_pebrel__help__pane__read_commands] )) ||
-_pebrel__help__pane__read_commands() {
+(( $+functions[_poxiterminal__help__pane__read_commands] )) ||
+_poxiterminal__help__pane__read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help pane read commands' commands "$@"
+    _describe -t commands 'poxiterminal help pane read commands' commands "$@"
 }
-(( $+functions[_pebrel__help__pane__resize_commands] )) ||
-_pebrel__help__pane__resize_commands() {
+(( $+functions[_poxiterminal__help__pane__resize_commands] )) ||
+_poxiterminal__help__pane__resize_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help pane resize commands' commands "$@"
+    _describe -t commands 'poxiterminal help pane resize commands' commands "$@"
 }
-(( $+functions[_pebrel__help__pane__send_commands] )) ||
-_pebrel__help__pane__send_commands() {
+(( $+functions[_poxiterminal__help__pane__send_commands] )) ||
+_poxiterminal__help__pane__send_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help pane send commands' commands "$@"
+    _describe -t commands 'poxiterminal help pane send commands' commands "$@"
 }
-(( $+functions[_pebrel__help__pane__wait_commands] )) ||
-_pebrel__help__pane__wait_commands() {
+(( $+functions[_poxiterminal__help__pane__wait_commands] )) ||
+_poxiterminal__help__pane__wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help pane wait commands' commands "$@"
+    _describe -t commands 'poxiterminal help pane wait commands' commands "$@"
 }
-(( $+functions[_pebrel__help__pane__zoom_commands] )) ||
-_pebrel__help__pane__zoom_commands() {
+(( $+functions[_poxiterminal__help__pane__zoom_commands] )) ||
+_poxiterminal__help__pane__zoom_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help pane zoom commands' commands "$@"
+    _describe -t commands 'poxiterminal help pane zoom commands' commands "$@"
 }
-(( $+functions[_pebrel__help__plugin_commands] )) ||
-_pebrel__help__plugin_commands() {
+(( $+functions[_poxiterminal__help__plugin_commands] )) ||
+_poxiterminal__help__plugin_commands() {
     local commands; commands=(
 'check:Validate package metadata and entry paths without executing Lua' \
 'run:Invoke one declared native or Lua command; no resident plugin is started' \
     )
-    _describe -t commands 'pebrel help plugin commands' commands "$@"
+    _describe -t commands 'poxiterminal help plugin commands' commands "$@"
 }
-(( $+functions[_pebrel__help__plugin__check_commands] )) ||
-_pebrel__help__plugin__check_commands() {
+(( $+functions[_poxiterminal__help__plugin__check_commands] )) ||
+_poxiterminal__help__plugin__check_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help plugin check commands' commands "$@"
+    _describe -t commands 'poxiterminal help plugin check commands' commands "$@"
 }
-(( $+functions[_pebrel__help__plugin__run_commands] )) ||
-_pebrel__help__plugin__run_commands() {
+(( $+functions[_poxiterminal__help__plugin__run_commands] )) ||
+_poxiterminal__help__plugin__run_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help plugin run commands' commands "$@"
+    _describe -t commands 'poxiterminal help plugin run commands' commands "$@"
 }
-(( $+functions[_pebrel__help__setup-ai_commands] )) ||
-_pebrel__help__setup-ai_commands() {
+(( $+functions[_poxiterminal__help__setup-ai_commands] )) ||
+_poxiterminal__help__setup-ai_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help setup-ai commands' commands "$@"
+    _describe -t commands 'poxiterminal help setup-ai commands' commands "$@"
 }
-(( $+functions[_pebrel__help__tab_commands] )) ||
-_pebrel__help__tab_commands() {
+(( $+functions[_poxiterminal__help__ssh_commands] )) ||
+_poxiterminal__help__ssh_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal help ssh commands' commands "$@"
+}
+(( $+functions[_poxiterminal__help__tab_commands] )) ||
+_poxiterminal__help__tab_commands() {
     local commands; commands=(
 'close:Close an idle tab' \
 'rename:Set a tab'\''s custom name. Pass an empty name to restore the generated title' \
 'move:Move a tab to another index in the same window' \
     )
-    _describe -t commands 'pebrel help tab commands' commands "$@"
+    _describe -t commands 'poxiterminal help tab commands' commands "$@"
 }
-(( $+functions[_pebrel__help__tab__close_commands] )) ||
-_pebrel__help__tab__close_commands() {
+(( $+functions[_poxiterminal__help__tab__close_commands] )) ||
+_poxiterminal__help__tab__close_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help tab close commands' commands "$@"
+    _describe -t commands 'poxiterminal help tab close commands' commands "$@"
 }
-(( $+functions[_pebrel__help__tab__move_commands] )) ||
-_pebrel__help__tab__move_commands() {
+(( $+functions[_poxiterminal__help__tab__move_commands] )) ||
+_poxiterminal__help__tab__move_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help tab move commands' commands "$@"
+    _describe -t commands 'poxiterminal help tab move commands' commands "$@"
 }
-(( $+functions[_pebrel__help__tab__rename_commands] )) ||
-_pebrel__help__tab__rename_commands() {
+(( $+functions[_poxiterminal__help__tab__rename_commands] )) ||
+_poxiterminal__help__tab__rename_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help tab rename commands' commands "$@"
+    _describe -t commands 'poxiterminal help tab rename commands' commands "$@"
 }
-(( $+functions[_pebrel__help__window_commands] )) ||
-_pebrel__help__window_commands() {
+(( $+functions[_poxiterminal__help__window_commands] )) ||
+_poxiterminal__help__window_commands() {
     local commands; commands=(
 'close:Close an idle window. Busy panes require confirmation in the GUI instead' \
     )
-    _describe -t commands 'pebrel help window commands' commands "$@"
+    _describe -t commands 'poxiterminal help window commands' commands "$@"
 }
-(( $+functions[_pebrel__help__window__close_commands] )) ||
-_pebrel__help__window__close_commands() {
+(( $+functions[_poxiterminal__help__window__close_commands] )) ||
+_poxiterminal__help__window__close_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel help window close commands' commands "$@"
+    _describe -t commands 'poxiterminal help window close commands' commands "$@"
 }
-(( $+functions[_pebrel__migrate_commands] )) ||
-_pebrel__migrate_commands() {
+(( $+functions[_poxiterminal__migrate_commands] )) ||
+_poxiterminal__migrate_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel migrate commands' commands "$@"
+    _describe -t commands 'poxiterminal migrate commands' commands "$@"
 }
-(( $+functions[_pebrel__pane_commands] )) ||
-_pebrel__pane_commands() {
-    local commands; commands=(
-'list:List every pane with its id, task state, cwd, and Git branch' \
-'read:Read the tail of a pane'\''s real terminal buffer' \
-'send:Write one line into a pane, submitting it with Enter by default' \
-'paste:Paste bounded UTF-8 text as one bracketed block' \
-'wait:Block until a pane reaches a semantic task state' \
-'exec:Execute an argv vector as an independent non-TTY child and capture both streams' \
-'close:Close an idle pane' \
-'zoom:Explicitly enable or disable focused-pane zoom for the pane'\''s tab' \
-'resize:Set this pane'\''s share of its direct parent split' \
-'help:Print this message or the help of the given subcommand(s)' \
-    )
-    _describe -t commands 'pebrel pane commands' commands "$@"
-}
-(( $+functions[_pebrel__pane__close_commands] )) ||
-_pebrel__pane__close_commands() {
+(( $+functions[_poxiterminal__notify-test_commands] )) ||
+_poxiterminal__notify-test_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane close commands' commands "$@"
+    _describe -t commands 'poxiterminal notify-test commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__exec_commands] )) ||
-_pebrel__pane__exec_commands() {
-    local commands; commands=()
-    _describe -t commands 'pebrel pane exec commands' commands "$@"
-}
-(( $+functions[_pebrel__pane__help_commands] )) ||
-_pebrel__pane__help_commands() {
+(( $+functions[_poxiterminal__pane_commands] )) ||
+_poxiterminal__pane_commands() {
     local commands; commands=(
 'list:List every pane with its id, task state, cwd, and Git branch' \
 'read:Read the tail of a pane'\''s real terminal buffer' \
@@ -2559,230 +2572,261 @@ _pebrel__pane__help_commands() {
 'resize:Set this pane'\''s share of its direct parent split' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel pane help commands' commands "$@"
+    _describe -t commands 'poxiterminal pane commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__help__close_commands] )) ||
-_pebrel__pane__help__close_commands() {
+(( $+functions[_poxiterminal__pane__close_commands] )) ||
+_poxiterminal__pane__close_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane help close commands' commands "$@"
+    _describe -t commands 'poxiterminal pane close commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__help__exec_commands] )) ||
-_pebrel__pane__help__exec_commands() {
+(( $+functions[_poxiterminal__pane__exec_commands] )) ||
+_poxiterminal__pane__exec_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane help exec commands' commands "$@"
+    _describe -t commands 'poxiterminal pane exec commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__help__help_commands] )) ||
-_pebrel__pane__help__help_commands() {
+(( $+functions[_poxiterminal__pane__help_commands] )) ||
+_poxiterminal__pane__help_commands() {
+    local commands; commands=(
+'list:List every pane with its id, task state, cwd, and Git branch' \
+'read:Read the tail of a pane'\''s real terminal buffer' \
+'send:Write one line into a pane, submitting it with Enter by default' \
+'paste:Paste bounded UTF-8 text as one bracketed block' \
+'wait:Block until a pane reaches a semantic task state' \
+'exec:Execute an argv vector as an independent non-TTY child and capture both streams' \
+'close:Close an idle pane' \
+'zoom:Explicitly enable or disable focused-pane zoom for the pane'\''s tab' \
+'resize:Set this pane'\''s share of its direct parent split' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'poxiterminal pane help commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pane__help__close_commands] )) ||
+_poxiterminal__pane__help__close_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane help help commands' commands "$@"
+    _describe -t commands 'poxiterminal pane help close commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__help__list_commands] )) ||
-_pebrel__pane__help__list_commands() {
+(( $+functions[_poxiterminal__pane__help__exec_commands] )) ||
+_poxiterminal__pane__help__exec_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane help list commands' commands "$@"
+    _describe -t commands 'poxiterminal pane help exec commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__help__paste_commands] )) ||
-_pebrel__pane__help__paste_commands() {
+(( $+functions[_poxiterminal__pane__help__help_commands] )) ||
+_poxiterminal__pane__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane help paste commands' commands "$@"
+    _describe -t commands 'poxiterminal pane help help commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__help__read_commands] )) ||
-_pebrel__pane__help__read_commands() {
+(( $+functions[_poxiterminal__pane__help__list_commands] )) ||
+_poxiterminal__pane__help__list_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane help read commands' commands "$@"
+    _describe -t commands 'poxiterminal pane help list commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__help__resize_commands] )) ||
-_pebrel__pane__help__resize_commands() {
+(( $+functions[_poxiterminal__pane__help__paste_commands] )) ||
+_poxiterminal__pane__help__paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane help resize commands' commands "$@"
+    _describe -t commands 'poxiterminal pane help paste commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__help__send_commands] )) ||
-_pebrel__pane__help__send_commands() {
+(( $+functions[_poxiterminal__pane__help__read_commands] )) ||
+_poxiterminal__pane__help__read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane help send commands' commands "$@"
+    _describe -t commands 'poxiterminal pane help read commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__help__wait_commands] )) ||
-_pebrel__pane__help__wait_commands() {
+(( $+functions[_poxiterminal__pane__help__resize_commands] )) ||
+_poxiterminal__pane__help__resize_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane help wait commands' commands "$@"
+    _describe -t commands 'poxiterminal pane help resize commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__help__zoom_commands] )) ||
-_pebrel__pane__help__zoom_commands() {
+(( $+functions[_poxiterminal__pane__help__send_commands] )) ||
+_poxiterminal__pane__help__send_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane help zoom commands' commands "$@"
+    _describe -t commands 'poxiterminal pane help send commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__list_commands] )) ||
-_pebrel__pane__list_commands() {
+(( $+functions[_poxiterminal__pane__help__wait_commands] )) ||
+_poxiterminal__pane__help__wait_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane list commands' commands "$@"
+    _describe -t commands 'poxiterminal pane help wait commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__paste_commands] )) ||
-_pebrel__pane__paste_commands() {
+(( $+functions[_poxiterminal__pane__help__zoom_commands] )) ||
+_poxiterminal__pane__help__zoom_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane paste commands' commands "$@"
+    _describe -t commands 'poxiterminal pane help zoom commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__read_commands] )) ||
-_pebrel__pane__read_commands() {
+(( $+functions[_poxiterminal__pane__list_commands] )) ||
+_poxiterminal__pane__list_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane read commands' commands "$@"
+    _describe -t commands 'poxiterminal pane list commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__resize_commands] )) ||
-_pebrel__pane__resize_commands() {
+(( $+functions[_poxiterminal__pane__paste_commands] )) ||
+_poxiterminal__pane__paste_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane resize commands' commands "$@"
+    _describe -t commands 'poxiterminal pane paste commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__send_commands] )) ||
-_pebrel__pane__send_commands() {
+(( $+functions[_poxiterminal__pane__read_commands] )) ||
+_poxiterminal__pane__read_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane send commands' commands "$@"
+    _describe -t commands 'poxiterminal pane read commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__wait_commands] )) ||
-_pebrel__pane__wait_commands() {
+(( $+functions[_poxiterminal__pane__resize_commands] )) ||
+_poxiterminal__pane__resize_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane wait commands' commands "$@"
+    _describe -t commands 'poxiterminal pane resize commands' commands "$@"
 }
-(( $+functions[_pebrel__pane__zoom_commands] )) ||
-_pebrel__pane__zoom_commands() {
+(( $+functions[_poxiterminal__pane__send_commands] )) ||
+_poxiterminal__pane__send_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel pane zoom commands' commands "$@"
+    _describe -t commands 'poxiterminal pane send commands' commands "$@"
 }
-(( $+functions[_pebrel__plugin_commands] )) ||
-_pebrel__plugin_commands() {
+(( $+functions[_poxiterminal__pane__wait_commands] )) ||
+_poxiterminal__pane__wait_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pane wait commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pane__zoom_commands] )) ||
+_poxiterminal__pane__zoom_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pane zoom commands' commands "$@"
+}
+(( $+functions[_poxiterminal__plugin_commands] )) ||
+_poxiterminal__plugin_commands() {
     local commands; commands=(
 'check:Validate package metadata and entry paths without executing Lua' \
 'run:Invoke one declared native or Lua command; no resident plugin is started' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel plugin commands' commands "$@"
+    _describe -t commands 'poxiterminal plugin commands' commands "$@"
 }
-(( $+functions[_pebrel__plugin__check_commands] )) ||
-_pebrel__plugin__check_commands() {
+(( $+functions[_poxiterminal__plugin__check_commands] )) ||
+_poxiterminal__plugin__check_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel plugin check commands' commands "$@"
+    _describe -t commands 'poxiterminal plugin check commands' commands "$@"
 }
-(( $+functions[_pebrel__plugin__help_commands] )) ||
-_pebrel__plugin__help_commands() {
+(( $+functions[_poxiterminal__plugin__help_commands] )) ||
+_poxiterminal__plugin__help_commands() {
     local commands; commands=(
 'check:Validate package metadata and entry paths without executing Lua' \
 'run:Invoke one declared native or Lua command; no resident plugin is started' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel plugin help commands' commands "$@"
+    _describe -t commands 'poxiterminal plugin help commands' commands "$@"
 }
-(( $+functions[_pebrel__plugin__help__check_commands] )) ||
-_pebrel__plugin__help__check_commands() {
+(( $+functions[_poxiterminal__plugin__help__check_commands] )) ||
+_poxiterminal__plugin__help__check_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel plugin help check commands' commands "$@"
+    _describe -t commands 'poxiterminal plugin help check commands' commands "$@"
 }
-(( $+functions[_pebrel__plugin__help__help_commands] )) ||
-_pebrel__plugin__help__help_commands() {
+(( $+functions[_poxiterminal__plugin__help__help_commands] )) ||
+_poxiterminal__plugin__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel plugin help help commands' commands "$@"
+    _describe -t commands 'poxiterminal plugin help help commands' commands "$@"
 }
-(( $+functions[_pebrel__plugin__help__run_commands] )) ||
-_pebrel__plugin__help__run_commands() {
+(( $+functions[_poxiterminal__plugin__help__run_commands] )) ||
+_poxiterminal__plugin__help__run_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel plugin help run commands' commands "$@"
+    _describe -t commands 'poxiterminal plugin help run commands' commands "$@"
 }
-(( $+functions[_pebrel__plugin__run_commands] )) ||
-_pebrel__plugin__run_commands() {
+(( $+functions[_poxiterminal__plugin__run_commands] )) ||
+_poxiterminal__plugin__run_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel plugin run commands' commands "$@"
+    _describe -t commands 'poxiterminal plugin run commands' commands "$@"
 }
-(( $+functions[_pebrel__setup-ai_commands] )) ||
-_pebrel__setup-ai_commands() {
+(( $+functions[_poxiterminal__setup-ai_commands] )) ||
+_poxiterminal__setup-ai_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel setup-ai commands' commands "$@"
+    _describe -t commands 'poxiterminal setup-ai commands' commands "$@"
 }
-(( $+functions[_pebrel__tab_commands] )) ||
-_pebrel__tab_commands() {
+(( $+functions[_poxiterminal__ssh_commands] )) ||
+_poxiterminal__ssh_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal ssh commands' commands "$@"
+}
+(( $+functions[_poxiterminal__tab_commands] )) ||
+_poxiterminal__tab_commands() {
     local commands; commands=(
 'close:Close an idle tab' \
 'rename:Set a tab'\''s custom name. Pass an empty name to restore the generated title' \
 'move:Move a tab to another index in the same window' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel tab commands' commands "$@"
+    _describe -t commands 'poxiterminal tab commands' commands "$@"
 }
-(( $+functions[_pebrel__tab__close_commands] )) ||
-_pebrel__tab__close_commands() {
+(( $+functions[_poxiterminal__tab__close_commands] )) ||
+_poxiterminal__tab__close_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel tab close commands' commands "$@"
+    _describe -t commands 'poxiterminal tab close commands' commands "$@"
 }
-(( $+functions[_pebrel__tab__help_commands] )) ||
-_pebrel__tab__help_commands() {
+(( $+functions[_poxiterminal__tab__help_commands] )) ||
+_poxiterminal__tab__help_commands() {
     local commands; commands=(
 'close:Close an idle tab' \
 'rename:Set a tab'\''s custom name. Pass an empty name to restore the generated title' \
 'move:Move a tab to another index in the same window' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel tab help commands' commands "$@"
+    _describe -t commands 'poxiterminal tab help commands' commands "$@"
 }
-(( $+functions[_pebrel__tab__help__close_commands] )) ||
-_pebrel__tab__help__close_commands() {
+(( $+functions[_poxiterminal__tab__help__close_commands] )) ||
+_poxiterminal__tab__help__close_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel tab help close commands' commands "$@"
+    _describe -t commands 'poxiterminal tab help close commands' commands "$@"
 }
-(( $+functions[_pebrel__tab__help__help_commands] )) ||
-_pebrel__tab__help__help_commands() {
+(( $+functions[_poxiterminal__tab__help__help_commands] )) ||
+_poxiterminal__tab__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel tab help help commands' commands "$@"
+    _describe -t commands 'poxiterminal tab help help commands' commands "$@"
 }
-(( $+functions[_pebrel__tab__help__move_commands] )) ||
-_pebrel__tab__help__move_commands() {
+(( $+functions[_poxiterminal__tab__help__move_commands] )) ||
+_poxiterminal__tab__help__move_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel tab help move commands' commands "$@"
+    _describe -t commands 'poxiterminal tab help move commands' commands "$@"
 }
-(( $+functions[_pebrel__tab__help__rename_commands] )) ||
-_pebrel__tab__help__rename_commands() {
+(( $+functions[_poxiterminal__tab__help__rename_commands] )) ||
+_poxiterminal__tab__help__rename_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel tab help rename commands' commands "$@"
+    _describe -t commands 'poxiterminal tab help rename commands' commands "$@"
 }
-(( $+functions[_pebrel__tab__move_commands] )) ||
-_pebrel__tab__move_commands() {
+(( $+functions[_poxiterminal__tab__move_commands] )) ||
+_poxiterminal__tab__move_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel tab move commands' commands "$@"
+    _describe -t commands 'poxiterminal tab move commands' commands "$@"
 }
-(( $+functions[_pebrel__tab__rename_commands] )) ||
-_pebrel__tab__rename_commands() {
+(( $+functions[_poxiterminal__tab__rename_commands] )) ||
+_poxiterminal__tab__rename_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel tab rename commands' commands "$@"
+    _describe -t commands 'poxiterminal tab rename commands' commands "$@"
 }
-(( $+functions[_pebrel__window_commands] )) ||
-_pebrel__window_commands() {
+(( $+functions[_poxiterminal__window_commands] )) ||
+_poxiterminal__window_commands() {
     local commands; commands=(
 'close:Close an idle window. Busy panes require confirmation in the GUI instead' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel window commands' commands "$@"
+    _describe -t commands 'poxiterminal window commands' commands "$@"
 }
-(( $+functions[_pebrel__window__close_commands] )) ||
-_pebrel__window__close_commands() {
+(( $+functions[_poxiterminal__window__close_commands] )) ||
+_poxiterminal__window__close_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel window close commands' commands "$@"
+    _describe -t commands 'poxiterminal window close commands' commands "$@"
 }
-(( $+functions[_pebrel__window__help_commands] )) ||
-_pebrel__window__help_commands() {
+(( $+functions[_poxiterminal__window__help_commands] )) ||
+_poxiterminal__window__help_commands() {
     local commands; commands=(
 'close:Close an idle window. Busy panes require confirmation in the GUI instead' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
-    _describe -t commands 'pebrel window help commands' commands "$@"
+    _describe -t commands 'poxiterminal window help commands' commands "$@"
 }
-(( $+functions[_pebrel__window__help__close_commands] )) ||
-_pebrel__window__help__close_commands() {
+(( $+functions[_poxiterminal__window__help__close_commands] )) ||
+_poxiterminal__window__help__close_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel window help close commands' commands "$@"
+    _describe -t commands 'poxiterminal window help close commands' commands "$@"
 }
-(( $+functions[_pebrel__window__help__help_commands] )) ||
-_pebrel__window__help__help_commands() {
+(( $+functions[_poxiterminal__window__help__help_commands] )) ||
+_poxiterminal__window__help__help_commands() {
     local commands; commands=()
-    _describe -t commands 'pebrel window help help commands' commands "$@"
+    _describe -t commands 'poxiterminal window help help commands' commands "$@"
 }
 
-if [ "$funcstack[1]" = "_pebrel" ]; then
-    _pebrel "$@"
+if [ "$funcstack[1]" = "_poxiterminal" ]; then
+    _poxiterminal "$@"
 else
-    compdef _pebrel pebrel
+    compdef _poxiterminal poxiterminal
 fi

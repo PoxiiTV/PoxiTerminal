@@ -173,7 +173,7 @@
     "session": "세션",
     "key": "키",
     "action": "동작",
-    "update_notice": "Pebrel v{latest} 사용 가능(현재 v{current})",
+    "update_notice": "PoxiTerminal v{latest} 사용 가능(현재 v{current})",
     "copied_lines": "{lines}줄을 클립보드에 복사했습니다",
     "paste_lines": "{lines}줄을 붙여넣을까요?",
     "sent_to": "{target}(으)로 전송했습니다"

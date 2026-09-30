@@ -9,15 +9,15 @@ pub(crate) fn macos_names(version: &str, architecture: &str) -> Vec<String> {
         _ => return Vec::new(),
     };
     vec![
-        format!("Pebrel-v{version}-macos-{architecture}.dmg"),
-        format!("Pebrel-v{version}-macos-{architecture}-preview.dmg"),
+        format!("PoxiTerminal-v{version}-macos-{architecture}.dmg"),
+        format!("PoxiTerminal-v{version}-macos-{architecture}-preview.dmg"),
     ]
 }
 
 pub(crate) fn windows_names(version: &str, architecture: &str) -> Vec<String> {
     match architecture {
         "x86_64" => super::windows_x64_installer_names(version).to_vec(),
-        "aarch64" => vec![format!("Pebrel-v{version}-windows-arm64-setup.exe")],
+        "aarch64" => vec![format!("PoxiTerminal-v{version}-windows-arm64-setup.exe")],
         _ => Vec::new(),
     }
 }
@@ -68,7 +68,7 @@ pub(super) fn from_checksums(version: &str, text: &str) -> Option<UpdateAsset> {
             version: version.into(),
             name: name.clone(),
             download_url: format!(
-                "https://github.com/Kuddev/pebrel/releases/download/v{version}/{name}"
+                "https://github.com/PoxiiTV/PoxiTerminal/releases/download/v{version}/{name}"
             ),
             size: None,
             sha256: hashes.into_iter().next(),
@@ -84,8 +84,8 @@ mod tests {
         assert!(macos_names("1.9.0", "unknown").is_empty());
         for (arch, expected) in [("aarch64", "arm64"), ("x86_64", "x64")] {
             let names = macos_names("1.9.0", arch);
-            assert_eq!(names[0], format!("Pebrel-v1.9.0-macos-{expected}.dmg"));
-            assert_eq!(names[1], format!("Pebrel-v1.9.0-macos-{expected}-preview.dmg"));
+            assert_eq!(names[0], format!("PoxiTerminal-v1.9.0-macos-{expected}.dmg"));
+            assert_eq!(names[1], format!("PoxiTerminal-v1.9.0-macos-{expected}-preview.dmg"));
             let assets = names
                 .iter()
                 .rev()
@@ -104,10 +104,10 @@ mod tests {
         let version = "1.9.2";
         let arm = windows_names(version, "aarch64");
         let x64 = windows_names(version, "x86_64");
-        assert_eq!(arm, ["Pebrel-v1.9.2-windows-arm64-setup.exe"]);
+        assert_eq!(arm, ["PoxiTerminal-v1.9.2-windows-arm64-setup.exe"]);
         assert_eq!(x64, super::super::windows_x64_installer_names(version));
         assert!(windows_names(version, "unknown").is_empty());
-        let assets = [x64[0].clone(), arm[0].clone(), "Pebrel-v1.9.2-windows-arm64.zip".into()]
+        let assets = [x64[0].clone(), arm[0].clone(), "PoxiTerminal-v1.9.2-windows-arm64.zip".into()]
             .into_iter()
             .map(|name| GitHubReleaseAsset {
                 name,

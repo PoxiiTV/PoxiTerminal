@@ -37,12 +37,14 @@ impl NebulaWorkspace {
                 // 连续几次启动都没活到第一次自动保存：把「一恢复就崩」的
                 // 现场挪去隔离文件（唯一的诊断材料），本次干净启动。
                 if let Some(path) = crate::session::quarantine() {
-                    crate::gpui_shell::toast::banner(
-                        window,
-                        cx,
-                        ToastKind::Warning,
-                        format!("连续多次启动未完成恢复，已跳过；现场保存在 {}", path.display()),
-                    );
+                    let text = crate::gpui_shell::config::ui_language(cx)
+                        .pick(
+                            "连续多次启动未完成恢复，已跳过；现场保存在 {path}",
+                            "Restore failed on several launches in a row and was skipped; \
+                             the session was saved to {path}",
+                        )
+                        .replace("{path}", &path.display().to_string());
+                    crate::gpui_shell::toast::banner(window, cx, ToastKind::Warning, text);
                 }
             }
             return false;
@@ -60,11 +62,16 @@ impl NebulaWorkspace {
         }
         self.active = session.active_tab.min(self.tabs.len().saturating_sub(1));
         self.focus_active(window, cx);
+        let language = crate::gpui_shell::config::ui_language(cx);
         let text = if crashed {
-            format!("上次未正常退出，已恢复 {restored} 个标签")
+            language.pick(
+                "上次未正常退出，已恢复 {restored} 个标签",
+                "The last session didn't close cleanly; restored {restored} tabs",
+            )
         } else {
-            format!("已恢复 {restored} 个标签")
-        };
+            language.pick("已恢复 {restored} 个标签", "Restored {restored} tabs")
+        }
+        .replace("{restored}", &restored.to_string());
         crate::gpui_shell::toast::toast(window, cx, ToastKind::Success, text);
         cx.notify();
         true

@@ -110,7 +110,7 @@ pub(super) fn pick_image_file(owner: &Window) -> Option<String> {
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn pick_font_file(owner: &Window) -> Option<PathBuf> {
-    platform::pick_file(owner, "导入终端字体", FONT_FILTERS)
+    platform::pick_file(owner, "Importar fuente del terminal", FONT_FILTERS)
 }
 
 #[cfg(feature = "legacy-shell")]
@@ -123,7 +123,7 @@ pub(super) fn pick_private_key_file(owner: &Window) -> Option<Result<PathBuf, St
 /// 不依赖 winit `Window`。Windows 上应优先走 [`pick_private_key_file_with_hwnd`]。
 #[cfg(not(windows))]
 pub(crate) fn pick_private_key_file_unowned() -> Option<Result<PathBuf, String>> {
-    let path = platform::pick_file_unowned("选择 SSH 私钥", PRIVATE_KEY_FILTERS)?;
+    let path = platform::pick_file_unowned("Elegir clave privada SSH", PRIVATE_KEY_FILTERS)?;
     Some(validate_private_key_path(&path))
 }
 
@@ -132,7 +132,7 @@ pub(crate) fn pick_private_key_file_unowned() -> Option<Result<PathBuf, String>>
 pub(crate) fn pick_private_key_file_with_hwnd(
     hwnd: windows_sys::Win32::Foundation::HWND,
 ) -> Option<Result<PathBuf, String>> {
-    let path = platform::pick_file_with_hwnd(hwnd, "选择 SSH 私钥", PRIVATE_KEY_FILTERS)?;
+    let path = platform::pick_file_with_hwnd(hwnd, "Elegir clave privada SSH", PRIVATE_KEY_FILTERS)?;
     Some(validate_private_key_path(&path))
 }
 
@@ -152,7 +152,7 @@ pub(crate) fn pick_folder_with_hwnd(
 pub(crate) fn pick_upload_files_with_hwnd(
     hwnd: windows_sys::Win32::Foundation::HWND,
 ) -> Vec<PathBuf> {
-    platform::pick_files_with_hwnd(hwnd, "选择要上传的文件", &[ALL_FILES_FILTER])
+    platform::pick_files_with_hwnd(hwnd, "Elegir archivos para subir", &[ALL_FILES_FILTER])
 }
 
 /// Validate a path selected by a non-winit UI shell. The legacy picker and GPUI
@@ -160,64 +160,64 @@ pub(crate) fn pick_upload_files_with_hwnd(
 /// profile just because the shell used a different native file-dialog API.
 pub(crate) fn validate_private_key_path(path: &std::path::Path) -> Result<PathBuf, String> {
     let contents =
-        std::fs::read(path).map_err(|err| format!("无法读取私钥 {}: {err}", path.display()))?;
+        std::fs::read(path).map_err(|err| format!("No se pudo leer la clave privada {}: {err}", path.display()))?;
     match classify_private_key_contents(&contents) {
         PrivateKeyFileKind::PrivateKey => Ok(path.to_path_buf()),
-        PrivateKeyFileKind::PublicKey => Err("请选择私钥文件，不要选择 .pub 公钥".to_owned()),
+        PrivateKeyFileKind::PublicKey => Err("Elige el archivo de clave privada, no la clave pública .pub".to_owned()),
         PrivateKeyFileKind::Unsupported => {
-            Err("文件不是受支持的 OpenSSH、PEM 或 PPK 私钥".to_owned())
+            Err("El archivo no es una clave privada OpenSSH, PEM o PPK admitida".to_owned())
         },
     }
 }
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn pick_upload_files(owner: &Window) -> Vec<PathBuf> {
-    platform::pick_files(owner, "选择要上传的文件", &[ALL_FILES_FILTER])
+    platform::pick_files(owner, "Elegir archivos para subir", &[ALL_FILES_FILTER])
 }
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn pick_upload_directory(owner: &Window) -> Option<PathBuf> {
-    platform::pick_folder(owner, "选择要上传的文件夹")
+    platform::pick_folder(owner, "Elegir carpeta para subir")
 }
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn pick_download_directory(owner: &Window) -> Option<PathBuf> {
-    platform::pick_folder(owner, "选择下载位置")
+    platform::pick_folder(owner, "Elegir ubicación de descarga")
 }
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn pick_side_panel_directory(owner: &Window) -> Option<PathBuf> {
-    platform::pick_folder(owner, "选择目录树根目录")
+    platform::pick_folder(owner, "Elegir carpeta raíz del árbol")
 }
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn pick_startup_directory(owner: &Window) -> Option<PathBuf> {
-    platform::pick_folder(owner, "选择终端启动目录")
+    platform::pick_folder(owner, "Elegir carpeta de inicio del terminal")
 }
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn pick_terminal_directory(owner: &Window) -> Option<PathBuf> {
-    platform::pick_folder(owner, "导入终端目录")
+    platform::pick_folder(owner, "Importar carpeta del terminal")
 }
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn save_workspace_file(owner: &Window, default_name: &str) -> Option<PathBuf> {
-    platform::save_file(owner, "导出工作区", WORKSPACE_FILTERS, default_name)
+    platform::save_file(owner, "Exportar espacio de trabajo", WORKSPACE_FILTERS, default_name)
 }
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn pick_workspace_file(owner: &Window) -> Option<PathBuf> {
-    platform::pick_file(owner, "打开工作区", WORKSPACE_FILTERS)
+    platform::pick_file(owner, "Abrir espacio de trabajo", WORKSPACE_FILTERS)
 }
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn save_backup_file(owner: &Window) -> Option<PathBuf> {
-    platform::save_file(owner, "导出 Nebula 备份", BACKUP_FILTERS, "nebula-backup.nebula-backup")
+    platform::save_file(owner, "Exportar copia de seguridad de PoxiTerminal", BACKUP_FILTERS, "nebula-backup.nebula-backup")
 }
 
 #[cfg(feature = "legacy-shell")]
 pub(super) fn pick_backup_file(owner: &Window) -> Option<PathBuf> {
-    platform::pick_file(owner, "恢复 Nebula 备份", BACKUP_FILTERS)
+    platform::pick_file(owner, "Restaurar copia de seguridad de PoxiTerminal", BACKUP_FILTERS)
 }
 
 #[cfg(test)]

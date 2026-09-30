@@ -964,13 +964,13 @@ mod tests {
     #[test]
     fn ssh_pane_launch_sets_askpass_environment() {
         let launch = build_askpass_env(
-            std::path::Path::new(r"C:\Pebrel\pebrel.exe"),
+            std::path::Path::new(r"C:\PoxiTerminal\pebrel.exe"),
             "alice@example.com",
             42,
         );
         assert_eq!(
             launch.values.get("SSH_ASKPASS").map(String::as_str),
-            Some(r"C:\Pebrel\pebrel.exe")
+            Some(r"C:\PoxiTerminal\pebrel.exe")
         );
         assert_eq!(launch.values.get("SSH_ASKPASS_REQUIRE").map(String::as_str), Some("force"));
         assert_eq!(launch.values.get("PEBREL_SSH_ASKPASS").map(String::as_str), Some("1"));

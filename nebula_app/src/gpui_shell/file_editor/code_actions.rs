@@ -80,7 +80,7 @@ impl LanguageOption {
             "json" => ("{}", "json"),
             "bash" | "shell" | "sh" | "zsh" => ("$", "bash shell sh zsh"),
             "markdown" | "md" => ("M↓", "markdown md"),
-            "plaintext" | "text" | "纯文本" => ("≡", "plaintext text 纯文本"),
+            "plaintext" | "text" | "纯文本" => ("≡", "plaintext text 纯文本 texto plano"),
             _ => ("<> ", lower.as_str()),
         };
         Self { name, glyph: glyph.trim().into(), aliases: aliases.into() }

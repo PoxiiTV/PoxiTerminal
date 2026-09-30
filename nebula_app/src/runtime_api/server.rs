@@ -41,7 +41,7 @@ fn legacy_port_file() -> PathBuf {
 
 pub(super) fn read_endpoint() -> Option<Endpoint> {
     // A hosted instance owns its endpoint even when launched from another
-    // Pebrel terminal. Child CLI processes have no server and use the env below.
+    // PoxiTerminal terminal. Child CLI processes have no server and use the env below.
     if let Some(endpoint) = CHILD_ENDPOINT.lock().unwrap_or_else(|error| error.into_inner()).clone()
     {
         return Some(endpoint);

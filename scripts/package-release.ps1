@@ -7,8 +7,8 @@ param(
     [ValidateSet('release')]
     [string] $Configuration = 'release',
 
-    [ValidateSet('NebulaTerminal', 'Pebrel')]
-    [string] $PackageBrand = 'Pebrel',
+    [ValidateSet('PoxiTerminal')]
+    [string] $PackageBrand = 'PoxiTerminal',
 
     [ValidateSet('x64', 'arm64')]
     [string] $Architecture = 'x64',
@@ -53,16 +53,14 @@ $zipPath = Join-Path $outputRoot "$PackageBrand-v$Version-windows-$Architecture.
 $temporaryZip = Join-Path $outputRoot ".$PackageBrand-v$Version-windows-$Architecture-$PID.tmp.zip"
 
 $manifest = [ordered]@{
-    'pebrel.exe'                                     = Join-Path $targetRoot 'pebrel.exe'
+    'poxiterminal.exe'                               = Join-Path $targetRoot 'poxiterminal.exe'
     'README.md'                                      = Join-Path $repo 'README.md'
-    'README.zh-CN.md'                                = Join-Path $repo 'README.zh-CN.md'
     'runtime/pebrel-hook.exe'                        = Join-Path $targetRoot 'pebrel-hook.exe'
     'runtime/conpty.dll'                             = Join-Path $targetRoot 'conpty.dll'
     'runtime/OpenConsole.exe'                        = Join-Path $targetRoot 'OpenConsole.exe'
     # 1.1.0 起 zip 不再附带 20MB 字体副本：pebrel.exe 内嵌同一份字节，
     # 「安装字体」提示会把它落盘（font_install::ensure_bundled_font_on_disk）。
     # 安装包仍带 ttf——Inno 的 FontInstall 任务需要真实文件。
-    'docs/CHANGELOG.md'                              = Join-Path $repo 'CHANGELOG.md'
     'docs/INSTALL.md'                                = Join-Path $repo 'INSTALL.md'
     'docs/lua-configuration.md'                      = Join-Path $repo 'docs\lua-configuration.md'
     'docs/runtime-control-api.md'                    = Join-Path $repo 'docs\runtime-control-api.md'
@@ -135,7 +133,7 @@ function Assert-FreshBinaries {
         (Join-Path $repo '..\gpui-component-fork\crates')
     )
     $checks = @(
-        @{ Binary = $manifest['pebrel.exe']; Newest = Get-NewestSourceTime $appSources },
+        @{ Binary = $manifest['poxiterminal.exe']; Newest = Get-NewestSourceTime $appSources },
         @{ Binary = $manifest['runtime/pebrel-hook.exe']; Newest = Get-NewestSourceTime @(
             (Join-Path $repo 'nebula_hook'), (Join-Path $repo 'Cargo.toml')) }
     )
@@ -158,21 +156,21 @@ if ($missing.Count -ne 0) {
     throw "Required package files are missing:`n$($missing -join "`n")"
 }
 
-$packagedExe = $manifest['pebrel.exe']
+$packagedExe = $manifest['poxiterminal.exe']
 . (Join-Path $PSScriptRoot 'windows-package-architecture.ps1')
 Assert-WindowsPackageArchitecture -Root $targetRoot -Architecture $Architecture
 Assert-FreshBinaries
-if ($PackageBrand -eq 'Pebrel' -and (Get-Item -LiteralPath $packagedExe).VersionInfo.ProductName -ne 'Pebrel') {
-    throw 'Pebrel packages require a freshly built Pebrel executable, not renamed Nebula binaries.'
+if ((Get-Item -LiteralPath $packagedExe).VersionInfo.ProductName -ne 'PoxiTerminal') {
+    throw 'PoxiTerminal packages require a freshly built PoxiTerminal executable.'
 }
 $helpText = & $packagedExe --help 2>&1 | Out-String
 if ($helpText -notmatch '--gpui') {
-    throw "pebrel.exe at $packagedExe is the legacy shell (no --gpui in --help). Rebuild with --features gpui-shell; do not package a workspace-default binary."
+    throw "poxiterminal.exe at $packagedExe is the legacy shell (no --gpui in --help). Rebuild with --features gpui-shell; do not package a workspace-default binary."
 }
 if ($Version -ne 'unreleased') {
     $versionText = & $packagedExe --version 2>&1 | Out-String
     if ($versionText -notmatch [regex]::Escape($Version)) {
-        throw "pebrel.exe reports `"$($versionText.Trim())`" but the package version is $Version. The staged exe does not match this release."
+        throw "poxiterminal.exe reports `"$($versionText.Trim())`" but the package version is $Version. The staged exe does not match this release."
     }
 }
 

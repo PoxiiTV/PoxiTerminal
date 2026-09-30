@@ -173,7 +173,7 @@ impl SyncConfig {
             self.allow_http as u8,
             self.auto_pull as u8,
         );
-        std::fs::write(config_path(), text).map_err(|err| format!("写入同步配置失败：{err}"))
+        std::fs::write(config_path(), text).map_err(|err| format!("No se pudo guardar la configuración de sincronización: {err}"))
     }
 }
 
@@ -195,7 +195,7 @@ pub fn store_password(username: &str, secret: &str) -> Result<(), String> {
         username,
         secret.trim().as_bytes(),
     )
-    .map_err(|err| format!("保存到凭据管理器失败：{err}"))
+    .map_err(|err| format!("No se pudo guardar en el administrador de credenciales: {err}"))
 }
 
 /// E2E 口令入库前先过弱口令闸——拒绝的口令连凭据管理器都不该进，
@@ -211,17 +211,17 @@ pub fn store_passphrase(username: &str, secret: &str) -> Result<(), String> {
         username,
         secret.trim().as_bytes(),
     )
-    .map_err(|err| format!("保存到凭据管理器失败：{err}"))
+    .map_err(|err| format!("No se pudo guardar en el administrador de credenciales: {err}"))
 }
 
 #[cfg(not(windows))]
 pub fn store_password(_username: &str, _secret: &str) -> Result<(), String> {
-    Err("此平台请设环境变量 NEBULA_WEBDAV_PASSWORD".to_owned())
+    Err("En esta plataforma, define la variable de entorno NEBULA_WEBDAV_PASSWORD".to_owned())
 }
 
 #[cfg(not(windows))]
 pub fn store_passphrase(_username: &str, _secret: &str) -> Result<(), String> {
-    Err("此平台请设环境变量 NEBULA_SYNC_PASSPHRASE".to_owned())
+    Err("En esta plataforma, define la variable de entorno NEBULA_SYNC_PASSPHRASE".to_owned())
 }
 
 /// WebDAV 密码：环境变量 → Windows 凭据管理器。明文永不落盘。
@@ -262,17 +262,17 @@ fn passphrase_weakness(
     webdav_password: &str,
 ) -> Option<&'static str> {
     if passphrase.chars().count() < 8 {
-        return Some("同步口令太短（至少 8 个字符）");
+        return Some("La frase de sincronización es demasiado corta (mínimo 8 caracteres)");
     }
     let lower = passphrase.to_lowercase();
     if WEAK_PASSPHRASES.contains(&lower.as_str()) {
-        return Some("同步口令在常见弱口令表里，请换一个");
+        return Some("La frase de sincronización está en la lista de contraseñas débiles comunes; elige otra");
     }
     if !username.is_empty() && lower == username.to_lowercase() {
-        return Some("同步口令不能与 WebDAV 用户名相同");
+        return Some("La frase de sincronización no puede coincidir con el usuario de WebDAV");
     }
     if passphrase == webdav_password {
-        return Some("同步口令不能与 WebDAV 密码相同（服务商可解密，端到端失效）");
+        return Some("La frase de sincronización no puede coincidir con la contraseña de WebDAV (el proveedor podría descifrarla y se perdería el cifrado de extremo a extremo)");
     }
     None
 }
@@ -303,8 +303,8 @@ fn seal(plaintext: &[u8], passphrase: &str) -> Result<Vec<u8>, String> {
     let key = derive_key(passphrase, &salt)?;
     let cipher = Aes256Gcm::new((&key).into());
     let ciphertext = cipher
-        .encrypt(&Nonce::try_from(&nonce[..]).expect("nonce 长度固定"), plaintext)
-        .map_err(|_| "加密失败".to_owned())?;
+        .encrypt(&Nonce::try_from(&nonce[..]).expect("nonce de longitud fija"), plaintext)
+        .map_err(|_| "Error de cifrado".to_owned())?;
     let mut packet = Vec::with_capacity(MAGIC.len() + SALT_LEN + NONCE_LEN + ciphertext.len());
     packet.extend_from_slice(MAGIC);
     packet.extend_from_slice(&salt);
@@ -316,7 +316,7 @@ fn seal(plaintext: &[u8], passphrase: &str) -> Result<Vec<u8>, String> {
 /// 封包 → 明文。口令错误与包损坏都表现为 GCM 认证失败，同一句人话。
 fn open_packet(packet: &[u8], passphrase: &str) -> Result<Vec<u8>, String> {
     if packet.len() < MAGIC.len() + SALT_LEN + NONCE_LEN || &packet[..MAGIC.len()] != MAGIC {
-        return Err("远端文件不是 Pebrel 同步包（或版本不兼容）".to_owned());
+        return Err("El archivo remoto no es un paquete de sincronización de PoxiTerminal (o la versión no es compatible)".to_owned());
     }
     let salt = &packet[MAGIC.len()..MAGIC.len() + SALT_LEN];
     let nonce = &packet[MAGIC.len() + SALT_LEN..MAGIC.len() + SALT_LEN + NONCE_LEN];
@@ -324,8 +324,8 @@ fn open_packet(packet: &[u8], passphrase: &str) -> Result<Vec<u8>, String> {
     let key = derive_key(passphrase, salt)?;
     let cipher = Aes256Gcm::new((&key).into());
     cipher
-        .decrypt(&Nonce::try_from(nonce).expect("nonce 长度已由封包头校验"), ciphertext)
-        .map_err(|_| "解密失败：同步口令不一致或文件损坏".to_owned())
+        .decrypt(&Nonce::try_from(nonce).expect("longitud de nonce ya validada por la cabecera"), ciphertext)
+        .map_err(|_| "Error al descifrar: la frase de sincronización no coincide o el archivo está dañado".to_owned())
 }
 
 // ---- payload ----
@@ -389,7 +389,7 @@ fn payload_to_json(payload: &SyncPayload) -> Vec<u8> {
 
 fn payload_from_json(bytes: &[u8]) -> Result<SyncPayload, String> {
     let value: serde_json::Value =
-        serde_json::from_slice(bytes).map_err(|err| format!("同步包内容损坏：{err}"))?;
+        serde_json::from_slice(bytes).map_err(|err| format!("Paquete de sincronización dañado: {err}"))?;
     let modified = value["modified"].as_u64().unwrap_or(0);
     let device = value["device"].as_str().unwrap_or("unknown").to_owned();
     let mut settings = Vec::new();
@@ -553,7 +553,7 @@ fn write_history(lines: &[String]) -> Result<(), String> {
             text.push('\n');
         }
         std::fs::write(history_file_path(file_name), text)
-            .map_err(|err| format!("写入历史失败：{err}"))?;
+            .map_err(|err| format!("No se pudo guardar el historial: {err}"))?;
     }
     Ok(())
 }
@@ -584,7 +584,7 @@ fn fetch_remote(cfg: &SyncConfig, password: &str, passphrase: &str) -> Result<Re
         .get(&cfg.url)
         .header("Authorization", &basic_auth(cfg, password))
         .call()
-        .map_err(|err| format!("连接失败：{err}"))?;
+        .map_err(|err| format!("Error de conexión: {err}"))?;
     match response.status().as_u16() {
         200 => {
             let etag = response
@@ -593,13 +593,13 @@ fn fetch_remote(cfg: &SyncConfig, password: &str, passphrase: &str) -> Result<Re
                 .and_then(|value| value.to_str().ok())
                 .map(str::to_owned);
             let body =
-                response.body_mut().read_to_vec().map_err(|err| format!("读取远端失败：{err}"))?;
+                response.body_mut().read_to_vec().map_err(|err| format!("Error al leer el remoto: {err}"))?;
             let payload = payload_from_json(&open_packet(&body, passphrase)?)?;
             Ok(Remote { payload: Some(payload), etag })
         },
         404 => Ok(Remote { payload: None, etag: None }),
-        401 | 403 => Err("认证失败：检查 WebDAV 用户名/密码".to_owned()),
-        status => Err(format!("远端返回 HTTP {status}")),
+        401 | 403 => Err("Error de autenticación: revisa el usuario/contraseña de WebDAV".to_owned()),
+        status => Err(format!("El remoto devolvió HTTP {status}")),
     }
 }
 
@@ -615,29 +615,29 @@ fn put_remote(
         Some(etag) => request.header("If-Match", etag),
         None => request.header("If-None-Match", "*"),
     };
-    let response = request.send(packet).map_err(|err| format!("上传失败：{err}"))?;
+    let response = request.send(packet).map_err(|err| format!("Error al subir: {err}"))?;
     match response.status().as_u16() {
         200 | 201 | 204 => Ok(true),
         412 => Ok(false),
-        401 | 403 => Err("认证失败：检查 WebDAV 用户名/密码".to_owned()),
-        status => Err(format!("远端返回 HTTP {status}")),
+        401 | 403 => Err("Error de autenticación: revisa el usuario/contraseña de WebDAV".to_owned()),
+        status => Err(format!("El remoto devolvió HTTP {status}")),
     }
 }
 
 fn preflight() -> Result<(SyncConfig, String, String), String> {
     let cfg = SyncConfig::load();
     if !cfg.configured() {
-        return Err(format!("未配置：在 {} 写入 url= 与 username=", config_path().display()));
+        return Err(format!("Sin configurar: añade url= y username= en {}", config_path().display()));
     }
     if !cfg.url.starts_with("https://") && !cfg.allow_http {
-        return Err("已拒绝：url 不是 HTTPS（自建内网服务可写 allow_http=1 豁免）".to_owned());
+        return Err("Rechazado: la url no es HTTPS (para un servidor propio en red local, añade allow_http=1)".to_owned());
     }
     let password =
-        webdav_password().ok_or("缺少 WebDAV 密码：设 NEBULA_WEBDAV_PASSWORD 环境变量")?;
+        webdav_password().ok_or("Falta la contraseña de WebDAV: define la variable de entorno NEBULA_WEBDAV_PASSWORD")?;
     let passphrase =
-        sync_passphrase().ok_or("缺少端到端加密口令：设 NEBULA_SYNC_PASSPHRASE 环境变量")?;
+        sync_passphrase().ok_or("Falta la frase de cifrado de extremo a extremo: define la variable de entorno NEBULA_SYNC_PASSPHRASE")?;
     if let Some(reason) = passphrase_weakness(&passphrase, &cfg.username, &password) {
-        return Err(format!("已拒绝同步：{reason}"));
+        return Err(format!("Sincronización rechazada: {reason}"));
     }
     Ok((cfg, password, passphrase))
 }
@@ -659,7 +659,7 @@ fn apply_local(merged: &SyncPayload, current_text: &str) -> Result<bool, String>
     let new_text = apply_to_settings_text(merged, current_text);
     if new_text != current_text {
         std::fs::write(settings_file_path(), new_text)
-            .map_err(|err| format!("写入设置失败：{err}"))?;
+            .map_err(|err| format!("No se pudo guardar la configuración: {err}"))?;
     }
     let local_history = history_tail();
     if merged.history != local_history {
@@ -686,7 +686,7 @@ pub fn push() -> Result<SyncOutcome, String> {
     if put_remote(&cfg, &password, &packet, remote.etag.as_deref())? {
         return Ok(SyncOutcome {
             message: format!(
-                "同步已推送（{} 项设置、{} 条键位、{} 条历史）",
+                "Sincronización enviada ({} ajustes, {} atajos, {} entradas de historial)",
                 local.settings.len(),
                 local.keybinds.len(),
                 local.history.len()
@@ -704,10 +704,10 @@ pub fn push() -> Result<SyncOutcome, String> {
     let packet = seal(&payload_to_json(&local), &passphrase)?;
     if put_remote(&cfg, &password, &packet, fresh.etag.as_deref())? {
         Ok(SyncOutcome {
-            message: "同步已推送（已并入远端并发修改）".to_owned(), history_changed
+            message: "Sincronización enviada (se fusionaron cambios remotos simultáneos)".to_owned(), history_changed
         })
     } else {
-        Err("远端持续变化，稍后再试".to_owned())
+        Err("El remoto sigue cambiando; inténtalo más tarde".to_owned())
     }
 }
 
@@ -718,7 +718,7 @@ pub fn pull() -> Result<SyncOutcome, String> {
     let remote = fetch_remote(&cfg, &password, &passphrase)?;
     let Some(remote_payload) = remote.payload else {
         return Ok(SyncOutcome {
-            message: "远端为空：先在这台机器推送一次".to_owned(),
+            message: "El remoto está vacío: haz primero un push desde este equipo".to_owned(),
             history_changed: false,
         });
     };
@@ -728,12 +728,12 @@ pub fn pull() -> Result<SyncOutcome, String> {
     let history_changed = apply_local(&merged, &text)?;
     if !settings_before && !history_changed {
         return Ok(SyncOutcome {
-            message: "已是最新（与远端一致）".to_owned(), history_changed
+            message: "Ya está al día (coincide con el remoto)".to_owned(), history_changed
         });
     }
     Ok(SyncOutcome {
         message: format!(
-            "已拉取 {} 的设置（{} 条键位、{} 条历史）",
+            "Configuración de {} descargada ({} atajos, {} entradas de historial)",
             remote_payload.device,
             merged.keybinds.len(),
             merged.history.len()

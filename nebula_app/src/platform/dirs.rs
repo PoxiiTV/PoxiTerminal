@@ -1,14 +1,14 @@
 //! 用户目录解析（005 §5 L1）。
 //!
-//! Pebrel 的应用路径适配器。共享设置 crate 负责路径优先级与启动迁移，
+//! PoxiTerminal 的应用路径适配器。共享设置 crate 负责路径优先级与启动迁移，
 //! 这里缓存应用侧解析结果，所有配置、历史、会话和字体继续使用同一目录。
 //!
 //! ## 各平台落点
 //!
 //! | 平台 | 目录 |
 //! | :-- | :-- |
-//! | Windows | `%APPDATA%\Pebrel` |
-//! | macOS | `~/Library/Application Support/Pebrel` |
+//! | Windows | `%APPDATA%\PoxiTerminal` |
+//! | macOS | `~/Library/Application Support/PoxiTerminal` |
 //! | Linux | `$XDG_CONFIG_HOME/pebrel`，未设则 `~/.config/pebrel` |
 //!
 //! `PEBREL_CONFIG_DIR` 优先，`NEBULA_CONFIG_DIR` 是保留的便携/测试兼容入口。
@@ -40,7 +40,7 @@ pub fn home_dir() -> Option<PathBuf> {
     raw.map(PathBuf::from).filter(|path| !path.as_os_str().is_empty())
 }
 
-/// Pebrel 的配置与数据目录，必要时创建。
+/// PoxiTerminal 的配置与数据目录，必要时创建。
 ///
 /// 结果缓存在 `OnceLock`：改造前 26 个调用点每次都要读环境变量 +
 /// `create_dir_all` 一次。缓存同时保证进程内路径恒定——半途改环境变量
@@ -82,8 +82,8 @@ mod tests {
         if !has_override() {
             let leaf = dir.file_name().and_then(|name| name.to_str()).unwrap_or_default();
             assert!(
-                leaf.eq_ignore_ascii_case("pebrel"),
-                "默认数据目录应以 pebrel 结尾，实际 {leaf:?}"
+                leaf.eq_ignore_ascii_case("poxiterminal"),
+                "默认数据目录应以 PoxiTerminal 结尾，实际 {leaf:?}"
             );
         }
     }
@@ -96,7 +96,7 @@ mod tests {
             return;
         }
         let Some(appdata) = std::env::var_os("APPDATA") else { return };
-        assert_eq!(resolve_data_dir(), PathBuf::from(appdata).join("Pebrel"));
+        assert_eq!(resolve_data_dir(), PathBuf::from(appdata).join("PoxiTerminal"));
     }
 
     /// Linux 侧遵守 XDG：相对路径的 `XDG_CONFIG_HOME` 按规范视为未设置。
@@ -129,7 +129,7 @@ mod tests {
         let Some(home) = home_dir() else { return };
         assert_eq!(
             resolve_data_dir(),
-            home.join("Library").join("Application Support").join("Pebrel")
+            home.join("Library").join("Application Support").join("PoxiTerminal")
         );
     }
 }

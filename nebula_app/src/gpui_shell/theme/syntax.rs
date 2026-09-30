@@ -57,6 +57,6 @@ pub(super) fn apply(theme: &mut Theme, chrome: &super::ResolvedTheme) {
     }
     highlighted.style.syntax = serde_json::from_value::<SyntaxColors>(syntax)
         .expect("reviewed syntax colors keep the schema");
-    highlighted.name = format!("Pebrel {}", theme.is_dark());
+    highlighted.name = format!("PoxiTerminal {}", theme.is_dark());
     theme.highlight_theme = Arc::new(highlighted);
 }

@@ -10,7 +10,7 @@ pub(crate) fn send_to_recycle_bin(path: &std::path::Path) -> Result<(), String> 
     };
 
     if !path.exists() {
-        return Err("\u{8def}\u{5f84}\u{5df2}\u{4e0d}\u{5b58}\u{5728}".to_owned());
+        return Err("La ruta ya no existe".to_owned());
     }
     let mut source: Vec<u16> = path.as_os_str().encode_wide().collect();
     source.push(0);
@@ -29,7 +29,7 @@ pub(crate) fn send_to_recycle_bin(path: &std::path::Path) -> Result<(), String> 
     if code == 0 && operation.fAnyOperationsAborted == 0 {
         Ok(())
     } else {
-        Err(format!("\u{7cfb}\u{7edf}\u{62d2}\u{7edd}\u{ff08}\u{4ee3}\u{7801} {code}\u{ff09}"))
+        Err(format!("El sistema lo rechazó (código {code})"))
     }
 }
 

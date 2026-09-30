@@ -223,7 +223,7 @@
     "session": "Session",
     "key": "Touche",
     "action": "Action",
-    "update_notice": "Pebrel v{latest} est disponible (version actuelle : v{current})",
+    "update_notice": "PoxiTerminal v{latest} est disponible (version actuelle : v{current})",
     "copied_lines": "{lines} lignes copiées dans le presse-papiers",
     "paste_lines": "Coller {lines} lignes ?",
     "sent_to": "Envoyé à {target}"

@@ -1,13 +1,13 @@
-// Included by the product installer and the isolated migration fixture.
+﻿// Included by the product installer and the isolated migration fixture.
 const
 #ifdef AcceptanceFixture
-  ProductUninstallKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{76B778B5-76C6-4F60-9431-9E67C2A351AF}_is1';
-  ProductSettingsKey = 'Software\PebrelUpdateAcceptance';
-  LegacySettingsKey = 'Software\PebrelUpdateAcceptanceLegacy';
+  ProductUninstallKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{55C51219-76DF-4981-A318-A0261C1B3199}_is1';
+  ProductSettingsKey = 'Software\PoxiTerminalUpdateAcceptance';
+  LegacySettingsKey = 'Software\PoxiTerminalUpdateAcceptanceLegacy';
 #else
-  ProductUninstallKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{61022144-7D0A-4E54-94F2-C329A8F58656}_is1';
-  ProductSettingsKey = 'Software\Pebrel';
-  LegacySettingsKey = 'Software\Nebula Terminal';
+  ProductUninstallKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{2586025B-5FC6-4D84-B832-B2DDB5D3130E}_is1';
+  ProductSettingsKey = 'Software\PoxiTerminal';
+  LegacySettingsKey = 'Software\PoxiTerminalLegacy';
 #endif
 
 var
@@ -36,7 +36,7 @@ begin
     Exit;
   Result := NormalizedDirectory(Previous);
   if CompareText(ExtractFileName(Result), 'Nebula Terminal') = 0 then
-    Result := AddBackslash(ExtractFileDir(Result)) + 'Pebrel';
+    Result := AddBackslash(ExtractFileDir(Result)) + 'PoxiTerminal';
 end;
 
 function PathContainsDirectory(Value, Directory: string): Boolean;
@@ -99,7 +99,7 @@ end;
 function DefaultInstallDir(Param: string): string;
 begin
   Result := SuggestedInstallDir(PreviousInstallDir,
-    ExpandConstant('{localappdata}\Programs\Pebrel'));
+    ExpandConstant('{localappdata}\Programs\PoxiTerminal'));
 end;
 
 procedure InitializeWizard;
@@ -111,7 +111,7 @@ begin
     (CompareText(ExtractFileName(NormalizedDirectory(PreviousInstallDir)), 'Nebula Terminal') = 0) and
     (ExpandConstant('{param:DIR|}') = '') then
     WizardForm.DirEdit.Text := SuggestedInstallDir(PreviousInstallDir,
-      ExpandConstant('{localappdata}\Programs\Pebrel'));
+      ExpandConstant('{localappdata}\Programs\PoxiTerminal'));
 end;
 
 procedure DiscoverLegacyInstallation;
@@ -325,7 +325,7 @@ var
   Index: Integer;
 begin
   Result := False;
-  if not RegQueryStringValue(HKCU, Key, 'PebrelOwner', Owner) or
+  if not RegQueryStringValue(HKCU, Key, 'PoxiTerminalOwner', Owner) or
     (CompareText(Owner, Executable) <> 0) then
     Exit;
   if not RegGetSubkeyNames(HKCU, Key, Subkeys) then
@@ -353,7 +353,7 @@ var
 begin
   if RegGetSubkeyNames(HKCU, Root, Names) then
     for NameIndex := 0 to GetArrayLength(Names) - 1 do
-      if Pos('PebrelWsl', Names[NameIndex]) = 1 then begin
+      if Pos('PoxiTerminalWsl', Names[NameIndex]) = 1 then begin
         Key := Root + '\' + Names[NameIndex];
         Command := '';
         if IsOwnedWslMenu(Key, Executable) or
@@ -372,7 +372,7 @@ begin
   Roots[0] := 'Software\Classes\Directory\shell';
   Roots[1] := 'Software\Classes\Directory\Background\shell';
   for Index := 0 to 1 do
-    RemoveOwnedWslContextMenusAt(Roots[Index], ExpandConstant('{app}\pebrel.exe'));
+    RemoveOwnedWslContextMenusAt(Roots[Index], ExpandConstant('{app}\poxiterminal.exe'));
 end;
 
 procedure RegisterWslContextMenuAt(Root, Executable, DirectoryArgument: string;
@@ -381,23 +381,23 @@ var
   Index: Integer;
   Distro, Verb, Command, Key, Menu: string;
 begin
-  Menu := Root + '\PebrelWslMenu';
+  Menu := Root + '\PoxiTerminalWslMenu';
   { Never overwrite an unknown installation or an edited submenu. }
   if RegKeyExists(HKCU, Menu) and not IsOwnedWslMenu(Menu, Executable) then
     RaiseException(FmtMessage(CustomMessage('WslMenuConflict'), [Menu]));
   RemoveOwnedWslContextMenusAt(Root, Executable);
   if GetArrayLength(Distros) = 0 then
     Exit;
-  if not RegWriteStringValue(HKCU, Menu, 'MUIVerb', CustomMessage('OpenInPebrelWsl')) or
+  if not RegWriteStringValue(HKCU, Menu, 'MUIVerb', CustomMessage('OpenInPoxiTerminalWsl')) or
     not RegWriteStringValue(HKCU, Menu, 'Icon', Executable + ',0') or
     not RegWriteStringValue(HKCU, Menu, 'SubCommands', '') or
-    not RegWriteStringValue(HKCU, Menu, 'PebrelOwner', Executable) then
+    not RegWriteStringValue(HKCU, Menu, 'PoxiTerminalOwner', Executable) then
     RaiseException(CustomMessage('WslMenuRegistrationFailed'));
   for Index := 0 to GetArrayLength(Distros) - 1 do begin
     Distro := Distros[Index];
     { 键名用序号而不是发行版名：注册表键名里带空格与非 ASCII 只会给自己找麻烦，
       何况我们靠前缀认领。 }
-    Verb := 'PebrelWsl' + IntToStr(Index);
+    Verb := 'PoxiTerminalWsl' + IntToStr(Index);
     { `--shell` 必须排在 `--working-directory` 之前：盘根（`D:\`）时后者的收尾
       反斜杠会吃掉它的收尾引号，并把后面整段并进同一个参数（issue #36 的另一面），
       顺序写反会静默开出一个既没有 cwd、也没用上指定发行版的标签。 }
@@ -416,7 +416,7 @@ var
   Executable: string;
 begin
   Distros := WslDistroNames;
-  Executable := ExpandConstant('{app}\pebrel.exe');
+  Executable := ExpandConstant('{app}\poxiterminal.exe');
   RegisterWslContextMenuAt('Software\Classes\Directory\shell', Executable, '%1', Distros);
   RegisterWslContextMenuAt('Software\Classes\Directory\Background\shell', Executable, '%V', Distros);
 end;
@@ -427,11 +427,11 @@ var
 begin
   Executable := AddBackslash(LegacyInstallDir) + 'nebula.exe';
   RemoveOwnedShortcut(ExpandConstant('{autodesktop}\Nebula Terminal.lnk'), Executable);
-  RemoveOwnedShortcut(ExpandConstant('{autodesktop}\Pebrel.lnk'), Executable);
+  RemoveOwnedShortcut(ExpandConstant('{autodesktop}\PoxiTerminal.lnk'), Executable);
   RemoveOwnedShortcut(ExpandConstant('{userstartup}\Nebula Terminal.lnk'), Executable);
-  RemoveOwnedShortcut(ExpandConstant('{userstartup}\Pebrel.lnk'), Executable);
+  RemoveOwnedShortcut(ExpandConstant('{userstartup}\PoxiTerminal.lnk'), Executable);
   RemoveOwnedShortcut(ExpandConstant('{userprograms}\Nebula Terminal\Nebula Terminal.lnk'), Executable);
-  RemoveOwnedShortcut(ExpandConstant('{userprograms}\Pebrel\Pebrel.lnk'), Executable);
+  RemoveOwnedShortcut(ExpandConstant('{userprograms}\PoxiTerminal\PoxiTerminal.lnk'), Executable);
   if LegacyUninstaller <> '' then begin
     RemoveOwnedShortcut(ExpandConstant('{userprograms}\Nebula Terminal\Uninstall Nebula Terminal.lnk'), LegacyUninstaller);
     RemoveOwnedShortcut(ExpandConstant('{userprograms}\Nebula Terminal\卸载 Nebula Terminal.lnk'), LegacyUninstaller);

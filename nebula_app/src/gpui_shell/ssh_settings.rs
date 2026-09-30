@@ -1186,7 +1186,7 @@ impl SettingsPane {
                     .items_center()
                     .text_xs()
                     .text_color(muted)
-                    .child(title)
+                    .child(language.pick(title, title))
                     .into_any_element(),
                 PickerRow::Option(option) => {
                     let (icon, name, id) = match option.and_then(|index| CATALOG.get(index)) {

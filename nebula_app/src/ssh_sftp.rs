@@ -275,9 +275,9 @@ impl SftpController {
             local_paths[0]
                 .file_name()
                 .map(|name| name.to_string_lossy().into_owned())
-                .unwrap_or_else(|| "上传".to_owned())
+                .unwrap_or_else(|| "Subida".to_owned())
         } else {
-            format!("上传 {} 项", local_paths.len())
+            format!("Subiendo {} elementos", local_paths.len())
         };
         self.start_job(
             SftpPhase::Working,
@@ -323,7 +323,7 @@ impl SftpController {
         let destination = snapshot.destination;
         let path = snapshot.path;
         let progress =
-            TransferProgress::new(format!("复制 {}", entry.name), entry.size.saturating_mul(2));
+            TransferProgress::new(format!("Copiando {}", entry.name), entry.size.saturating_mul(2));
         self.start_job(SftpPhase::Working, Some(progress), move |context| async move {
             let source = crate::ssh_session::open_sftp(&source_destination).await?;
             let target = crate::ssh_session::open_sftp(&destination).await?;
@@ -382,9 +382,9 @@ impl SftpController {
         let mut state = lock(&self.state);
         if state.phase == SftpPhase::Working {
             state.error = Some(if publishing {
-                "正在完成已进入发布阶段的文件，随后取消…".to_owned()
+                "Terminando los archivos que ya se estaban publicando; después se cancelará…".to_owned()
             } else {
-                "正在取消传输…".to_owned()
+                "Cancelando la transferencia…".to_owned()
             });
         }
         drop(state);
@@ -462,14 +462,14 @@ impl SftpBrowseSession {
             *slot = Some(
                 crate::ssh_session::open_sftp(&self.destination)
                     .await
-                    .map_err(|err| format!("无法连接 {}：{err}", self.destination))?,
+                    .map_err(|err| format!("No se pudo conectar a {}: {err}", self.destination))?,
             );
         }
 
         let result =
             read_remote_dir(slot.as_ref().expect("SFTP browser session initialized"), &path)
                 .await
-                .map_err(|err| format!("无法读取目录 {path}：{err}"));
+                .map_err(|err| format!("No se pudo leer el directorio {path}: {err}"));
         if result.is_err() {
             // A dead subsystem must not poison every later click. Permission
             // and missing-path errors also clear the channel; the next user
@@ -499,7 +499,7 @@ impl TransferObserver for TaskContext {
 impl TaskContext {
     fn check_cancelled(&self) -> SftpResult<()> {
         if self.cancelled() {
-            Err(io::Error::new(io::ErrorKind::Interrupted, "操作已取消").into())
+            Err(io::Error::new(io::ErrorKind::Interrupted, "Operación cancelada").into())
         } else {
             Ok(())
         }
@@ -515,11 +515,11 @@ impl TaskContext {
         let mut current = self.task_control.load(Ordering::Acquire);
         loop {
             if current & CANCEL_REQUESTED != 0 || !self.is_current() {
-                return Err(io::Error::new(io::ErrorKind::Interrupted, "操作已取消").into());
+                return Err(io::Error::new(io::ErrorKind::Interrupted, "Operación cancelada").into());
             }
             let next = current
                 .checked_add(PUBLISHER_UNIT)
-                .ok_or_else(|| io::Error::other("同时发布的文件数量超出系统限制"))?;
+                .ok_or_else(|| io::Error::other("Demasiados archivos publicándose a la vez para el límite del sistema"))?;
             match self.task_control.compare_exchange_weak(
                 current,
                 next,
@@ -529,7 +529,7 @@ impl TaskContext {
                 Ok(_) => {
                     if !self.is_current() {
                         self.task_control.fetch_sub(PUBLISHER_UNIT, Ordering::AcqRel);
-                        return Err(io::Error::new(io::ErrorKind::Interrupted, "操作已取消").into());
+                        return Err(io::Error::new(io::ErrorKind::Interrupted, "Operación cancelada").into());
                     }
                     return Ok(PublishGuard { task_control: self.task_control.clone() });
                 },
@@ -634,10 +634,10 @@ pub fn normalize_remote_path(base: &str, path: &str) -> String {
 
 pub fn validate_name(name: &str) -> Result<&str, &'static str> {
     if name.is_empty() || matches!(name, "." | "..") {
-        return Err("名称不能为空，也不能使用 . 或 ..");
+        return Err("El nombre no puede estar vacío ni ser . o ..");
     }
     if name.contains(['/', '\\', '\0']) {
-        return Err("名称不能包含路径分隔符或空字符");
+        return Err("El nombre no puede contener separadores de ruta ni caracteres nulos");
     }
     Ok(name)
 }
@@ -720,21 +720,21 @@ fn inspect_upload_roots(
         let name = local
             .file_name()
             .and_then(|name| name.to_str())
-            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "本地路径缺少有效名称"))?;
+            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "La ruta local no tiene un nombre válido"))?;
         validate_name(name)
             .map_err(|message| io::Error::new(io::ErrorKind::InvalidInput, message))?;
         let metadata = std::fs::symlink_metadata(&local)?;
         if metadata.file_type().is_symlink() {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
-                format!("暂不上传本地符号链接: {}", local.display()),
+                format!("Aún no se admite subir enlaces simbólicos locales: {}", local.display()),
             )
             .into());
         }
         if !metadata.is_dir() && !metadata.is_file() {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
-                format!("本地源不是普通文件或目录: {}", local.display()),
+                format!("El origen local no es un archivo ni un directorio normal: {}", local.display()),
             )
             .into());
         }
@@ -757,7 +757,7 @@ async fn resolve_upload_roots(
     let remote_dir = remote_dir.to_owned();
     let roots = tokio::task::spawn_blocking(move || inspect_upload_roots(local_paths, remote_dir))
         .await
-        .map_err(|error| format!("扫描上传入口失败: {error}"))??;
+        .map_err(|error| format!("Error al analizar los elementos a subir: {error}"))??;
     let mut resolved = Vec::with_capacity(roots.len());
     let mut reserved = HashSet::with_capacity(roots.len());
     for mut root in roots {
@@ -790,7 +790,7 @@ async fn resolve_upload_roots(
             SftpConflictPolicy::Overwrite => {
                 if collides_with_batch {
                     return Err(io::Error::other(format!(
-                        "批量上传包含多个同名根项目，不能同时覆盖: {}",
+                        "La subida incluye varios elementos raíz con el mismo nombre y no se pueden sobrescribir a la vez: {}",
                         root.remote
                     ))
                     .into());
@@ -800,7 +800,7 @@ async fn resolve_upload_roots(
                     || (!root.is_directory && (metadata.is_regular() || metadata.is_symlink()));
                 if !compatible {
                     return Err(io::Error::other(format!(
-                        "远端同名目标类型不同，不能直接覆盖: {}",
+                        "El destino remoto con el mismo nombre es de otro tipo y no se puede sobrescribir: {}",
                         root.remote
                     ))
                     .into());
@@ -833,7 +833,7 @@ async fn duplicate_remote_root_path(
             return Ok(candidate);
         }
     }
-    Err(io::Error::other(format!("无法为同名项目生成可用名称: {destination}")).into())
+    Err(io::Error::other(format!("No se pudo generar un nombre libre para el elemento duplicado: {destination}")).into())
 }
 
 fn build_upload_plan(roots: Vec<UploadRoot>) -> SftpResult<UploadPlan> {
@@ -848,13 +848,13 @@ fn build_upload_plan(roots: Vec<UploadRoot>) -> SftpResult<UploadPlan> {
 
     while let Some((local, remote, known_stamp)) = stack.pop() {
         if files.len() + directories.len() >= MAX_RECURSIVE_ENTRIES {
-            return Err(io::Error::other("上传目录超过 100000 项，已停止").into());
+            return Err(io::Error::other("El directorio a subir supera los 100000 elementos; se ha detenido").into());
         }
         let metadata = std::fs::symlink_metadata(&local)?;
         if metadata.file_type().is_symlink() {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
-                format!("暂不上传本地符号链接: {}", local.display()),
+                format!("Aún no se admite subir enlaces simbólicos locales: {}", local.display()),
             )
             .into());
         }
@@ -888,7 +888,7 @@ async fn upload_local_paths(
     let roots = resolve_upload_roots(sftp, local_paths, remote_dir, options).await?;
     let plan = tokio::task::spawn_blocking(move || build_upload_plan(roots))
         .await
-        .map_err(|err| format!("扫描上传目录失败: {err}"))??;
+        .map_err(|err| format!("Error al analizar el directorio a subir: {err}"))??;
     context.set_total(plan.total);
 
     execute_upload_plan(sftp, plan, options, context).await
@@ -944,12 +944,12 @@ async fn execute_upload_plan(
 pub(crate) async fn list_dir(destination: &str, path: &str) -> Result<Vec<SftpEntry>, String> {
     let sftp = crate::ssh_session::open_sftp(destination)
         .await
-        .map_err(|err| format!("无法连接 {destination}：{err}"))?;
+        .map_err(|err| format!("No se pudo conectar a {destination}: {err}"))?;
     let resolved = sftp
         .canonicalize(path.to_owned())
         .await
-        .map_err(|err| format!("无法解析路径 {path}：{err}"))?;
-    read_remote_dir(&sftp, &resolved).await.map_err(|err| format!("无法读取目录 {resolved}：{err}"))
+        .map_err(|err| format!("No se pudo resolver la ruta {path}: {err}"))?;
+    read_remote_dir(&sftp, &resolved).await.map_err(|err| format!("No se pudo leer el directorio {resolved}: {err}"))
 }
 
 /// 为补齐列一个远端目录，`(是否目录, 名字)`。
@@ -964,7 +964,7 @@ pub async fn list_dir_for_completion(destination: &str, dir: &str) -> Option<Vec
     let sftp = match crate::ssh_session::open_sftp(destination).await {
         Ok(sftp) => sftp,
         Err(err) => {
-            log::debug!("补齐列远端目录失败（{destination}:{dir}）: {err}");
+            log::debug!("Autocompletado: no se pudo listar el directorio remoto ({destination}:{dir}): {err}");
             return None;
         },
     };
@@ -976,7 +976,7 @@ pub async fn list_dir_for_completion(destination: &str, dir: &str) -> Option<Vec
                 .collect(),
         ),
         Err(err) => {
-            log::debug!("补齐读远端目录失败（{destination}:{dir}）: {err}");
+            log::debug!("Autocompletado: no se pudo leer el directorio remoto ({destination}:{dir}): {err}");
             None
         },
     }
@@ -1088,7 +1088,7 @@ async fn build_download_plan(
     while !pending.is_empty() {
         context.check_cancelled()?;
         if files.len() + directories.len() >= MAX_RECURSIVE_ENTRIES {
-            return Err(io::Error::other("下载目录超过 100000 项，已停止").into());
+            return Err(io::Error::other("El directorio a descargar supera los 100000 elementos; se ha detenido").into());
         }
 
         // 先把这一层解析成"要列的目录"和"要传的文件"。符号链接的解析和环路
@@ -1114,7 +1114,7 @@ async fn build_download_plan(
             if kind == SftpEntryKind::Directory {
                 if !visited_directories.insert(remote.clone()) {
                     return Err(
-                        io::Error::other(format!("检测到远端符号链接目录循环: {remote}")).into()
+                        io::Error::other(format!("Se detectó un bucle de enlaces simbólicos en el remoto: {remote}")).into()
                     );
                 }
                 directories.push(local.clone());
@@ -1188,7 +1188,7 @@ async fn download_remote_entry(
                 entry.name = duplicate
                     .file_name()
                     .and_then(|name| name.to_str())
-                    .ok_or_else(|| io::Error::other("重命名后的本地目标缺少有效文件名"))?
+                    .ok_or_else(|| io::Error::other("El destino local renombrado no tiene un nombre de archivo válido"))?
                     .to_owned();
             },
             SftpConflictPolicy::Overwrite => {
@@ -1201,7 +1201,7 @@ async fn download_remote_entry(
                     || (!root_is_directory && !target_is_file)
                 {
                     return Err(io::Error::other(format!(
-                        "本地同名目标类型不同，不能直接覆盖: {}",
+                        "El destino local con el mismo nombre es de otro tipo y no se puede sobrescribir: {}",
                         desired.display()
                     ))
                     .into());
@@ -1261,7 +1261,7 @@ fn transfer_staging_root() -> SftpResult<PathBuf> {
     let base = std::env::temp_dir();
     if !base.is_absolute() {
         return Err(io::Error::other(format!(
-            "系统临时目录不是绝对路径，已拒绝跨主机复制: {}",
+            "El directorio temporal del sistema no es una ruta absoluta; se rechaza la copia entre hosts: {}",
             base.display()
         ))
         .into());
@@ -1314,7 +1314,7 @@ async fn copy_remote_entry(
             resolve_upload_roots(target, vec![staged_entry], target_directory, options).await?;
         let upload = tokio::task::spawn_blocking(move || build_upload_plan(roots))
             .await
-            .map_err(|error| format!("扫描跨主机复制 staging 失败: {error}"))??;
+            .map_err(|error| format!("Error al analizar el staging de la copia entre hosts: {error}"))??;
         context.set_total(source_bytes.saturating_add(upload.total));
         execute_upload_plan(target, upload, options, context).await
     }
@@ -1323,7 +1323,7 @@ async fn copy_remote_entry(
     if let Err(error) = tokio::fs::remove_dir_all(&staging_root).await
         && error.kind() != io::ErrorKind::NotFound
     {
-        log::warn!("跨主机复制 staging 清理失败（{}）: {error}", staging_root.display());
+        log::warn!("Error al limpiar el staging de la copia entre hosts ({}): {error}", staging_root.display());
     }
     result
 }
@@ -1352,7 +1352,7 @@ async fn download_file_atomic(
     let name = destination
         .file_name()
         .and_then(|name| name.to_str())
-        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "下载路径缺少有效文件名"))?;
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "La ruta de descarga no tiene un nombre de archivo válido"))?;
     let nonce = TRANSFER_NONCE.fetch_add(1, Ordering::Relaxed);
     let temporary = destination.with_file_name(format!(".{name}.nebula-download-{nonce:016x}"));
     if skip_unchanged && transaction::local_unchanged(destination, total, modified).await? {
@@ -1388,7 +1388,7 @@ async fn delete_remote_entry(
         context.check_cancelled()?;
         visited += 1;
         if visited > MAX_RECURSIVE_ENTRIES {
-            return Err(io::Error::other("删除目录超过 100000 项，已停止").into());
+            return Err(io::Error::other("El directorio a eliminar supera los 100000 elementos; se ha detenido").into());
         }
         match step {
             Step::Visit(entry) if entry.kind == SftpEntryKind::Directory => {

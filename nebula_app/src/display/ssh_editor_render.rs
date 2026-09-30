@@ -1093,11 +1093,12 @@ impl Display {
             language.pick("方式", "Method"),
             glyph_cache,
         );
-        let auth_labels = if language == super::UiLanguage::ZhCn {
-            ["密码", "密钥", "自动", "交互式"]
-        } else {
-            ["Password", "Key", "Auto", "Interactive"]
-        };
+        let auth_labels = [
+            language.pick("密码", "Password"),
+            language.pick("密钥", "Key"),
+            language.pick("自动", "Auto"),
+            language.pick("交互式", "Interactive"),
+        ];
         for ((mode, rect), label) in auth.iter().zip(auth_labels) {
             self.renderer.draw_chrome_text(
                 &size,

@@ -1080,11 +1080,11 @@ impl WindowContext {
                     return;
                 },
                 Err(err) => {
-                    error!("创建直连 SSH Pane 失败: {err}");
+                    error!("No se pudo crear el panel SSH directo: {err}");
                     let user_error = crate::ux::UserFacingError::new(
-                        format!("SSH {host} 连接创建失败"),
-                        "无法创建 SSH 会话，地址、认证方式或本机 SSH 配置可能无效。",
-                        "检查主机地址和认证配置，右键编辑该主机后重试。",
+                        format!("No se pudo crear la conexión SSH {host}"),
+                        "No se pudo crear la sesión SSH; puede que la dirección, la autenticación o la configuración SSH local no sean válidas.",
+                        "Revisa la dirección y la autenticación del host (clic derecho → Editar) y vuelve a intentarlo.",
                     )
                     .retry(crate::ux::RetryAction::Retry)
                     .details(err.to_string());
@@ -1100,7 +1100,7 @@ impl WindowContext {
         {
             let _ = remote_cwd;
             let Ok(exe) = std::env::current_exe() else {
-                error!("Cannot locate the Pebrel executable for the SSH AskPass helper");
+                error!("Cannot locate the PoxiTerminal executable for the SSH AskPass helper");
                 return;
             };
             let shell_id = self.display.nebula_shell_id.clone().unwrap_or_else(|| {
@@ -1177,7 +1177,7 @@ impl WindowContext {
                     self.display.ssh_connect_stage(
                         old_id,
                         destination,
-                        crate::ssh_session::SshStage::Failed(format!("无法重试 SSH 连接: {error}")),
+                        crate::ssh_session::SshStage::Failed(format!("No se pudo reintentar la conexión SSH: {error}")),
                     );
                     self.dirty = true;
                     self.display.window.request_redraw();
@@ -1301,7 +1301,10 @@ impl WindowContext {
                 layout: Layout::Leaf(DOC_PANE_ID),
                 active_pane: DOC_PANE_ID,
                 has_bell: false,
-                custom_name: Some("\u{eb51} 设置".to_owned()),
+                custom_name: Some(format!(
+                    "\u{eb51} {}",
+                    self.display.ui_language().pick("设置", "Settings")
+                )),
                 custom_color: None,
                 launch: TabLaunch::Settings,
                 doc: None,
@@ -1354,7 +1357,12 @@ impl WindowContext {
                 layout: Layout::Leaf(pane_id),
                 active_pane: pane_id,
                 has_bell: false,
-                custom_name: Some(format!("{} 分叉", agent.display_name())),
+                custom_name: Some(
+                    self.display
+                        .ui_language()
+                        .pick("{} 分叉", "{} fork")
+                        .replacen("{}", agent.display_name(), 1),
+                ),
                 custom_color: color,
                 launch,
                 doc: None,
@@ -1423,9 +1431,9 @@ impl WindowContext {
         let session = session::Session::new(0, tabs);
         if let Err(err) = session::save_to(&path, &session) {
             let user_error = crate::ux::UserFacingError::new(
-                "工作区导出失败",
-                "无法写入所选的工作区文件。",
-                "确认该位置可写(或换一个目录)后重试。",
+                "Error al exportar el espacio de trabajo",
+                "No se pudo escribir el archivo de espacio de trabajo seleccionado.",
+                "Comprueba que la ubicación permite escritura (o elige otra carpeta) y vuelve a intentarlo.",
             )
             .details(err.to_string());
             self.message_buffer.push(crate::message_bar::Message::user_error(&user_error));
@@ -1439,9 +1447,9 @@ impl WindowContext {
         let Some(path) = self.display.pick_workspace_dialog() else { return };
         let Some(session) = session::load_from(&path) else {
             let user_error = crate::ux::UserFacingError::new(
-                "工作区导入失败",
-                "所选文件不是可识别的 Pebrel 工作区。",
-                "确认选择的是导出生成的 .pebrel-workspace.json 或旧版 .nebula-workspace.json 文件。",
+                "Error al importar el espacio de trabajo",
+                "El archivo seleccionado no es un espacio de trabajo de PoxiTerminal válido.",
+                "Asegúrate de elegir un archivo .pebrel-workspace.json exportado o un .nebula-workspace.json antiguo.",
             );
             self.message_buffer.push(crate::message_bar::Message::user_error(&user_error));
             self.dirty = true;
@@ -1461,9 +1469,9 @@ impl WindowContext {
             self.mark_session_dirty();
         } else {
             let user_error = crate::ux::UserFacingError::new(
-                "工作区导入失败",
-                "工作区文件里没有可恢复的标签页。",
-                "该文件可能为空,或其中的会话都无法启动。",
+                "Error al importar el espacio de trabajo",
+                "El archivo de espacio de trabajo no tiene pestañas que restaurar.",
+                "Puede que el archivo esté vacío o que ninguna de sus sesiones pueda iniciarse.",
             );
             self.message_buffer.push(crate::message_bar::Message::user_error(&user_error));
             self.dirty = true;
@@ -2042,7 +2050,7 @@ impl WindowContext {
         } else {
             crate::message_bar::MessageType::Warning
         };
-        self.message_buffer.push(crate::message_bar::Message::new(format!("备份：{message}"), ty));
+        self.message_buffer.push(crate::message_bar::Message::new(format!("Copia de seguridad: {message}"), ty));
         self.dirty = true;
         self.display.window.request_redraw();
     }
@@ -2059,7 +2067,7 @@ impl WindowContext {
         } else {
             crate::message_bar::MessageType::Warning
         };
-        self.message_buffer.push(crate::message_bar::Message::new(format!("同步：{message}"), ty));
+        self.message_buffer.push(crate::message_bar::Message::new(format!("Sincronización: {message}"), ty));
         if history_changed {
             self.display.reload_nebula_history();
         }

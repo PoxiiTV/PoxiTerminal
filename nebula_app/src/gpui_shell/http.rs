@@ -53,7 +53,7 @@ fn fetch_blocking(
     for (name, value) in parts.headers.iter() {
         builder = builder.header(name.as_str(), value.as_bytes());
     }
-    let request = builder.body(request_bytes).map_err(|error| anyhow!("构造请求失败: {error}"))?;
+    let request = builder.body(request_bytes).map_err(|error| anyhow!("Error al construir la petición: {error}"))?;
     let mut response = agent.run(request).map_err(|error| anyhow!("{error}"))?;
     let status = response.status().as_u16();
     let mut header_pairs: Vec<(String, Vec<u8>)> = Vec::new();
@@ -65,7 +65,7 @@ fn fetch_blocking(
         .with_config()
         .limit(MAX_RESPONSE_BYTES)
         .read_to_vec()
-        .map_err(|error| anyhow!("读取响应失败: {error}"))?;
+        .map_err(|error| anyhow!("Error al leer la respuesta: {error}"))?;
     // 不是 anyhow：gpui img 把 GIF 帧下标存在 element state，markdown
     // 多图共用 `.id(序号)` 时会把第 N 帧套到只有 1 帧的 PNG/SVG 上 panic。
     // 网络动图进 gpui 前压成单帧 PNG。
@@ -161,7 +161,7 @@ impl HttpClient for UreqClient {
             for (name, value) in header_pairs {
                 builder = builder.header(name, value);
             }
-            builder.body(AsyncBody::from(bytes)).map_err(|error| anyhow!("构造响应失败: {error}"))
+            builder.body(AsyncBody::from(bytes)).map_err(|error| anyhow!("Error al construir la respuesta: {error}"))
         })
     }
 }

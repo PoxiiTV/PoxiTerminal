@@ -944,8 +944,9 @@ impl CommandPalette {
                     };
                     let source = self.ai_sessions[*index].source;
                     labels.push(
-                        (previous != Some(source))
-                            .then(|| (source_group_label(source), String::new())),
+                        (previous != Some(source)).then(|| {
+                            (source_group_label_in(source, self.language), String::new())
+                        }),
                     );
                     previous = Some(source);
                 }
@@ -1282,10 +1283,8 @@ fn localized_item_label(item: &PaletteItem, language: super::UiLanguage) -> &'st
     use PaletteAction::*;
     if matches!(item.action, CycleCompletionStyle) {
         return language.text(crate::i18n::Message::SettingsCompletionCycle);
-    } else if language == super::UiLanguage::ZhCn {
-        return item.label;
     }
-    match item.action {
+    let english = match item.action {
         NewTab => "New tab",
         CopyCwd => "Copy path",
         RevealCwd => "Reveal in file manager",
@@ -1314,8 +1313,10 @@ fn localized_item_label(item: &PaletteItem, language: super::UiLanguage) -> &'st
         SyncPush => "Sync: push settings",
         SyncPull => "Sync: pull settings",
         LaunchProfile(_) | LaunchShell(_) | LaunchSsh(_) | SetDefaultShell(_)
-        | SetDefaultProfile(_) | NewAtDirectory(_) | ResumeAiSession(_) => item.label,
-    }
+        | SetDefaultProfile(_) | NewAtDirectory(_) | ResumeAiSession(_) => return item.label,
+    };
+    // ZhCn keeps the catalog label; EsEs resolves the English text through the phrase table.
+    language.pick(item.label, english)
 }
 
 /// 命令的分类。分组表头按它分，组的先后也按它排（`ordinal`）。
@@ -1387,8 +1388,13 @@ pub(crate) fn command_group_metadata(
     (group as usize, group.label(language))
 }
 
-pub(crate) fn source_group_label(source: crate::ai_sessions::AiSessionSource) -> String {
-    format!("{} 会话", source.display_name().to_uppercase())
+pub(crate) fn source_group_label_in(
+    source: crate::ai_sessions::AiSessionSource,
+    language: super::UiLanguage,
+) -> String {
+    language
+        .pick("{source} 会话", "{source} sessions")
+        .replace("{source}", &source.display_name().to_uppercase())
 }
 
 /// AI 会话行的行首字形：mdi-creation，一大一小两颗四角星。见 `row_for`

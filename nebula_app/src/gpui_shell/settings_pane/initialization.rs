@@ -69,7 +69,7 @@ impl SettingsPane {
 
         add_select(
             "language",
-            nebula_settings::LanguagePref::VALUES,
+            nebula_settings::LanguagePref::SHOWN_VALUES,
             runtime.language.settings_value(),
             window,
             cx,
@@ -587,7 +587,6 @@ impl SettingsPane {
             about_update: AboutUpdateState::Idle,
             about_update_seq: 0,
             about_last_checked: None,
-            about_sponsor_open: false,
             settings_search_input,
             search_origin_section: None,
             selects,

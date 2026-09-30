@@ -353,13 +353,13 @@ fn unparseable_key_is_not_classified_as_needing_passphrase() {
 
 #[test]
 fn all_keys_failing_locally_is_not_reported_as_server_rejection() {
-    let errors = vec!["C:\\keys\\a.pem: 无法解析（unsupported）".to_owned()];
+    let errors = vec!["C:\\keys\\a.pem: no se pudo analizar (unsupported)".to_owned()];
     let message = super::auth_failure(SshAuthMode::PublicKey, 1, &errors);
-    assert!(message.starts_with("私钥无法使用"), "实际文案: {message}");
-    assert!(!message.contains("服务器拒绝"), "实际文案: {message}");
+    assert!(message.starts_with("Clave privada no utilizable"), "实际文案: {message}");
+    assert!(!message.contains("El servidor rechazó"), "实际文案: {message}");
 
     // 有密钥真的送到了服务器（本地失败数 < 密钥数）时保留原判词。
     let partial = super::auth_failure(SshAuthMode::PublicKey, 2, &errors);
-    assert!(partial.contains("服务器拒绝"), "实际文案: {partial}");
-    assert!(partial.contains("本地密钥问题"), "实际文案: {partial}");
+    assert!(partial.contains("El servidor rechazó"), "实际文案: {partial}");
+    assert!(partial.contains("problemas con claves locales"), "实际文案: {partial}");
 }

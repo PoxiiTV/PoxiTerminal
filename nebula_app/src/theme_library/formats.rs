@@ -1,7 +1,7 @@
 //! Bounded, static theme import/export adapters.
 //!
 //! These adapters consume text as data.  No Lua, shell, include, import or
-//! external script is ever evaluated.  The native Pebrel format is delegated to
+//! external script is ever evaluated.  The native PoxiTerminal format is delegated to
 //! [`ThemeDocument`]; the other formats map only their documented color fields.
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -20,7 +20,7 @@ pub const MAX_IMPORT_CANDIDATES: usize = 128;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ThemeFormat {
-    Pebrel,
+    PoxiTerminal,
     WindowsTerminal,
     Kitty,
     Ghostty,
@@ -32,7 +32,7 @@ pub enum ThemeFormat {
 impl ThemeFormat {
     pub fn extension(self) -> &'static str {
         match self {
-            Self::Pebrel => "pebrel-theme.json",
+            Self::PoxiTerminal => "pebrel-theme.json",
             Self::WindowsTerminal => "json",
             Self::Kitty | Self::Ghostty => "conf",
             Self::WezTerm | Self::Alacritty => "toml",
@@ -44,7 +44,7 @@ impl ThemeFormat {
 impl fmt::Display for ThemeFormat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
-            Self::Pebrel => "Pebrel",
+            Self::PoxiTerminal => "PoxiTerminal",
             Self::WindowsTerminal => "Windows Terminal",
             Self::Kitty => "Kitty",
             Self::Ghostty => "Ghostty",
@@ -148,7 +148,7 @@ pub fn inspect(text: &str, filename: impl Into<String>) -> Inspection {
             diagnostics: vec![ImportDiagnostic {
                 filename,
                 format: None,
-                message: "YAML theme files are not supported; use Pebrel JSON or a static terminal color format".to_owned(),
+                message: "YAML theme files are not supported; use PoxiTerminal JSON or a static terminal color format".to_owned(),
             }],
             ..Inspection::default()
         };
@@ -168,7 +168,7 @@ pub fn inspect(text: &str, filename: impl Into<String>) -> Inspection {
             diagnostics: vec![ImportDiagnostic {
                 filename,
                 format: None,
-                message: "unsupported theme format; use Pebrel JSON, Windows Terminal JSON, Kitty, Ghostty, WezTerm or Alacritty".to_owned(),
+                message: "unsupported theme format; use PoxiTerminal JSON, Windows Terminal JSON, Kitty, Ghostty, WezTerm or Alacritty".to_owned(),
             }],
             ..Inspection::default()
         },
@@ -205,7 +205,7 @@ pub fn export(
         })
         .collect::<Result<Vec<_>, FormatError>>()?;
     match format {
-        ThemeFormat::Pebrel => {
+        ThemeFormat::PoxiTerminal => {
             let bytes = document.to_json_bytes()?;
             let text = String::from_utf8(bytes)
                 .map_err(|error| FormatError::Invalid(error.to_string()))?
@@ -213,7 +213,7 @@ pub fn export(
             Ok(ExportArtifact {
                 text,
                 extension: format.extension(),
-                summary: format!("{} will be exported as a complete Pebrel theme", name),
+                summary: format!("{} will be exported as a complete PoxiTerminal theme", name),
                 losses: Vec::new(),
             })
         },
@@ -230,7 +230,7 @@ pub fn export(
 
 fn inspect_format(text: &str, filename: &str, format: ThemeFormat) -> Inspection {
     let result = match format {
-        ThemeFormat::Pebrel | ThemeFormat::WindowsTerminal => inspect_json(text, filename, format),
+        ThemeFormat::PoxiTerminal | ThemeFormat::WindowsTerminal => inspect_json(text, filename, format),
         ThemeFormat::Kitty | ThemeFormat::Ghostty => inspect_key_value(text, filename, format),
         ThemeFormat::WezTerm | ThemeFormat::Alacritty => inspect_toml(text, filename, format),
         ThemeFormat::Iterm2 => unreachable!(),
@@ -302,10 +302,10 @@ fn inspect_json(
     if output.is_empty() {
         return Err(FormatError::Invalid("JSON contains no themes".to_owned()));
     }
-    if format == ThemeFormat::Pebrel
-        && output.iter().any(|candidate| candidate.format != ThemeFormat::Pebrel)
+    if format == ThemeFormat::PoxiTerminal
+        && output.iter().any(|candidate| candidate.format != ThemeFormat::PoxiTerminal)
     {
-        return Err(FormatError::Invalid("JSON is not a Pebrel theme document".to_owned()));
+        return Err(FormatError::Invalid("JSON is not a PoxiTerminal theme document".to_owned()));
     }
     Ok(output)
 }
@@ -314,7 +314,7 @@ fn import_native(value: Value, filename: &str) -> Result<ImportCandidate, Format
     let document = ThemeDocument::from_value(value)?;
     Ok(ImportCandidate {
         document,
-        format: ThemeFormat::Pebrel,
+        format: ThemeFormat::PoxiTerminal,
         filename: filename.to_owned(),
         warnings: Vec::new(),
     })
@@ -833,7 +833,7 @@ fn finish_source(
     value["metadata"]["source_format"] = Value::String(format.to_string());
     document = ThemeDocument::from_value(value)?;
     source.warnings.push(
-        "source contains terminal colors only; interface colors are derived by Pebrel".to_owned(),
+        "source contains terminal colors only; interface colors are derived by PoxiTerminal".to_owned(),
     );
     Ok(ImportCandidate {
         document,
@@ -935,7 +935,7 @@ fn detect_format(text: &str, filename: &str) -> Option<ThemeFormat> {
         return Some(ThemeFormat::Iterm2);
     }
     if lower.ends_with(".pebrel-theme.json") {
-        return Some(ThemeFormat::Pebrel);
+        return Some(ThemeFormat::PoxiTerminal);
     }
     if lower.ends_with(".toml") || trimmed.starts_with("[colors") {
         return Some(if trimmed.contains("[colors.primary]") {
@@ -1243,6 +1243,6 @@ fn external_losses(format: &str) -> Vec<String> {
         format!(
             "{format} stores terminal colors only; UI colors, typography, layout and effects are omitted"
         ),
-        format!("Pebrel metadata and extension fields are omitted from the {format} file"),
+        format!("PoxiTerminal metadata and extension fields are omitted from the {format} file"),
     ]
 }

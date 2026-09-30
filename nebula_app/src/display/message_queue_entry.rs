@@ -240,6 +240,7 @@ fn summary_text(state: MessageQueueEntry, language: UiLanguage) -> String {
     let regular = state.pending.saturating_sub(state.high_risk);
     match language {
         UiLanguage::ZhCn => format!("{} 个高风险 · {} 个待处理", state.high_risk, regular),
+        UiLanguage::EsEs => format!("Alto riesgo: {} · Pendientes: {}", state.high_risk, regular),
         _ => format!("{} high risk · {} pending", state.high_risk, regular),
     }
 }
@@ -337,6 +338,13 @@ mod tests {
                 UiLanguage::EnUs,
             ),
             "2 high risk · 1 pending"
+        );
+        assert_eq!(
+            summary_text(
+                MessageQueueEntry { pending: 3, high_risk: 2, open: false },
+                UiLanguage::EsEs,
+            ),
+            "Alto riesgo: 2 · Pendientes: 1"
         );
     }
 }

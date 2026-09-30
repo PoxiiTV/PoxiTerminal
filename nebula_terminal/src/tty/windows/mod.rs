@@ -216,7 +216,7 @@ fn nebula_data_dir() -> PathBuf {
             std::env::var_os("USERPROFILE").filter(|value| !value.is_empty()).map(PathBuf::from)
         })
         .unwrap_or_else(std::env::temp_dir)
-        .join("Pebrel")
+        .join("PoxiTerminal")
 }
 
 fn nebula_settings_value(key: &str) -> Option<String> {
@@ -339,11 +339,11 @@ $global:PebrelSettingsFile = if ($env:PEBREL_CONFIG_DIR) {
 } elseif ($env:NEBULA_CONFIG_DIR) {
     Join-Path $env:NEBULA_CONFIG_DIR 'pebrel_settings.txt'
 } elseif ($env:APPDATA) {
-    Join-Path $env:APPDATA 'Pebrel\pebrel_settings.txt'
+    Join-Path $env:APPDATA 'PoxiTerminal\pebrel_settings.txt'
 } elseif ($env:USERPROFILE) {
-    Join-Path $env:USERPROFILE 'Pebrel\pebrel_settings.txt'
+    Join-Path $env:USERPROFILE 'PoxiTerminal\pebrel_settings.txt'
 } else {
-    Join-Path ([System.IO.Path]::GetTempPath()) 'Pebrel\pebrel_settings.txt'
+    Join-Path ([System.IO.Path]::GetTempPath()) 'PoxiTerminal\pebrel_settings.txt'
 }
 if (-not (Test-Path -LiteralPath $global:PebrelSettingsFile)) {
     $legacy = Join-Path (Split-Path -Parent $global:PebrelSettingsFile) 'nebula_settings.txt'
@@ -666,7 +666,7 @@ function global:Convert-NebulaBareCd {
 
 # Keep the user's PSReadLine prediction configuration. The completion adapter
 # yields when the shell has text after the cursor, including native inline
-# predictions. Disabling Pebrel completion must not disable the shell's editor.
+# predictions. Disabling PoxiTerminal completion must not disable the shell's editor.
 if (Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue) {
     try {
         # 不让 PowerShell 的 continuation prompt 回退成突兀的 `>>`，视觉上保持 Nebula 的单箭头。
@@ -825,7 +825,7 @@ fn nebula_prompt_script_path() -> Option<std::path::PathBuf> {
 }
 
 const NEBULA_BASH_RC: &str = r#"
-# Pebrel Bash integration. Source the user's bashrc first, then keep the
+# PoxiTerminal Bash integration. Source the user's bashrc first, then keep the
 # terminal-visible prompt/title/cwd contract stable for tabs and splits.
 # 先记下 source 之前的 PS1：系统级 rc（Git Bash 的 /etc/bash.bashrc）此刻已经跑
 # 过，所以之后出现的差异只可能来自用户自己的配置。
@@ -838,7 +838,7 @@ fi
 __nebula_settings_file() {
     local root="${PEBREL_CONFIG_DIR:-${NEBULA_CONFIG_DIR:-}}"
     if [ -z "$root" ]; then
-        root="${APPDATA:-${USERPROFILE:-${TEMP:-${TMP:-/tmp}}}}/Pebrel"
+        root="${APPDATA:-${USERPROFILE:-${TEMP:-${TMP:-/tmp}}}}/PoxiTerminal"
     fi
     if command -v cygpath >/dev/null 2>&1; then
         root="$(cygpath -u "$root")"

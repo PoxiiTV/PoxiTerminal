@@ -60,7 +60,7 @@ impl Processor {
             return Ok(());
         }
         let new_hotkey =
-            requested.parse::<HotKey>().map_err(|err| format!("快捷键格式无效：{err}"))?;
+            requested.parse::<HotKey>().map_err(|err| format!("Formato de atajo no válido: {err}"))?;
         if self.quick_hotkey == Some(new_hotkey) {
             self.quick_hotkey_combo = requested.to_owned();
             return Ok(());
@@ -68,17 +68,17 @@ impl Processor {
 
         let mut manager = self.global_hotkey.take().or_else(|| GlobalHotKeyManager::new().ok());
         let Some(manager_ref) = manager.as_mut() else {
-            return Err("系统全局快捷键管理器初始化失败".to_owned());
+            return Err("No se pudo iniciar el gestor de atajos globales del sistema".to_owned());
         };
         if let Err(err) = manager_ref.register(new_hotkey) {
             self.global_hotkey = manager;
-            return Err(format!("快捷键注册失败：{err}"));
+            return Err(format!("No se pudo registrar el atajo: {err}"));
         }
         if let Some(old_hotkey) = self.quick_hotkey {
             if let Err(err) = manager_ref.unregister(old_hotkey) {
                 let _ = manager_ref.unregister(new_hotkey);
                 self.global_hotkey = manager;
-                return Err(format!("释放旧快捷键失败：{err}"));
+                return Err(format!("No se pudo liberar el atajo anterior: {err}"));
             }
         }
         self.global_hotkey = manager;

@@ -110,7 +110,7 @@ impl AiSession {
     fn ensure_title(&mut self) {
         if self.title.is_empty() {
             let short = self.id.chars().take(8).collect::<String>();
-            self.title = format!("{} 会话 {short}", self.source.display_name());
+            self.title = format!("Sesión de {} {short}", self.source.display_name());
         }
     }
 }
@@ -282,14 +282,24 @@ pub fn scan(limit: usize) -> Vec<AiSession> {
 }
 
 /// 「3 分钟前 / 2 小时前 / 5 天前」式的相对时间，面板右侧的 hint 用。
-pub fn relative_label(modified: SystemTime) -> String {
+pub fn relative_label(modified: SystemTime, language: crate::i18n::UiLanguage) -> String {
+    use crate::i18n::UiLanguage;
     let elapsed = SystemTime::now().duration_since(modified).unwrap_or(Duration::ZERO);
     let minutes = elapsed.as_secs() / 60;
-    match minutes {
-        0 => "刚刚".to_owned(),
-        1..=59 => format!("{minutes} 分钟前"),
-        60..=1439 => format!("{} 小时前", minutes / 60),
-        _ => format!("{} 天前", minutes / 1440),
+    let (hours, days) = (minutes / 60, minutes / 1440);
+    match (language, minutes) {
+        (UiLanguage::ZhCn, 0) => "刚刚".to_owned(),
+        (UiLanguage::ZhCn, 1..=59) => format!("{minutes} 分钟前"),
+        (UiLanguage::ZhCn, 60..=1439) => format!("{hours} 小时前"),
+        (UiLanguage::ZhCn, _) => format!("{days} 天前"),
+        (UiLanguage::EsEs, 0) => "ahora".to_owned(),
+        (UiLanguage::EsEs, 1..=59) => format!("hace {minutes} min"),
+        (UiLanguage::EsEs, 60..=1439) => format!("hace {hours} h"),
+        (UiLanguage::EsEs, _) => format!("hace {days} d"),
+        (_, 0) => "just now".to_owned(),
+        (_, 1..=59) => format!("{minutes} min ago"),
+        (_, 60..=1439) => format!("{hours} h ago"),
+        (_, _) => format!("{days} d ago"),
     }
 }
 

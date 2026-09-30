@@ -276,7 +276,7 @@ mod tests {
     #[test]
     fn upgrades_cmd_style_owned_hooks_without_changing_user_entries() {
         let root = tempfile::tempdir().unwrap();
-        let helper = "C:/Program Files/Pebrel/runtime/pebrel-hook.exe";
+        let helper = "C:/Program Files/PoxiTerminal/runtime/pebrel-hook.exe";
         let old_command = format!("\"{helper}\" codex --hooks=full");
         let previous =
             installation::codex_groups(&old_command, Some(&old_command), CodexHookMode::Full);
@@ -311,7 +311,7 @@ mod tests {
         use std::os::windows::process::CommandExt as _;
 
         let root = tempfile::tempdir().unwrap();
-        let helper = root.path().join("Pebrel's $data `hook.ps1");
+        let helper = root.path().join("PoxiTerminal's $data `hook.ps1");
         std::fs::write(
             &helper,
             "Write-Output ($args -join '|')\r\nWrite-Output ([Console]::In.ReadLine())\r\n",
@@ -357,11 +357,11 @@ mod tests {
         )
         .unwrap();
         assert!(
-            install(root.path(), "C:/Program Files/Pebrel/pebrel-hook.exe", CodexHookMode::Turns)
+            install(root.path(), "C:/Program Files/PoxiTerminal/pebrel-hook.exe", CodexHookMode::Turns)
                 .unwrap()
         );
         assert!(
-            !install(root.path(), "C:/Program Files/Pebrel/pebrel-hook.exe", CodexHookMode::Turns)
+            !install(root.path(), "C:/Program Files/PoxiTerminal/pebrel-hook.exe", CodexHookMode::Turns)
                 .unwrap()
         );
         assert!(install(root.path(), "D:/new/pebrel-hook.exe", CodexHookMode::Full).unwrap());
@@ -385,7 +385,7 @@ mod tests {
             json!({"hooks":{"Stop":[foreign]}}).to_string(),
         )
         .unwrap();
-        let helper = "C:/Program Files/Pebrel/pebrel-hook.exe";
+        let helper = "C:/Program Files/PoxiTerminal/pebrel-hook.exe";
         for _ in 0..20 {
             assert!(install(root.path(), helper, CodexHookMode::Full).unwrap());
             assert!(installed_at(root.path()).unwrap());

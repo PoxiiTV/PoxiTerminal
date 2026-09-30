@@ -184,7 +184,7 @@ pub(crate) fn setup_cli(distro: &str, user: Option<&str>, remove: bool) -> i32 {
                 if remove {
                     "WSL hook integration removed."
                 } else {
-                    "WSL hook integration installed. Open a new Pebrel WSL terminal. Codex may require review in /hooks."
+                    "WSL hook integration installed. Open a new PoxiTerminal WSL terminal. Codex may require review in /hooks."
                 }
             );
             0

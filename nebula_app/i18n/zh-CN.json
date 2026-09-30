@@ -1,6 +1,6 @@
 {
   "tray": {
-    "show": "显示 Pebrel",
+    "show": "显示 PoxiTerminal",
     "quit": "退出"
   },
   "notification": {
@@ -28,7 +28,7 @@
     },
     "environment": {
       "refresh": "新建终端时刷新系统环境变量",
-      "refresh_description": "打开终端时读取 Windows 当前环境设置。关闭后继承启动 Pebrel 时的环境，包括临时添加的 PATH。已打开的终端不受影响。"
+      "refresh_description": "打开终端时读取 Windows 当前环境设置。关闭后继承启动 PoxiTerminal 时的环境，包括临时添加的 PATH。已打开的终端不受影响。"
     },
     "cursor_motion": {
       "title": "平滑光标",
@@ -188,14 +188,14 @@
     "reset_description": "这将重置你的设置与快捷键。SSH 主机、凭据和历史将保留，当前设置会备份。是否继续？",
     "startup": {
       "launch_at_login": "登录时自启动",
-      "launch_at_login_help": "登录 Windows 后启动 Pebrel，与安装器使用同一个启动快捷方式。",
+      "launch_at_login_help": "登录 Windows 后启动 PoxiTerminal，与安装器使用同一个启动快捷方式。",
       "silent_start": "静默启动",
       "silent_start_help": "启动后在后台运行，不显示窗口。开启时会同时启用系统托盘，点击托盘图标可重新打开窗口。托盘启用时生效，显式打开目录时除外。",
       "save_failed": "无法更改启动设置：{error}"
     },
     "agents": {
       "title": "编程智能体",
-      "description": "在 Pebrel 中显示运行状态、完成通知和授权请求。Claude Code 与 Codex 默认开启。",
+      "description": "在 PoxiTerminal 中显示运行状态、完成通知和授权请求。Claude Code 与 Codex 默认开启。",
       "refresh": "刷新",
       "platform_unsupported": "目前仅 Windows 支持自动安装 hooks。",
       "checking": "正在检测工具和 hooks…",
@@ -211,7 +211,7 @@
       "enabled": "Hooks 已安装，请重启 agent 使其生效。",
       "disabled": "Hooks 已移除，请重启 agent 使其生效。",
       "failed": "无法更新 hooks：{error}",
-      "helper_missing": "缺少 hook 辅助程序，请修复 Pebrel 安装后再启用。",
+      "helper_missing": "缺少 hook 辅助程序，请修复 PoxiTerminal 安装后再启用。",
       "needs_repair": "Hook 已安装 · 需修复",
       "initialize": "请先运行一次此工具以创建配置，然后刷新。",
       "config_path": "配置：{path}"
@@ -367,7 +367,7 @@
     "session": "会话",
     "key": "按键",
     "action": "操作",
-    "update_notice": "Pebrel v{latest} 已发布（当前 v{current}）",
+    "update_notice": "PoxiTerminal v{latest} 已发布（当前 v{current}）",
     "copied_lines": "已复制 {lines} 行到剪贴板",
     "copy_working_directory": "复制工作目录",
     "cwd_copied": "工作目录已复制",
@@ -652,7 +652,7 @@
     "auth_password": "密码",
     "auth_key": "私钥",
     "auth_interactive": "交互式认证",
-    "list_subtitle": "保存常用主机，一键打开远程终端。密码存在系统凭据管理器里；~/.ssh/config 里的别名也会列出来，Pebrel 只读不改。",
+    "list_subtitle": "保存常用主机，一键打开远程终端。密码存在系统凭据管理器里；~/.ssh/config 里的别名也会列出来，PoxiTerminal 只读不改。",
     "scope_all": "全部",
     "summary": "{total} 台主机，其中 {config} 台来自 ~/.ssh/config",
     "hidden_count": "已隐藏 {count} 台",
@@ -719,7 +719,7 @@
     "edit": "编辑",
     "delete": "删除",
     "default_saved": "已将 {shell} 设为默认 Shell。",
-    "admin_started": "已请求在新的管理员 Pebrel 窗口中打开 {shell}。",
+    "admin_started": "已请求在新的管理员 PoxiTerminal 窗口中打开 {shell}。",
     "admin_cancelled": "已取消管理员启动。",
     "admin_failed": "无法打开管理员终端：{error}"
   },
@@ -886,9 +886,9 @@
     "install_next_launch": "下次启动时安装",
     "ready_hint": "更新已就绪，将保存工作区、安装更新并重启。",
     "later": "稍后",
-    "prepare_failed": "更新准备失败：{error}。Pebrel 将保持打开。",
+    "prepare_failed": "更新准备失败：{error}。PoxiTerminal 将保持打开。",
     "draft_changed": "准备退出期间文档发生了变化。请保存或放弃最新修改后重试。",
-    "in_progress": "当前安装正在更新，请等待更新完成，Pebrel 随后会自动重新打开。"
+    "in_progress": "当前安装正在更新，请等待更新完成，PoxiTerminal 随后会自动重新打开。"
   },
   "files.search_failed": "无法完成搜索",
   "files.search_running": "正在搜索…",
@@ -1054,7 +1054,7 @@
     "busy_other": "另一主机正在传输：{destination}"
   },
   "backup_flow": {
-    "password_notice": "Pebrel 不把这个密码写到磁盘，只在本次运行期间留在内存里，下次启动后第一次备份时再问。忘了它，已有的备份就解不开了。",
+    "password_notice": "PoxiTerminal 不把这个密码写到磁盘，只在本次运行期间留在内存里，下次启动后第一次备份时再问。忘了它，已有的备份就解不开了。",
     "connect_provider": "连接{provider}",
     "address_label": "地址",
     "folder_label": "目录",
@@ -1072,7 +1072,7 @@
     "bucket_placeholder": "pebrel-backup",
     "access_key_placeholder": "AKIA…",
     "secret_key_placeholder": "只在这里输入一次",
-    "folder_placeholder": "D:\\OneDrive\\Pebrel",
+    "folder_placeholder": "D:\\OneDrive\\PoxiTerminal",
     "remote_path_placeholder": "~/pebrel-backup",
     "new_password_placeholder": "至少 8 位",
     "webdav_address_hint": "以 https:// 开头。自建 NAS 的 http 地址需在备份配置文件中单独允许。",
@@ -1158,13 +1158,13 @@
     "title": "手机远程",
     "subtitle": "在手机上看终端里正在跑的任务，结束或卡住时收到提醒，需要时回一句指令。电脑是唯一的执行者，手机只发请求。",
     "off_title": "手机远程已关闭",
-    "off_description": "开启后，Pebrel 会为这台电脑准备一个配对二维码。只有你扫码并在这里批准的手机才能连上。",
+    "off_description": "开启后，PoxiTerminal 会为这台电脑准备一个配对二维码。只有你扫码并在这里批准的手机才能连上。",
     "enable": "开启并配对手机",
     "pair_title": "用手机扫码配对",
     "pair_description": "二维码只能用一次，10 分钟后失效。",
     "lan": "局域网 / Tailscale",
     "relay": "自建中转",
-    "step_open": "在手机上打开 Pebrel",
+    "step_open": "在手机上打开 PoxiTerminal",
     "step_scan": "点「连接电脑」，扫右边的二维码",
     "step_approve": "核对两端的校验码，回到这里批准这台手机",
     "step_relay": "手机和电脑使用同一台中转服务器",

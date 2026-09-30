@@ -306,7 +306,7 @@ fn start_route(
                     &mut credentials,
                     host,
                     persist_host(),
-                    "Pebrel",
+                    "PoxiTerminal",
                     preferences.default_input,
                     factory(scope.clone()),
                 ))
@@ -325,7 +325,7 @@ fn start_route(
                 .map_err(|_| Failure::Invalid)?,
                 host,
                 persist_host(),
-                "Pebrel",
+                "PoxiTerminal",
                 preferences.default_input,
                 factory(scope.clone()),
             ))

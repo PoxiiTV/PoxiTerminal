@@ -94,7 +94,7 @@ pub fn working_copy_status(root: &Path) -> Result<Vec<SvnChange>, String> {
     let db_path = root.join(".svn").join("wc.db");
     let connection =
         rusqlite::Connection::open_with_flags(&db_path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)
-            .map_err(|error| format!("无法打开 {}: {error}", db_path.display()))?;
+            .map_err(|error| format!("No se pudo abrir {}: {error}", db_path.display()))?;
     // svn 客户端可能正持有写锁；等一小会而不是立刻失败。
     connection.busy_timeout(std::time::Duration::from_millis(300)).ok();
 
@@ -119,7 +119,7 @@ pub fn working_copy_status(root: &Path) -> Result<Vec<SvnChange>, String> {
                         recorded_size, recorded_time
                  FROM nodes ORDER BY local_relpath, op_depth",
             )
-            .map_err(|error| format!("wc.db 结构不符合预期: {error}"))?;
+            .map_err(|error| format!("La estructura de wc.db no es la esperada: {error}"))?;
         let rows = statement
             .query_map([], |row| {
                 Ok((
@@ -135,9 +135,9 @@ pub fn working_copy_status(root: &Path) -> Result<Vec<SvnChange>, String> {
                     },
                 ))
             })
-            .map_err(|error| format!("读取 NODES 失败: {error}"))?;
+            .map_err(|error| format!("Error al leer NODES: {error}"))?;
         for row in rows {
-            let (relpath, node) = row.map_err(|error| format!("读取 NODES 失败: {error}"))?;
+            let (relpath, node) = row.map_err(|error| format!("Error al leer NODES: {error}"))?;
             match nodes.get_mut(&relpath) {
                 // 行按 op_depth 升序到达：后到的层覆盖前面的，base 层的
                 // 存在性单独记账。

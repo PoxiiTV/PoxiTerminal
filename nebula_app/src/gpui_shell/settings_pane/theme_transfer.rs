@@ -79,7 +79,7 @@ impl Default for ThemeTransferState {
             selected_import: 0,
             imported_document: None,
             export_document: None,
-            export_format: ThemeFormat::Pebrel,
+            export_format: ThemeFormat::PoxiTerminal,
             export_artifact: None,
             export_path: None,
         }

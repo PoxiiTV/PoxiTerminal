@@ -252,7 +252,8 @@ impl SidePanel {
 
     /// Last mutation's error, if any (cleared by the next successful op).
     pub fn op_error(&self) -> Option<String> {
-        self.localized_op_error(crate::i18n::UiLanguage::ZhCn)
+        // PoxiTerminal: la interfaz usa el español por defecto.
+        self.localized_op_error(crate::i18n::UiLanguage::EsEs)
     }
 
     pub fn localized_op_error(&self, language: crate::i18n::UiLanguage) -> Option<String> {
@@ -344,13 +345,13 @@ impl SidePanel {
         } else if let Some(tortoise) = tortoise_proc() {
             self.spawn_vcs_at(tortoise.to_path_buf(), operation.tortoise_args(&root), root);
         } else {
-            self.set_op_error("未找到 svn.exe 或 TortoiseSVN，无法执行 SVN 操作");
+            self.set_op_error("No se encontró svn.exe ni TortoiseSVN; no se puede ejecutar la operación SVN");
         }
     }
 
     fn launch_svn_visual(&mut self, visual: SvnVisual) -> bool {
         let Some(program) = tortoise_proc() else {
-            self.set_op_error("此操作需要 TortoiseSVN（未找到 TortoiseProc.exe）");
+            self.set_op_error("Esta operación requiere TortoiseSVN (no se encontró TortoiseProc.exe)");
             return false;
         };
         let Some(root) = self.vcs_root().map(Path::to_path_buf) else { return false };
@@ -371,7 +372,7 @@ impl SidePanel {
                 true
             },
             Err(error) => {
-                self.set_op_error(format!("无法启动 {}: {error}", program.display()));
+                self.set_op_error(format!("No se pudo iniciar {}: {error}", program.display()));
                 false
             },
         }
@@ -762,7 +763,7 @@ impl SidePanel {
                     "--parents".into(),
                     "--non-interactive".into(),
                     "-m".into(),
-                    "创建标准布局 trunk/branches/tags".into(),
+                    "Crear estructura estándar trunk/branches/tags".into(),
                 ];
                 args.extend(
                     ["trunk", "branches", "tags"]
@@ -780,7 +781,7 @@ impl SidePanel {
                 // 顺序要紧：`launch_svn_visual` 成功时会清空错误栏。
                 if opened {
                     self.set_op_error(
-                        "未装 svn 命令行客户端：已打开版本库浏览器，请在其中新建 trunk / branches / tags",
+                        "No está instalado el cliente de línea de comandos de svn: se ha abierto el explorador del repositorio; crea ahí trunk / branches / tags",
                     );
                 }
             },
@@ -976,8 +977,8 @@ pub(crate) fn read_svn(root: &Path) -> Option<GitInfo> {
                 vcs: VcsKind::SvnRepository,
                 // 分支位在 SVN 下放修订号；版本库没有工作副本修订，放 HEAD。
                 branch: match summary.head {
-                    Some(head) => format!("版本库 · HEAD r{head}"),
-                    None => "SVN 版本库".to_owned(),
+                    Some(head) => format!("Repositorio · HEAD r{head}"),
+                    None => "Repositorio SVN".to_owned(),
                 },
                 repository_root: Some(repository_root),
                 repository: Some(summary),

@@ -45,9 +45,9 @@ fn default_dir(name: &str) -> PathBuf {
     root.unwrap_or_else(std::env::temp_dir).join(name)
 }
 
-/// Pebrel's data directory. The legacy override remains an input alias.
+/// PoxiTerminal's data directory. The legacy override remains an input alias.
 pub fn settings_dir() -> PathBuf {
-    override_dir().unwrap_or_else(|| default_dir("Pebrel"))
+    override_dir().unwrap_or_else(|| default_dir("PoxiTerminal"))
 }
 
 pub fn settings_path() -> PathBuf {

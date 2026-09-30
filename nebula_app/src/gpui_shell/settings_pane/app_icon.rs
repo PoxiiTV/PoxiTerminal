@@ -144,12 +144,14 @@ impl SettingsPane {
                     .font_semibold()
                     .child(language.pick(draft.palette().name_zh, draft.palette().name_en)),
             )
-            .child(
-                div()
-                    .text_size(px(10.5))
-                    .text_color(colors.secondary)
-                    .child(draft.palette().name_en),
-            );
+            .when(language == crate::display::UiLanguage::ZhCn, |column| {
+                column.child(
+                    div()
+                        .text_size(px(10.5))
+                        .text_color(colors.secondary)
+                        .child(draft.palette().name_en),
+                )
+            });
         let sizes = h_flex()
             .justify_center()
             .items_end()

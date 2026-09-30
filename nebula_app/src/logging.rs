@@ -1,4 +1,4 @@
-//! Logging for Pebrel.
+//! Logging for PoxiTerminal.
 //!
 //! The main executable is supposed to call `initialize()` exactly once during
 //! startup. All logging messages are written to stdout, given that their
@@ -73,7 +73,7 @@ fn extra_log_targets() -> &'static [String] {
     })
 }
 
-/// List of targets which will be logged by Pebrel.
+/// List of targets which will be logged by PoxiTerminal.
 const ALLOWED_TARGETS: &[&str] = &[
     LOG_TARGET_IPC_CONFIG,
     LOG_TARGET_CONFIG,
@@ -257,7 +257,7 @@ struct OnDemandLogFile {
 impl OnDemandLogFile {
     fn new() -> Self {
         let mut path = env::temp_dir();
-        path.push(format!("Pebrel-{}.log", process::id()));
+        path.push(format!("PoxiTerminal-{}.log", process::id()));
 
         // Set log path as an environment variable.
         unsafe {

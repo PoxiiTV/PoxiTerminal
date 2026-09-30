@@ -1374,7 +1374,7 @@ impl Display {
                     .with_family(crate::font_install::REQUIRED_FONT_FAMILY.to_owned())
                     .with_size(font_size);
                 let notice = format!(
-                    "字体「{}」本次不可用（{error}），暂用内置字体；偏好已保留。",
+                    "La fuente «{}» no está disponible ahora ({error}); se usa la fuente integrada y se conserva tu preferencia.",
                     settings_init.font_family
                 );
                 let rasterizer = Rasterizer::new()?;
@@ -1956,7 +1956,7 @@ impl Display {
             .into_iter()
             .filter(|host| self.nebula_ssh_hosts.iter().any(|entry| entry == host))
             .count();
-        self.push_toast(format!("已导入 {count} 个 SSH 主机，立即可用"), ToastKind::Success);
+        self.push_toast(format!("{count} hosts SSH importados, listos para usar"), ToastKind::Success);
         self.pending_update.dirty = true;
         self.window.request_redraw();
     }
@@ -2546,7 +2546,7 @@ impl Display {
         self.nebula_confirm = None;
         match send_to_recycle_bin(path) {
             Ok(()) => self.nebula_side_panel.request_refresh(),
-            Err(err) => self.nebula_side_panel.set_notice(format!("删除失败：{err}")),
+            Err(err) => self.nebula_side_panel.set_notice(format!("Error al eliminar: {err}")),
         }
         self.pending_update.dirty = true;
         self.window.request_redraw();
@@ -3803,36 +3803,36 @@ impl Display {
         let found = match crate::terminal_profiles::scan_directory(&directory) {
             Ok(found) => found,
             Err(error) => {
-                self.push_toast(format!("无法扫描终端目录: {error}"), ToastKind::Warning);
+                self.push_toast(format!("No se pudo escanear el directorio de terminales: {error}"), ToastKind::Warning);
                 return false;
             },
         };
         if found.is_empty() {
-            self.push_toast("目录中未找到受支持的终端程序", ToastKind::Warning);
+            self.push_toast("No se encontraron terminales compatibles en el directorio", ToastKind::Warning);
             return false;
         }
 
         let mut profiles = match crate::terminal_profiles::TerminalProfiles::load() {
             Ok(profiles) => profiles,
             Err(error) => {
-                self.push_toast(format!("无法读取终端配置: {error}"), ToastKind::Warning);
+                self.push_toast(format!("No se pudo leer la configuración de terminales: {error}"), ToastKind::Warning);
                 return false;
             },
         };
         let count = found.len();
         for profile in found {
             if let Err(error) = profiles.upsert(profile) {
-                self.push_toast(format!("无法导入终端: {error}"), ToastKind::Warning);
+                self.push_toast(format!("No se pudo importar el terminal: {error}"), ToastKind::Warning);
                 return false;
             }
         }
         match profiles.save() {
             Ok(()) => {
-                self.push_toast(format!("已导入 {count} 个终端，立即可用"), ToastKind::Success);
+                self.push_toast(format!("{count} terminales importados, listos para usar"), ToastKind::Success);
                 true
             },
             Err(error) => {
-                self.push_toast(format!("无法保存终端配置: {error}"), ToastKind::Warning);
+                self.push_toast(format!("No se pudo guardar la configuración de terminales: {error}"), ToastKind::Warning);
                 false
             },
         }
@@ -4223,7 +4223,7 @@ impl Display {
     /// 所以这道预检是本功能自带的安全网，不是顺手修的既有缺陷。
     fn apply_font_family(&mut self, family: String, base: &Font) {
         if !self.glyph_cache.family_loads(&family, self.font_size) {
-            self.nebula_font_notice = Some(format!("字体无法加载：{family}"));
+            self.nebula_font_notice = Some(format!("No se puede cargar la fuente: {family}"));
             self.pending_update.dirty = true;
             self.window.request_redraw();
             return;
@@ -4290,7 +4290,7 @@ impl Display {
                     if stored.created {
                         let _ = std::fs::remove_file(&stored.path);
                     }
-                    self.nebula_font_notice = Some(format!("字体无法加载：{error}"));
+                    self.nebula_font_notice = Some(format!("No se puede cargar la fuente: {error}"));
                     self.pending_update.dirty = true;
                 },
             }
@@ -4677,9 +4677,9 @@ impl Display {
                         self.nebula_sync_secret_set[index - 2] = true;
                         self.nebula_sync_status = Some((
                             if index == 2 {
-                                "WebDAV 密码已保存到凭据管理器".to_owned()
+                                "Contraseña de WebDAV guardada en el Administrador de credenciales".to_owned()
                             } else {
-                                "同步口令已保存到凭据管理器".to_owned()
+                                "Frase de sincronización guardada en el Administrador de credenciales".to_owned()
                             },
                             false,
                         ));
@@ -5409,7 +5409,8 @@ impl Display {
         } else {
             keymap::EDITABLE_ACTIONS.get(flat - 1).map(|(_, zh, en)| (*zh, *en)).unwrap_or(("", ""))
         };
-        format!("{zh} {en} {combo}").to_lowercase()
+        let localized = self.nebula_language.pick(zh, en);
+        format!("{zh} {en} {localized} {combo}").to_lowercase()
     }
 
     /// 过滤后的可见行（flat 下标，升序）。空查询 = 全部。
@@ -5426,7 +5427,9 @@ impl Display {
             .iter()
             .enumerate()
             .filter(|(_, (zh, en, combo))| {
-                query.is_empty() || format!("{zh} {en} {combo}").to_lowercase().contains(&query)
+                let localized = self.nebula_language.pick(zh, en);
+                query.is_empty()
+                    || format!("{zh} {en} {localized} {combo}").to_lowercase().contains(&query)
             })
             .map(|(index, _)| index)
             .collect()
@@ -5477,7 +5480,13 @@ impl Display {
                     let en = format!(
                         "{combo_a} is bound to both {a_name} and {b_name} — only {a_name}, listed first, fires"
                     );
-                    note = Some(self.nebula_language.pick(&zh, &en).to_owned());
+                    note = Some(match self.nebula_language {
+                        UiLanguage::ZhCn => zh,
+                        UiLanguage::EsEs => format!(
+                            "{combo_a} está asignado a {a_name} y a {b_name}: solo se activa {a_name}, que aparece primero"
+                        ),
+                        _ => en,
+                    });
                 }
             }
         }
@@ -5740,7 +5749,7 @@ impl Display {
         }
         self.commit_sync_field();
         self.nebula_sync_busy = true;
-        self.nebula_sync_status = Some(("同步中…".to_owned(), false));
+        self.nebula_sync_status = Some(("Sincronizando…".to_owned(), false));
         self.pending_update.dirty = true;
         true
     }
@@ -5853,7 +5862,6 @@ impl Display {
             let language = crate::config::template::resolve_template_language(
                 Some(self.nebula_language_preference.as_str()),
                 None,
-                crate::config::template::system_locale().as_deref(),
             )
             .unwrap_or(crate::config::template::TemplateLanguage::EnUs);
             if let Err(error) = crate::config::template::ensure_user_lua_config(&path, language) {
@@ -5943,7 +5951,7 @@ impl Display {
         for session in crate::ai_sessions::scan(30) {
             // 右列 = 「位置 · 相对时间」。来源不再挤进这段文字——行首
             // 品牌 logo + 右缘 chip 已经把 claude/codex 标满了。
-            let time = crate::ai_sessions::relative_label(session.modified);
+            let time = crate::ai_sessions::relative_label(session.modified, self.nebula_language);
             let place = session.place_label();
             let hint = if place.is_empty() { time } else { format!("{place} · {time}") };
             let search =
@@ -5954,15 +5962,15 @@ impl Display {
             rows.push(command_palette::AiSessionRow {
                 label: session.title.clone(),
                 hint: hint.clone(),
-                search: format!("恢复 resume {search}"),
+                search: format!("恢复 resume reanudar {search}"),
                 command: resume,
                 source: session.source,
             });
             if let Some(command) = session.fork_command() {
                 rows.push(command_palette::AiSessionRow {
-                    label: format!("分叉 · {}", session.title),
+                    label: format!("{} · {}", self.nebula_language.pick("分叉", "Fork"), session.title),
                     hint,
-                    search: format!("分叉 fork {search}"),
+                    search: format!("分叉 fork bifurcar {search}"),
                     command,
                     source: session.source,
                 });
@@ -6430,7 +6438,7 @@ impl Display {
             ));
         });
         let controller = crate::ssh_sftp::SftpController::new(destination, wake)
-            .map_err(|err| format!("无法打开 SFTP: {err}"))?;
+            .map_err(|err| format!("No se pudo abrir SFTP: {err}"))?;
         self.nebula_side_panel.search_unfocus(false);
         self.nebula_side_panel.commit_unfocus();
         self.nebula_side_panel.open = true;
@@ -8674,63 +8682,63 @@ impl Display {
 
         let (title, body, danger) = match &confirm {
             NebulaConfirm::EnableBackgroundImageCoverChrome => (
-                "让背景图覆盖窗口控件区域？".to_owned(),
-                "背景图会延伸到标题栏、窗口按钮、Tab 与 SSH 侧栏下方，低对比度图片可能影响操作可见性；界面仍会保留最低不透明度保护。".to_owned(),
+                "¿Extender la imagen de fondo bajo los controles de la ventana?".to_owned(),
+                "La imagen de fondo se extenderá bajo la barra de título, los botones de ventana, las pestañas y la barra lateral SSH; una imagen de bajo contraste puede dificultar la lectura. La interfaz mantiene una opacidad mínima de protección.".to_owned(),
                 false,
             ),
             NebulaConfirm::EnablePanelResize => (
-                "开启侧栏拖拽调节？".to_owned(),
-                "拖动左侧栏或右侧抽屉的宽度时，终端内容会跟随实时重排；在低性能设备或超大回滚缓冲下可能出现掉帧。拖动已按帧率与列宽双重节流，把左侧栏一路拖到最左即可收起。宽度会保存，此功能可随时关闭。".to_owned(),
+                "¿Activar el ajuste de paneles laterales arrastrando?".to_owned(),
+                "Al arrastrar el ancho de la barra lateral izquierda o del panel derecho, el terminal se reorganiza en tiempo real; en equipos lentos o con un historial muy grande puede haber tirones. El arrastre está limitado por fotogramas y columnas; arrastra la barra izquierda del todo para plegarla. El ancho se guarda y puedes desactivarlo cuando quieras.".to_owned(),
                 false,
             ),
             NebulaConfirm::InstallRequiredFont { .. } => (
-                "建议安装终端字体".to_owned(),
-                "未检测到 Maple Mono Nerd Font；缺少图标时可安装后重启 Nebula。".to_owned(),
+                "Se recomienda instalar la fuente del terminal".to_owned(),
+                "No se ha detectado Maple Mono Nerd Font; si faltan iconos, instálala y reinicia PoxiTerminal.".to_owned(),
                 false,
             ),
             NebulaConfirm::ClosePane { process, .. } => (
-                "关闭此分栏？".to_owned(),
-                format!("{process} 仍在运行，关闭会中止它。"),
+                "¿Cerrar este panel?".to_owned(),
+                format!("{process} sigue en ejecución; al cerrar se detendrá."),
                 true,
             ),
             NebulaConfirm::CloseTab { process, .. } => (
-                "关闭此标签页？".to_owned(),
-                format!("{process} 仍在运行，关闭会中止它。"),
+                "¿Cerrar esta pestaña?".to_owned(),
+                format!("{process} sigue en ejecución; al cerrar se detendrá."),
                 true,
             ),
             NebulaConfirm::CloseWindow { process } => (
-                "关闭整个窗口？".to_owned(),
-                format!("{process} 仍在运行，关闭会中止它。"),
+                "¿Cerrar toda la ventana?".to_owned(),
+                format!("{process} sigue en ejecución; al cerrar se detendrá."),
                 true,
             ),
             NebulaConfirm::Paste { lines, .. } => (
-                format!("粘贴 {lines} 行文本？"),
-                "多行粘贴会被 shell 逐行执行，请确认来源可信。".to_owned(),
+                format!("¿Pegar {lines} líneas de texto?"),
+                "La shell ejecutará cada línea pegada; asegúrate de que el origen es de confianza.".to_owned(),
                 false,
             ),
             NebulaConfirm::DeleteSsh { host, from_config } => {
                 let host = truncate_tab_label(host, 28);
                 if *from_config {
                     (
-                        format!("隐藏 SSH 主机 {host}？"),
-                        "只从 Nebula 隐藏；~/.ssh/config 不会修改，保存的密码将在撤销期后清除。"
+                        format!("¿Ocultar el host SSH {host}?"),
+                        "Solo se oculta en PoxiTerminal; ~/.ssh/config no se modifica y la contraseña guardada se borrará al terminar el plazo para deshacer."
                             .to_owned(),
                         true,
                     )
                 } else {
                     (
-                        format!("删除 SSH 主机 {host}？"),
-                        "会从主机列表移除，保存的 Windows 密码将在撤销期后清除。".to_owned(),
+                        format!("¿Eliminar el host SSH {host}?"),
+                        "Se quitará de la lista de hosts y la contraseña guardada en Windows se borrará al terminar el plazo para deshacer.".to_owned(),
                         true,
                     )
                 }
             },
             NebulaConfirm::DeleteSftp { entry } => (
-                format!("删除远端项目 {}？", truncate_tab_label(&entry.name, 28)),
+                format!("¿Eliminar el elemento remoto {}?", truncate_tab_label(&entry.name, 28)),
                 if entry.kind == crate::ssh_sftp::SftpEntryKind::Directory {
-                    "文件夹及其全部远端内容会被递归删除，此操作无法撤销。".to_owned()
+                    "La carpeta y todo su contenido remoto se eliminarán de forma recursiva. No se puede deshacer.".to_owned()
                 } else {
-                    "远端文件会被永久删除，此操作无法撤销。".to_owned()
+                    "El archivo remoto se eliminará de forma permanente. No se puede deshacer.".to_owned()
                 },
                 true,
             ),
@@ -8740,25 +8748,25 @@ impl Display {
                     .map(|n| n.to_string_lossy().into_owned())
                     .unwrap_or_else(|| path.display().to_string());
                 (
-                    format!("删除 {}？", truncate_tab_label(&name, 28)),
+                    format!("¿Eliminar {}?", truncate_tab_label(&name, 28)),
                     if *is_dir {
-                        "文件夹及其全部内容会移入回收站。".to_owned()
+                        "La carpeta y todo su contenido se moverán a la papelera de reciclaje.".to_owned()
                     } else {
-                        "文件会移入回收站。".to_owned()
+                        "El archivo se moverá a la papelera de reciclaje.".to_owned()
                     },
                     true,
                 )
             },
             NebulaConfirm::BackupPassphrase { restoring } => (
                 if *restoring {
-                    "输入恢复口令".to_owned()
+                    "Introduce la frase de restauración".to_owned()
                 } else {
-                    "设置备份口令".to_owned()
+                    "Define la frase de la copia de seguridad".to_owned()
                 },
                 if *restoring {
-                    "输入导出时使用的口令；认证通过后才会写入任何文件。".to_owned()
+                    "Introduce la frase usada al exportar; no se escribirá ningún archivo hasta verificarla.".to_owned()
                 } else {
-                    "口令至少 8 个字符。Nebula 不会保存口令，丢失后无法恢复此备份。".to_owned()
+                    "La frase debe tener al menos 8 caracteres. PoxiTerminal no la guarda: si la pierdes, no podrás restaurar esta copia de seguridad.".to_owned()
                 },
                 false,
             ),
@@ -9141,18 +9149,19 @@ impl Display {
             .max(8);
         let host = truncate_tab_label(&undo.host, host_budget.min(28));
         let message = if undo.from_config {
-            format!("已隐藏 {host}（SSH config 未修改）")
+            format!("{host} oculto (SSH config sin modificar)")
         } else {
-            format!("已移除 {host}")
+            format!("{host} eliminado")
         };
         let hint = "Ctrl+Z";
-        let action = "撤销";
+        let action = "Deshacer";
         let text_cols =
             |text: &str| -> usize { text.chars().map(|ch| ch.width().unwrap_or(1).max(1)).sum() };
 
         let pad = s(14.0);
         let gap = s(12.0);
-        let action_w = s(76.0);
+        // 译文比「撤销」宽：按钮至少容下标签两侧各一格。
+        let action_w = s(76.0).max((text_cols(action) + 2) as f32 * cell_w);
         let bar_h = s(48.0).max(cell_h + s(12.0));
         let content_w = (text_cols(&message) + text_cols(hint) + 2) as f32 * cell_w;
         let bar_w =
@@ -10115,7 +10124,7 @@ impl Display {
         // Strip the `file://` scheme (and its leading slash before a Windows
         // drive) so a local path reads as a path, not a URL.
         let target = strip_file_scheme(&uri);
-        const HINT: &str = " · Ctrl+点击";
+        const HINT: &str = " · Ctrl+clic";
         let width = |s: &str| -> usize { s.chars().map(|c| c.width().unwrap_or(0)).sum() };
         let hint_w = width(HINT);
         let target_budget = num_cols.saturating_sub(hint_w + 1);

@@ -64,20 +64,17 @@ pub struct TemplateWrite {
 pub fn resolve_template_language(
     explicit: Option<&str>,
     saved: Option<&str>,
-    locale: Option<&str>,
 ) -> Result<TemplateLanguage, TemplateError> {
     let requested = explicit.or(saved).unwrap_or("system");
     let preference = crate::i18n::LanguagePreference::parse(requested)
         .ok_or_else(|| TemplateError::InvalidLanguage(requested.to_owned()))?;
-    let language =
-        preference.explicit().unwrap_or_else(|| crate::i18n::UiLanguage::for_locale(locale));
+    let language = preference.resolved();
     Ok(match language {
         crate::i18n::UiLanguage::ZhCn | crate::i18n::UiLanguage::ZhTw => TemplateLanguage::ZhCn,
         _ => TemplateLanguage::EnUs,
     })
 }
 
-pub use crate::i18n::system_locale;
 
 pub fn write_template(
     path: &Path,
@@ -181,32 +178,32 @@ mod tests {
     #[test]
     fn language_resolution_supports_all_public_values() {
         assert_eq!(
-            resolve_template_language(Some("zh-CN"), None, None).unwrap(),
+            resolve_template_language(Some("zh-CN"), None).unwrap(),
             TemplateLanguage::ZhCn
         );
         assert_eq!(
-            resolve_template_language(Some("en-US"), None, Some("zh_CN")).unwrap(),
+            resolve_template_language(Some("en-US"), None).unwrap(),
             TemplateLanguage::EnUs
         );
         assert_eq!(
-            resolve_template_language(Some("system"), None, Some("zh-Hans-CN")).unwrap(),
-            TemplateLanguage::ZhCn
+            resolve_template_language(Some("system"), None).unwrap(),
+            TemplateLanguage::EnUs
         );
     }
 
     #[test]
     fn additional_ui_languages_use_existing_templates_without_errors() {
         assert_eq!(
-            resolve_template_language(None, Some("fr-FR"), None).unwrap(),
+            resolve_template_language(None, Some("fr-FR")).unwrap(),
             TemplateLanguage::EnUs
         );
         assert_eq!(
-            resolve_template_language(Some("zh-TW"), None, None).unwrap(),
+            resolve_template_language(Some("zh-TW"), None).unwrap(),
             TemplateLanguage::ZhCn
         );
         for preference in crate::i18n::LanguagePreference::ALL {
             assert!(
-                resolve_template_language(Some(preference.as_str()), None, Some("de-DE")).is_ok()
+                resolve_template_language(Some(preference.as_str()), None).is_ok()
             );
         }
     }

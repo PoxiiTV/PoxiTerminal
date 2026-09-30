@@ -53,7 +53,7 @@ pub(crate) trait TransferObserver: Send + Sync {
 /// 每个分块边界检查一次取消。
 fn guard(observer: &dyn TransferObserver) -> TransferResult<()> {
     if observer.cancelled() {
-        Err(io::Error::new(io::ErrorKind::Interrupted, "操作已取消").into())
+        Err(io::Error::new(io::ErrorKind::Interrupted, "Operación cancelada").into())
     } else {
         Ok(())
     }
@@ -90,7 +90,7 @@ async fn join_all<F: Future>(tasks: Vec<F>) -> Vec<F::Output> {
         }
         Poll::Ready(
             done.iter_mut()
-                .map(|slot| slot.take().expect("all_ready 为真时每个槽位都已落值"))
+                .map(|slot| slot.take().expect("con all_ready a true, cada ranura ya tiene valor"))
                 .collect(),
         )
     })

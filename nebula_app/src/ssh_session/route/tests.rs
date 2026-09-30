@@ -149,7 +149,7 @@ fn resolved_alias_cycles_are_rejected_before_opening_any_transport() {
     jump(&mut profile, "target-alias");
     let hosts = HashMap::from([("target-alias".to_owned(), host("another-user@TARGET"))]);
     let error = resolve(destination, profile, &global_proxy(), &hosts).err().unwrap();
-    assert!(error.contains("循环"));
+    assert!(error.contains("bucle"));
 }
 
 #[test]
@@ -166,7 +166,7 @@ fn two_hops_are_supported_and_a_third_is_rejected() {
     assert!(resolve(destination.clone(), profile.clone(), &global_proxy(), &hosts).is_ok());
     jump(&mut hosts.get_mut("jump@near-client").unwrap().1, "jump@third");
     let error = resolve(destination, profile, &global_proxy(), &hosts).err().unwrap();
-    assert!(error.contains("2 级"));
+    assert!(error.contains("2 niveles"));
 }
 
 #[test]

@@ -141,3 +141,18 @@ fn measure_static_catalog_costs() {
     }
     eprintln!("key lookup: {} ns/op", started.elapsed().as_nanos() / count);
 }
+
+#[test]
+fn spanish_pick_uses_catalog_then_phrase_table_then_english() {
+    let catalog_english = UiLanguage::EnUs.text(Message::SettingsSidebarNetwork);
+    assert_eq!(UiLanguage::EsEs.pick("网络", catalog_english), "Red");
+    assert_eq!(UiLanguage::EsEs.pick("无匹配命令", "No matching commands"), "Ningún comando coincide");
+    assert_eq!(UiLanguage::EsEs.pick("未知", "Untranslated sentinel"), "Untranslated sentinel");
+    assert_eq!(UiLanguage::EnUs.pick("无匹配命令", "No matching commands"), "No matching commands");
+}
+
+#[test]
+fn system_preference_resolves_to_spanish() {
+    assert_eq!(LanguagePreference::System.resolved(), UiLanguage::EsEs);
+    assert_eq!(LanguagePreference::default().resolved(), UiLanguage::EsEs);
+}

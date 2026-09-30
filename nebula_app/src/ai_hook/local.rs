@@ -32,7 +32,7 @@ fn announce() {
     }
     match claim_setup_announcement(&nebula_settings::settings_dir()) {
         Ok(true) => crate::notify::toast(
-            "Pebrel",
+            "PoxiTerminal",
             crate::i18n::LanguagePreference::from(
                 nebula_settings::RuntimeSettings::load().language,
             )
@@ -260,20 +260,20 @@ pub fn setup_ai_cli(remove: bool) -> i32 {
                 std::thread::sleep(std::time::Duration::from_millis(100));
             },
             Err(error) => {
-                eprintln!("无法取得 Hook 配置操作锁：{error}");
+                eprintln!("No se pudo obtener el bloqueo de configuración de hooks: {error}");
                 return 1;
             },
         }
     };
     if !remove && helper_path().is_none() {
-        eprintln!("runtime/ 和 Pebrel 可执行文件同目录中均未找到 Hook 辅助程序，无法安装。");
+        eprintln!("No se encontró el asistente de hooks en runtime/ ni junto al ejecutable de PoxiTerminal; no se puede instalar.");
         return 1;
     }
     let updates = if remove { AgentHook::all_updates(false) } else { AgentHook::setup_updates() };
     let mut failed = false;
     // 持久选择先于文件操作；其他实例拿到锁后只会看到最新授权。
     if let Err(error) = nebula_settings::persist_keys(&updates) {
-        eprintln!("无法保存 Hook 开关：{error}");
+        eprintln!("No se pudo guardar el interruptor de hooks: {error}");
         if !remove {
             return 1;
         }
@@ -286,14 +286,14 @@ pub fn setup_ai_cli(remove: bool) -> i32 {
         }
         let name = agent.settings_key().trim_start_matches("ai_hooks_");
         if !remove && !settings::configuration(agent).is_some_and(|(_, present)| present) {
-            println!("{name}: 未检测到配置目录，首次运行该 Agent 后可在设置中开启。");
+            println!("{name}: no se detectó el directorio de configuración; ejecuta este agente una vez y podrás activarlo en la configuración.");
             continue;
         }
         match settings::apply_and_verify(agent, !remove) {
-            Ok(()) if remove => println!("{name}: Pebrel Hook 已清理，用户的其他配置已保留。"),
-            Ok(()) => println!("{name}: Hook 配置已写入并校验。"),
+            Ok(()) if remove => println!("{name}: hooks de PoxiTerminal eliminados; el resto de tu configuración se ha conservado."),
+            Ok(()) => println!("{name}: configuración de hooks escrita y verificada."),
             Err(error) => {
-                eprintln!("{name}: Hook 配置操作失败：{error}");
+                eprintln!("{name}: error al configurar los hooks: {error}");
                 failed = true;
             },
         }
@@ -302,15 +302,15 @@ pub fn setup_ai_cli(remove: bool) -> i32 {
         for (agent, path) in runtime_skill_candidates() {
             match remove_runtime_skill(&path) {
                 Ok(ManagedSkillRemoval::Removed) => {
-                    println!("{agent}: 已移除 Pebrel Runtime Skill（{}）。", path.display())
+                    println!("{agent}: Runtime Skill de PoxiTerminal eliminada ({}).", path.display())
                 },
                 Ok(ManagedSkillRemoval::Absent) => {},
                 Ok(ManagedSkillRemoval::Conflict) => {
-                    eprintln!("{agent}: {} 已被用户修改，保留该 Skill。", path.display());
+                    eprintln!("{agent}: {} fue modificada por el usuario; se conserva la Skill.", path.display());
                     failed = true;
                 },
                 Err(error) => {
-                    eprintln!("{agent}: 移除 Runtime Skill 失败：{error}");
+                    eprintln!("{agent}: error al eliminar la Runtime Skill: {error}");
                     failed = true;
                 },
             }
@@ -319,25 +319,25 @@ pub fn setup_ai_cli(remove: bool) -> i32 {
         for (agent, path, result) in ensure_runtime_skills() {
             match result {
                 Ok(ManagedSkillInstall::Installed) => {
-                    println!("{agent}: 已安装 Pebrel Runtime Skill 到 {}。", path.display())
+                    println!("{agent}: Runtime Skill de PoxiTerminal instalada en {}.", path.display())
                 },
                 Ok(ManagedSkillInstall::Current) => {},
                 Ok(ManagedSkillInstall::Conflict) => {
                     eprintln!(
-                        "{agent}: {} 存在非 Pebrel 管理或被编辑的 Skill，未覆盖。",
+                        "{agent}: {} contiene una Skill ajena a PoxiTerminal o editada; no se sobrescribe.",
                         path.display()
                     );
                     failed = true;
                 },
                 Err(error) => {
-                    eprintln!("{agent}: 安装 Runtime Skill 失败：{error}");
+                    eprintln!("{agent}: error al instalar la Runtime Skill: {error}");
                     failed = true;
                 },
             }
         }
-        println!("默认接入 Claude Code 与 Codex；其他 Agent 由设置菜单控制。");
-        println!("Codex 原生 Hook 可能需要在 /hooks 中审阅启用；notify 兼容路径仍保留。");
-        println!("对新启动的会话生效；正在运行的会话保持原快照。");
+        println!("Por defecto se integran Claude Code y Codex; los demás agentes se controlan desde el menú de configuración.");
+        println!("Puede que los hooks nativos de Codex deban revisarse y activarse en /hooks; la ruta compatible de notify se mantiene.");
+        println!("Se aplica a las sesiones nuevas; las sesiones en curso mantienen su configuración original.");
     }
     i32::from(failed)
 }
@@ -561,7 +561,7 @@ mod generated_hook_tests {
 
     use super::{CLAUDE_EVENTS, OPENCODE_PLUGIN_JS, PI_EXTENSION_TS, install_into};
 
-    const HELPER: &str = "C:/Program Files/Pebrel/runtime/pebrel-hook.exe";
+    const HELPER: &str = "C:/Program Files/PoxiTerminal/runtime/pebrel-hook.exe";
 
     #[cfg(unix)]
     #[test]

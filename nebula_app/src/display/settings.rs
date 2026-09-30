@@ -168,7 +168,8 @@ pub(super) const BACKGROUND_ALIGNMENT_OPTIONS: [BackgroundImageAlignment; 9] = [
     BackgroundImageAlignment::BottomRight,
 ];
 
-pub(super) const LANGUAGE_OPTIONS: &[LanguagePreference] = LanguagePreference::ALL;
+pub(super) const LANGUAGE_OPTIONS: &[LanguagePreference] =
+    &[LanguagePreference::EsEs, LanguagePreference::EnUs];
 
 pub(super) const ACCEPT_OPTIONS: [AcceptKey; 3] =
     [AcceptKey::Both, AcceptKey::Tab, AcceptKey::Right];
@@ -484,7 +485,10 @@ fn backup_remote_field_placeholder(
 ) -> &'static str {
     use crate::backup_remote::BackupProtocol;
     match (protocol, index) {
-        (BackupProtocol::Folder, 0) => r"D:\Backups\Nebula 或 \\nas\share\nebula",
+        (BackupProtocol::Folder, 0) => language.pick(
+            r"D:\Backups\Nebula 或 \\nas\share\nebula",
+            r"D:\Backups\Nebula or \\nas\share\nebula",
+        ),
         (BackupProtocol::WebDav, 0) => "https://dav.example.com/nebula/",
         (BackupProtocol::WebDav, 1) => language.pick("WebDAV 用户名", "WebDAV username"),
         (BackupProtocol::S3, 0) => "https://s3.us-east-1.amazonaws.com",

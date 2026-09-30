@@ -1,6 +1,6 @@
 //! Native theme library boundary.
 //!
-//! `document` owns the versioned Pebrel envelope, `formats` owns bounded
+//! `document` owns the versioned PoxiTerminal envelope, `formats` owns bounded
 //! import/export adapters, and `store` owns durable custom-theme files.  The
 //! settings crate remains the single runtime definition authority.
 

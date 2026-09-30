@@ -404,7 +404,7 @@ fn settings_nav_starts_with_application_then_frequent_options() {
 #[test]
 fn localized_select_labels_keep_stable_value_cardinality() {
     let cases: &[(&str, &[&str])] = &[
-        ("language", nebula_settings::LanguagePref::VALUES),
+        ("language", nebula_settings::LanguagePref::SHOWN_VALUES),
         ("cursor_shape", &["beam", "underline", "block", "hollow"]),
         ("tabs_position", &["sidebar", "top"]),
         ("bell", &["off", "visual", "sound", "both"]),
@@ -423,15 +423,13 @@ fn localized_select_labels_keep_stable_value_cardinality() {
 }
 
 #[test]
-fn language_picker_uses_native_names_and_translated_system_option() {
+fn language_picker_offers_only_spanish_and_english() {
     let labels = localized_select_labels(
         "language",
-        nebula_settings::LanguagePref::VALUES,
-        crate::display::UiLanguage::FrFr,
+        nebula_settings::LanguagePref::SHOWN_VALUES,
+        crate::display::UiLanguage::EsEs,
     );
-    assert_eq!(labels[0], SharedString::from("Suivre le système"));
-    assert!(labels.contains(&SharedString::from("Français")));
-    assert!(labels.contains(&SharedString::from("日本語")));
+    assert_eq!(labels, vec![SharedString::from("Español"), SharedString::from("English")]);
 }
 
 #[test]

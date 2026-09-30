@@ -64,7 +64,7 @@ fn invalid_proxy_endpoints_and_authentication_are_rejected() {
 fn proxy_credential_keys_are_stable_and_scoped_to_endpoint_and_target() {
     let options = proxy();
     let key = options.proxy_credential_target("root@host").unwrap();
-    assert!(key.starts_with("Pebrel/SSH/Proxy/"));
+    assert!(key.starts_with("PoxiTerminal/SSH/Proxy/"));
     assert!(!key.contains("alice"));
     assert!(!key.contains("proxy.internal"));
     assert_eq!(key, options.proxy_credential_target("root@host").unwrap());
@@ -110,7 +110,7 @@ fn self_jump_is_rejected_before_resolution() {
         jump_host: "ssh://root@HOST:22".to_owned(),
         ..Default::default()
     };
-    assert!(options.validate("root@host").unwrap_err().contains("自身"));
+    assert!(options.validate("root@host").unwrap_err().contains("propio salto"));
 }
 
 #[test]

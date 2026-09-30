@@ -173,7 +173,7 @@
     "session": "Сеанс",
     "key": "Клавиша",
     "action": "Действие",
-    "update_notice": "Доступен Pebrel v{latest} (текущая версия v{current})",
+    "update_notice": "Доступен PoxiTerminal v{latest} (текущая версия v{current})",
     "copied_lines": "Скопировано строк в буфер обмена: {lines}",
     "paste_lines": "Вставить строки ({lines})?",
     "sent_to": "Отправлено в {target}"

@@ -299,7 +299,7 @@ pub fn save(store: &ProviderStore) -> io::Result<()> {
 }
 
 pub fn credential_target(id: &str) -> String {
-    format!("Pebrel/AI/{id}")
+    format!("PoxiTerminal/AI/{id}")
 }
 
 pub fn api_key_hint(key: &str) -> String {

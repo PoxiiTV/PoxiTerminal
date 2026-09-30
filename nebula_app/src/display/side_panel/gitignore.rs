@@ -89,14 +89,14 @@ fn escape_gitignore(name: &str) -> String {
 /// `git diff` 把整个文件报成改动（见 hard lessons 里的 CRLF 假 diff 一案），
 /// 而这个功能一次只该动一行。
 pub(crate) fn append_to_gitignore(path: &Path, is_dir: bool) -> Result<IgnoreOutcome, String> {
-    let root = git_repository_root(path).ok_or("这个位置不在 Git 仓库里")?;
-    let entry =
-        gitignore_entry(&root, path, is_dir).ok_or("无法为这条路径生成忽略规则".to_owned())?;
+    let root = git_repository_root(path).ok_or("Esta ubicación no está en un repositorio Git")?;
+    let entry = gitignore_entry(&root, path, is_dir)
+        .ok_or("No se pudo generar una regla de ignorado para esta ruta".to_owned())?;
     let file = root.join(".gitignore");
     let existing = match std::fs::read_to_string(&file) {
         Ok(text) => text,
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => String::new(),
-        Err(error) => return Err(format!("读 .gitignore 失败：{error}")),
+        Err(error) => return Err(format!("No se pudo leer .gitignore: {error}")),
     };
     let lines: Vec<_> = existing.lines().collect();
     if let Some(last) = lines.iter().rposition(|line| line.trim() == entry)
@@ -113,7 +113,7 @@ pub(crate) fn append_to_gitignore(path: &Path, is_dir: bool) -> Result<IgnoreOut
     next.push_str(&entry);
     next.push_str(newline);
     crate::atomic_file::write(&file, next.as_bytes())
-        .map_err(|error| format!("写 .gitignore 失败：{error}"))?;
+        .map_err(|error| format!("No se pudo escribir .gitignore: {error}"))?;
     Ok(IgnoreOutcome::Added { entry, file })
 }
 

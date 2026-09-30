@@ -173,7 +173,7 @@
     "session": "Sessione",
     "key": "Tasto",
     "action": "Azione",
-    "update_notice": "Pebrel v{latest} è disponibile (attuale: v{current})",
+    "update_notice": "PoxiTerminal v{latest} è disponibile (attuale: v{current})",
     "copied_lines": "{lines} righe copiate negli appunti",
     "paste_lines": "Incollare {lines} righe?",
     "sent_to": "Inviato a {target}"

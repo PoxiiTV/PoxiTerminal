@@ -132,7 +132,7 @@ try {
     finally { $sha.Dispose() }
     if ($actual -ne $plan.sha256) { throw 'Installer checksum changed' }
     $originalDigest = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
-    if ((Read-Version $exe) -notmatch ('^Pebrel ' + [regex]::Escape($plan.original_version) + '(\s|$)')) {
+    if ((Read-Version $exe) -notmatch ('^PoxiTerminal ' + [regex]::Escape($plan.original_version) + '(\s|$)')) {
         throw 'Original application version differs'
     }
     Write-State 'ready.json' @{ transaction = $plan.transaction; helper = $PID }
@@ -165,7 +165,7 @@ try {
     $setup.WaitForExit()
     if ($setup.ExitCode -ne 0) { throw "Installer failed with exit code $($setup.ExitCode)" }
     $reported = Read-Version $exe
-    if ($reported -notmatch ('^Pebrel ' + [regex]::Escape($plan.version) + '(\s|$)')) {
+    if ($reported -notmatch ('^PoxiTerminal ' + [regex]::Escape($plan.version) + '(\s|$)')) {
         throw 'Installed application did not report the expected version'
     }
     $installedDigest = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash
@@ -189,7 +189,7 @@ try {
         try {
             Check-UnpreparedProcesses
             $recoverOriginal = (Get-FileHash -LiteralPath $exe -Algorithm SHA256).Hash -eq $originalDigest -and
-                (Read-Version $exe) -match ('^Pebrel ' + [regex]::Escape($plan.original_version) + '(\s|$)')
+                (Read-Version $exe) -match ('^PoxiTerminal ' + [regex]::Escape($plan.original_version) + '(\s|$)')
         } catch { $recoverOriginal = $false }
     }
     try { Write-State 'result.json' @{

@@ -141,7 +141,7 @@ fn startup_shortcut() -> std::io::Result<std::path::PathBuf> {
             .map_err(std::io::Error::other)?;
         let directory = std::ffi::OsString::from_wide(path.as_wide());
         CoTaskMemFree(Some(path.0.cast()));
-        Ok(std::path::PathBuf::from(directory).join("Pebrel.lnk"))
+        Ok(std::path::PathBuf::from(directory).join("PoxiTerminal.lnk"))
     }
 }
 

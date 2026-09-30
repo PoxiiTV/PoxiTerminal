@@ -44,7 +44,7 @@ pub fn attach_handler() {
         }
 
         let dialog_message = win32_string(&format!("{message}\n\nPress Ctrl-C to Copy"));
-        let dialog_title = win32_string("Pebrel: Runtime Error");
+        let dialog_title = win32_string("PoxiTerminal: Runtime Error");
 
         // MessageBox 的模态消息泵不能运行在发生 panic 的 GPUI 线程上，否则
         // 会重入 AppCell 并把原始 panic 升级成无诊断信息的 double panic。

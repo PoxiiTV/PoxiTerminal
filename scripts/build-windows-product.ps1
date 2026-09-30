@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [ValidateSet('debug', 'release')]
     [string] $Configuration = 'release',
@@ -21,7 +21,7 @@ try {
     # The acceptance lab is tested by CI but does not supply a packaged binary.
     $arguments = @(
         'build', '--locked', '--timings',
-        '-p', 'nebula', '--bin', 'pebrel',
+        '-p', 'nebula', '--bin', 'poxiterminal',
         '-p', 'nebula_hook', '--bin', 'pebrel-hook',
         '--features', 'nebula/gpui-shell'
     )

@@ -17,15 +17,9 @@ pub(super) fn localized_select_labels(
             .collect();
     }
     let labels: Vec<&'static str> = match key {
-        "language" => nebula_settings::LanguagePref::ALL
+        "language" => nebula_settings::LanguagePref::SHOWN
             .iter()
-            .map(|preference| {
-                if *preference == nebula_settings::LanguagePref::System {
-                    language.tr("language.system")
-                } else {
-                    preference.native_name()
-                }
-            })
+            .map(|preference| preference.native_name())
             .collect(),
         "quick_terminal_mode" => vec![
             language.text(crate::i18n::Message::SettingsQuickTerminalDedicated),

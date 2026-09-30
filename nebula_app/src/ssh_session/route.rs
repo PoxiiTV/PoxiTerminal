@@ -107,7 +107,7 @@ fn build_route(
     profile.connection.validate(&destination.original)?;
     let endpoint = (destination.host.to_ascii_lowercase(), destination.port);
     if ancestors.contains(&endpoint) {
-        return Err("跳板链存在循环或将目标主机自身用作跳板".to_owned());
+        return Err("La cadena de saltos tiene un bucle o usa el propio host de destino como salto".to_owned());
     }
     ancestors.push(endpoint);
     let options = &profile.connection;
@@ -129,7 +129,7 @@ fn build_route(
                         Some(mut secret) => {
                             let password = std::str::from_utf8(&secret)
                                 .map(str::to_owned)
-                                .map_err(|_| "代理密码无法读取，请重新填写并保存".to_owned());
+                                .map_err(|_| "No se pudo leer la contraseña del proxy; vuelve a introducirla y guárdala".to_owned());
                             secret.fill(0);
                             Some(password?)
                         },
@@ -141,7 +141,7 @@ fn build_route(
                 if options.proxy_mode == SshHostProxyMode::Socks5
                     && password.as_ref().is_some_and(|password| password.len() > 255)
                 {
-                    return Err("SOCKS5 代理密码不能超过 255 字节".to_owned());
+                    return Err("La contraseña del proxy SOCKS5 no puede superar los 255 bytes".to_owned());
                 }
                 Some(NetworkOverride::Server(ProxyServer {
                     scheme: if options.proxy_mode == SshHostProxyMode::Socks5 {
@@ -174,9 +174,9 @@ fn build_route(
     };
     let transport = if let Some(spec) = jump {
         crate::ssh_profiles::validate_ssh_destination(&spec)
-            .map_err(|_| "跳板地址无效，仅支持单个 SSH 别名或 user@host:port".to_owned())?;
+            .map_err(|_| "Dirección de salto no válida: solo se admite un único alias SSH o user@host:port".to_owned())?;
         if depth >= 2 {
-            return Err("跳板链过深，最多支持 2 级跳板".to_owned());
+            return Err("Cadena de saltos demasiado larga: se admiten como máximo 2 niveles".to_owned());
         }
         let (jump_destination, jump_profile) = resolve_host(&spec)?;
         RouteTransport::Jump(Box::new(build_route(

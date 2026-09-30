@@ -484,7 +484,7 @@ mod tests {
         for (column, c) in "❯ echo native_hint".chars().enumerate() {
             terminal.grid_mut()[Line(0)][Column(column)].c = c;
         }
-        // The shell owns the visible suffix, so Pebrel must not overlay it or
+        // The shell owns the visible suffix, so PoxiTerminal must not overlay it or
         // treat it as an already accepted command. Color is user-configurable.
         let cursor = Point::new(Line(0), Column(7));
         assert_eq!(raw_grid_logical_line(&terminal, cursor), None);

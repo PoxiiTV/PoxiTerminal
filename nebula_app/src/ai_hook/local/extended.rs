@@ -33,7 +33,7 @@ pub(super) fn path(agent: AgentHook) -> Option<PathBuf> {
 pub(super) fn content(agent: AgentHook, helper: &str) -> io::Result<String> {
     if agent == AgentHook::OhMyPi {
         return Ok(super::PI_EXTENSION_TS
-            .replace("Pebrel ↔ Pi", "Pebrel ↔ Oh My Pi")
+            .replace("PoxiTerminal ↔ Pi", "PoxiTerminal ↔ Oh My Pi")
             .replace("@earendil-works/pi-coding-agent", "@oh-my-pi/pi-coding-agent")
             .replace("const SOURCE: string = \"pi\";", "const SOURCE: string = \"omp\";"));
     }

@@ -111,6 +111,7 @@ pub fn generate(directory: &Path, output: &Path) -> Result<(), String> {
         }
     }
     code.push_str("_ => None,\n}}\n");
+    code.push_str(&spanish_phrases(directory)?);
     // A const array can be materialized on the caller's stack in debug builds.
     // Give the shared lookup table one static allocation in every build profile.
     writeln!(code, "static MESSAGES: [[&str; {}]; {}] = [", keys.len(), catalogs.len()).unwrap();
@@ -128,6 +129,32 @@ pub fn generate(directory: &Path, output: &Path) -> Result<(), String> {
         catalogs.values().flat_map(|messages| messages.values()).map(String::len).sum::<usize>();
     writeln!(code, "pub const TRANSLATED_BYTES: usize = {bytes};").unwrap();
     std::fs::write(output, code).map_err(|error| error.to_string())
+}
+
+/// `es-ES.phrases.json` maps the English argument of `pick(zh, en)` to Spanish
+/// for inline texts that have no catalog id. Generates `phrase_es`.
+fn spanish_phrases(directory: &Path) -> Result<String, String> {
+    let path = directory.join("es-ES.phrases.json");
+    println!("cargo:rerun-if-changed={}", path.display());
+    let phrases: BTreeMap<String, String> = match std::fs::read_to_string(&path) {
+        Ok(source) => serde_json::from_str(&source).map_err(|error| format!("{error}"))?,
+        Err(_) => BTreeMap::new(),
+    };
+    let mut code = String::from("fn phrase_es(english: &str) -> Option<&'static str> { match english {\n");
+    for (english, spanish) in &phrases {
+        if spanish.is_empty() || braces(english) != braces(spanish) {
+            return Err(format!("es-ES.phrases: empty or placeholder mismatch for {english:?}"));
+        }
+        writeln!(code, "{english:?} => Some({spanish:?}),").unwrap();
+    }
+    code.push_str("_ => None,\n}}\n");
+    Ok(code)
+}
+
+fn braces(text: &str) -> Vec<&str> {
+    let mut found = text.split('{').skip(1).filter_map(|part| part.split_once('}')).map(|(inside, _)| inside).collect::<Vec<_>>();
+    found.sort_unstable();
+    found
 }
 
 fn message_variant(key: &str) -> Result<String, String> {

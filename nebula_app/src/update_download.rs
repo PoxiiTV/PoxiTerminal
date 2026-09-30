@@ -20,7 +20,7 @@ use sha2::{Digest as _, Sha256};
 use crate::i18n::{Message, UiLanguage};
 use crate::update_check::UpdateAsset;
 
-const RELEASE_DOWNLOAD_PREFIX: &str = "https://github.com/Kuddev/pebrel/releases/download/";
+const RELEASE_DOWNLOAD_PREFIX: &str = "https://github.com/PoxiiTV/PoxiTerminal/releases/download/";
 const LEGACY_RELEASE_DOWNLOAD_PREFIX: &str = "https://github.com/Kuddev/nebula/releases/download/";
 const MAX_INSTALLER_BYTES: u64 = 512 * 1024 * 1024;
 const DOWNLOAD_CHUNK_BYTES: usize = 64 * 1024;
@@ -173,15 +173,15 @@ pub(crate) fn installation_failure_unseen(prompt_state: &Path) -> bool {
 pub(crate) fn ready_path(asset: &UpdateAsset) -> Result<PathBuf, String> {
     let path = match status(asset) {
         DownloadStatus::Ready { path, .. } => path,
-        _ => return Err("安装包尚未下载并通过校验".to_owned()),
+        _ => return Err("El instalador aún no se ha descargado y verificado".to_owned()),
     };
     let (_, expected_path) = download_paths(asset)?;
     if path != expected_path || !path.is_file() {
-        return Err("已校验的安装包不存在或路径已改变".to_owned());
+        return Err("El instalador verificado no existe o su ruta ha cambiado".to_owned());
     }
     // Ready 只表示下载完成时通过过校验；安装前再读一遍，避免缓存文件在
     // 弹窗等待用户确认期间被替换后仍直接执行。
-    verify_file(&path, asset).map_err(|error| format!("安装前重新校验失败：{error}"))?;
+    verify_file(&path, asset).map_err(|error| format!("Falló la nueva verificación antes de instalar: {error}"))?;
 
     Ok(path)
 }
@@ -195,8 +195,8 @@ fn download_and_verify(
     validate_asset(asset)?;
     let (partial_path, final_path) = download_paths(asset)?;
     let _download_lock = crate::atomic_file::try_lifetime_lock(&final_path)
-        .map_err(|error| format!("无法锁定更新下载目录：{error}"))?
-        .ok_or_else(|| "另一个 Pebrel 进程正在下载这项更新".to_owned())?;
+        .map_err(|error| format!("No se pudo bloquear la carpeta de descarga de actualizaciones: {error}"))?
+        .ok_or_else(|| "Otro proceso de PoxiTerminal ya está descargando esta actualización".to_owned())?;
 
     if final_path.is_file()
         && let Ok(bytes) = verify_file(&final_path, asset)
@@ -209,7 +209,7 @@ fn download_and_verify(
             return Err("Download cancelled".into());
         }
         crate::atomic_file::replace(&partial_path, &final_path)
-            .map_err(|error| format!("无法保存已校验的更新安装包：{error}"))?;
+            .map_err(|error| format!("No se pudo guardar el instalador verificado: {error}"))?;
         Ok((final_path.clone(), bytes))
     });
     if result.is_err() {
@@ -260,11 +260,11 @@ fn download_with_job(
     if let (Some(expected), Some(actual)) = (asset.size, response_size)
         && expected != actual
     {
-        return Err(format!("安装包长度与 release 元数据不一致（{actual} / {expected} 字节）"));
+        return Err(format!("El tamaño del instalador no coincide con los metadatos de la release ({actual} / {expected} bytes)"));
     }
     let total = asset.size.or(response_size);
     if total.is_some_and(|bytes| bytes > MAX_INSTALLER_BYTES) {
-        return Err("安装包超过 512 MiB 安全上限".to_owned());
+        return Err("El instalador supera el límite de seguridad de 512 MiB".to_owned());
     }
 
     let mut output = OpenOptions::new()
@@ -272,7 +272,7 @@ fn download_with_job(
         .truncate(true)
         .write(true)
         .open(partial_path)
-        .map_err(|error| format!("无法创建更新临时文件：{error}"))?;
+        .map_err(|error| format!("No se pudo crear el archivo temporal de la actualización: {error}"))?;
     let mut reader = response.body_mut().as_reader();
     let mut hasher = Sha256::new();
     let mut downloaded = 0_u64;
@@ -289,7 +289,7 @@ fn download_with_job(
         }
         downloaded = downloaded.saturating_add(read as u64);
         if downloaded > MAX_INSTALLER_BYTES {
-            return Err("安装包超过 512 MiB 安全上限".to_owned());
+            return Err("El instalador supera el límite de seguridad de 512 MiB".to_owned());
         }
         if pe_header.len() < 2 {
             let take = (2 - pe_header.len()).min(read);
@@ -298,10 +298,10 @@ fn download_with_job(
         hasher.update(&buffer[..read]);
         output
             .write_all(&buffer[..read])
-            .map_err(|error| format!("写入更新临时文件失败：{error}"))?;
+            .map_err(|error| format!("Error al escribir el archivo temporal de la actualización: {error}"))?;
         set_progress(job, downloaded, total);
     }
-    output.sync_all().map_err(|error| format!("同步更新临时文件失败：{error}"))?;
+    output.sync_all().map_err(|error| format!("Error al sincronizar el archivo temporal de la actualización: {error}"))?;
 
     verify_download(downloaded, &pe_header, hasher.finalize(), asset)?;
     verify_package_trailer(&mut File::open(partial_path).map_err(|e| e.to_string())?, asset)?;
@@ -350,17 +350,17 @@ fn network_error_text(error: ureq::Error, language: UiLanguage) -> String {
 }
 
 fn verify_file(path: &Path, asset: &UpdateAsset) -> Result<u64, String> {
-    let mut file = File::open(path).map_err(|error| format!("无法读取更新缓存：{error}"))?;
-    let metadata = file.metadata().map_err(|error| format!("无法读取更新缓存大小：{error}"))?;
+    let mut file = File::open(path).map_err(|error| format!("No se pudo leer la caché de actualización: {error}"))?;
+    let metadata = file.metadata().map_err(|error| format!("No se pudo leer el tamaño de la caché de actualización: {error}"))?;
     let bytes = metadata.len();
     if bytes > MAX_INSTALLER_BYTES {
-        return Err("更新缓存超过 512 MiB 安全上限".to_owned());
+        return Err("La caché de actualización supera el límite de seguridad de 512 MiB".to_owned());
     }
     let mut hasher = Sha256::new();
     let mut pe_header = Vec::with_capacity(2);
     let mut buffer = vec![0_u8; DOWNLOAD_CHUNK_BYTES];
     loop {
-        let read = file.read(&mut buffer).map_err(|error| format!("读取更新缓存失败：{error}"))?;
+        let read = file.read(&mut buffer).map_err(|error| format!("Error al leer la caché de actualización: {error}"))?;
         if read == 0 {
             break;
         }
@@ -382,18 +382,18 @@ fn verify_download(
     asset: &UpdateAsset,
 ) -> Result<(), String> {
     if bytes == 0 || asset.size.is_some_and(|expected| expected != bytes) {
-        return Err(format!("安装包长度校验失败（实际 {bytes} 字节）"));
+        return Err(format!("Falló la verificación del tamaño del instalador ({bytes} bytes reales)"));
     }
     if !asset.name.ends_with(".dmg") && pe_header != b"MZ" {
-        return Err("下载内容不是 Windows PE 安装包".to_owned());
+        return Err("Lo descargado no es un instalador PE de Windows".to_owned());
     }
-    let expected = asset.sha256.as_deref().ok_or_else(|| "release 未提供 SHA-256".to_owned())?;
+    let expected = asset.sha256.as_deref().ok_or_else(|| "La release no incluye SHA-256".to_owned())?;
     let mut actual = String::with_capacity(64);
     for byte in digest.as_ref() {
         let _ = write!(&mut actual, "{byte:02x}");
     }
     if !actual.eq_ignore_ascii_case(expected) {
-        return Err(format!("安装包 SHA-256 校验失败（实际 {actual}）"));
+        return Err(format!("Falló la verificación SHA-256 del instalador (real: {actual})"));
     }
     Ok(())
 }
@@ -411,7 +411,7 @@ fn set_progress(job: Option<&DownloadJob>, downloaded: u64, total: Option<u64>) 
 fn download_paths(asset: &UpdateAsset) -> Result<(PathBuf, PathBuf), String> {
     let directory = nebula_settings::settings_dir().join("updates");
     std::fs::create_dir_all(&directory)
-        .map_err(|error| format!("无法创建更新下载目录：{error}"))?;
+        .map_err(|error| format!("No se pudo crear la carpeta de descarga de actualizaciones: {error}"))?;
     let final_path = directory.join(&asset.name);
     let partial_path = directory.join(format!("{}.part", asset.name));
     Ok((partial_path, final_path))
@@ -449,25 +449,25 @@ fn validate_asset_contract(asset: &UpdateAsset, names: &[String]) -> Result<(), 
             .bytes()
             .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'-' | b'+'))
     {
-        return Err("release 版本号不符合安装包命名规则".to_owned());
+        return Err("El número de versión de la release no sigue el formato de nombre del instalador".to_owned());
     }
     if !names.contains(&asset.name) {
-        return Err("release 资产不是当前平台的精确安装包".to_owned());
+        return Err("El recurso de la release no es el instalador exacto para esta plataforma".to_owned());
     }
     let trusted_url = [RELEASE_DOWNLOAD_PREFIX, LEGACY_RELEASE_DOWNLOAD_PREFIX]
         .iter()
         .any(|prefix| asset.download_url == format!("{prefix}v{}/{}", asset.version, asset.name));
     if !trusted_url {
-        return Err("release 安装包 URL 不属于 Pebrel 官方仓库".to_owned());
+        return Err("La URL del instalador no pertenece al repositorio oficial de PoxiTerminal".to_owned());
     }
     if asset.size.is_some_and(|bytes| bytes == 0 || bytes > MAX_INSTALLER_BYTES) {
-        return Err("release 安装包大小无效".to_owned());
+        return Err("Tamaño del instalador de la release no válido".to_owned());
     }
     let hash = asset.sha256.as_deref().ok_or_else(|| {
-        "release 未提供可验证的 SHA-256；为避免执行未知安装包，已停止自动下载".to_owned()
+        "La release no incluye un SHA-256 verificable; se ha detenido la descarga automática para no ejecutar un instalador desconocido".to_owned()
     })?;
     if hash.len() != 64 || !hash.bytes().all(|byte| byte.is_ascii_hexdigit()) {
-        return Err("release 提供的 SHA-256 格式无效".to_owned());
+        return Err("El SHA-256 de la release tiene un formato no válido".to_owned());
     }
     Ok(())
 }
@@ -483,7 +483,7 @@ mod tests {
 
     #[test]
     fn cancel_then_retry_rejects_old_progress_and_old_completion() {
-        let asset = branded_asset("Pebrel");
+        let asset = branded_asset("PoxiTerminal");
         validate_windows_asset_contract(&asset).unwrap();
         super::cancel(&asset);
         let old = super::begin_download_session(&asset).unwrap();
@@ -511,7 +511,7 @@ mod tests {
 
     #[test]
     fn begin_preserves_platform_and_asset_validation() {
-        let mut asset = branded_asset("Pebrel");
+        let mut asset = branded_asset("PoxiTerminal");
         assert_eq!(
             super::validate_asset(&asset).is_ok(),
             cfg!(all(windows, target_arch = "x86_64"))
@@ -533,7 +533,7 @@ mod tests {
             response("302 Found", "Location: http://cdn.update.invalid/installer\r\n", ""),
             response("200 OK", "", body),
         ]);
-        let mut asset = branded_asset("Pebrel");
+        let mut asset = branded_asset("PoxiTerminal");
         asset.download_url = "http://release.update.invalid/asset".into();
         asset.size = Some(body.len() as u64);
         asset.sha256 = Some(
@@ -564,7 +564,7 @@ mod tests {
             &format!("Location: http://{}/installer\r\n", origin.address),
             "",
         )]);
-        let mut asset = branded_asset("Pebrel");
+        let mut asset = branded_asset("PoxiTerminal");
         asset.download_url = "http://release.update.invalid/asset".into();
         asset.size = Some(body.len() as u64);
         asset.sha256 = Some(
@@ -595,7 +595,7 @@ mod tests {
             response("200 OK", "", &format!("MZ{}", "x".repeat(40))),
         ] {
             let server = Server::start(vec![reply]);
-            let mut asset = branded_asset("Pebrel");
+            let mut asset = branded_asset("PoxiTerminal");
             asset.download_url = "http://release.update.invalid/asset".into();
             let directory = tempfile::tempdir().unwrap();
             let result = super::download_with_agent(
@@ -688,7 +688,7 @@ mod tests {
 
     #[test]
     fn both_brand_names_require_the_same_exact_version_and_url_contract() {
-        for brand in ["Pebrel", "NebulaTerminal"] {
+        for brand in ["PoxiTerminal", "NebulaTerminal"] {
             let original = branded_asset(brand);
             assert!(validate_windows_asset_contract(&original).is_ok());
             let mut legacy_url = original.clone();
@@ -701,7 +701,7 @@ mod tests {
                 original.download_url.replace("github.com/", "github.com.evil.invalid/"),
                 original.download_url.replace("https://", "http://"),
                 format!("{}?download=1", original.download_url),
-                original.download_url.replace("Kuddev/pebrel/", "elsewhere/pebrel/"),
+                original.download_url.replace("PoxiiTV/PoxiTerminal/", "elsewhere/pebrel/"),
             ] {
                 let mut candidate = original.clone();
                 candidate.download_url = url;
@@ -716,27 +716,27 @@ mod tests {
     #[test]
     fn rejects_non_windows_x64_names_invalid_versions_sizes_and_hashes() {
         for name in [
-            "Pebrel-1.6.0-windows-arm64-setup.exe",
-            "Pebrel-v1.6.0-windows-x64.zip",
-            "Pebrel-v1.6.0-linux-x86_64.AppImage",
-            "../Pebrel-1.6.0-windows-x64-setup.exe",
+            "PoxiTerminal-1.6.0-windows-arm64-setup.exe",
+            "PoxiTerminal-v1.6.0-windows-x64.zip",
+            "PoxiTerminal-v1.6.0-linux-x86_64.AppImage",
+            "../PoxiTerminal-1.6.0-windows-x64-setup.exe",
         ] {
-            let mut candidate = branded_asset("Pebrel");
+            let mut candidate = branded_asset("PoxiTerminal");
             candidate.name = name.to_owned();
             assert!(validate_windows_asset_contract(&candidate).is_err());
         }
         for version in ["", "../1.6.0", "1.6.0?download=1", "1.6.0\n"] {
-            let mut candidate = branded_asset("Pebrel");
+            let mut candidate = branded_asset("PoxiTerminal");
             candidate.version = version.to_owned();
             assert!(validate_windows_asset_contract(&candidate).is_err());
         }
         for size in [0, MAX_INSTALLER_BYTES + 1] {
-            let mut candidate = branded_asset("Pebrel");
+            let mut candidate = branded_asset("PoxiTerminal");
             candidate.size = Some(size);
             assert!(validate_windows_asset_contract(&candidate).is_err());
         }
         for hash in [None, Some("a".repeat(63)), Some("g".repeat(64))] {
-            let mut candidate = branded_asset("Pebrel");
+            let mut candidate = branded_asset("PoxiTerminal");
             candidate.sha256 = hash;
             assert!(validate_windows_asset_contract(&candidate).is_err());
         }
@@ -747,7 +747,7 @@ mod tests {
         let bytes = b"MZinstaller fixture";
         let digest = Sha256::digest(bytes);
         let hash: String = digest.iter().map(|byte| format!("{byte:02x}")).collect();
-        for brand in ["Pebrel", "NebulaTerminal"] {
+        for brand in ["PoxiTerminal", "NebulaTerminal"] {
             let mut candidate = branded_asset(brand);
             candidate.size = Some(bytes.len() as u64);
             candidate.sha256 = Some(hash.clone());

@@ -360,7 +360,7 @@ fn detect_windows() -> Vec<DetectedShell> {
         env_path("SystemRoot").and_then(|root| existing(root.join(r"System32\cmd.exe")))
     {
         shells.push(DetectedShell {
-            name: "命令提示符 CMD".into(),
+            name: "Símbolo del sistema (CMD)".into(),
             id: "cmd".into(),
             program,
             args: Vec::new(),

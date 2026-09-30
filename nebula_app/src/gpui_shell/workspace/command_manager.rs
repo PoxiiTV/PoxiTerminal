@@ -152,11 +152,14 @@ impl NebulaWorkspace {
         }
         self.dismiss_palette_state();
         if let Err(error) = self.saved_commands.reload() {
+            let message = crate::gpui_shell::config::ui_language(cx)
+                .pick("无法读取已保存命令：{error}", "Could not read saved commands: {error}")
+                .replace("{error}", &error.to_string());
             crate::gpui_shell::toast::toast(
                 window,
                 cx,
                 crate::display::ToastKind::Warning,
-                format!("无法读取已保存命令：{error}"),
+                message,
             );
         }
         self.command_manager_open = true;
@@ -227,11 +230,13 @@ impl NebulaWorkspace {
     ) {
         let view = self.tabs.get(self.active).and_then(WorkspaceTab::focused_view).cloned();
         let Some(view) = view else {
+            let message = crate::gpui_shell::config::ui_language(cx)
+                .pick("当前标签不是可用的终端", "The current tab is not an available terminal");
             crate::gpui_shell::toast::toast(
                 window,
                 cx,
                 crate::display::ToastKind::Warning,
-                "当前标签不是可用的终端",
+                message,
             );
             return;
         };
@@ -244,12 +249,17 @@ impl NebulaWorkspace {
                 self.focus_active(window, cx);
                 cx.notify();
             },
-            Err(error) => crate::gpui_shell::toast::toast(
-                window,
-                cx,
-                crate::display::ToastKind::Warning,
-                format!("无法发送命令：{}", error.message),
-            ),
+            Err(error) => {
+                let message = crate::gpui_shell::config::ui_language(cx)
+                    .pick("无法发送命令：{message}", "Could not send command: {message}")
+                    .replace("{message}", &error.message);
+                crate::gpui_shell::toast::toast(
+                    window,
+                    cx,
+                    crate::display::ToastKind::Warning,
+                    message,
+                );
+            },
         }
     }
 
@@ -260,7 +270,9 @@ impl NebulaWorkspace {
         cx: &mut Context<'_, Self>,
     ) {
         cx.write_to_clipboard(ClipboardItem::new_string(command.command.clone()));
-        crate::gpui_shell::toast::toast(window, cx, crate::display::ToastKind::Info, "命令已复制");
+        let message =
+            crate::gpui_shell::config::ui_language(cx).pick("命令已复制", "Command copied");
+        crate::gpui_shell::toast::toast(window, cx, crate::display::ToastKind::Info, message);
     }
 
     fn open_saved_command_editor(
@@ -273,11 +285,13 @@ impl NebulaWorkspace {
             self.available_saved_commands(cx).into_iter().find(|command| command.id == id)
         });
         if edit_id.is_some() && current.is_none() {
+            let message = crate::gpui_shell::config::ui_language(cx)
+                .pick("这条命令已不存在", "This command no longer exists");
             crate::gpui_shell::toast::toast(
                 window,
                 cx,
                 crate::display::ToastKind::Warning,
-                "这条命令已不存在",
+                message,
             );
             return;
         }
@@ -463,11 +477,13 @@ impl NebulaWorkspace {
             let body = v_flex()
                 .w_full()
                 .gap_2()
-                .child(div().text_sm().child(format!(
-                    "{}“{}”？",
-                    language.pick("确定删除命令 ", "Delete command "),
-                    command_name
-                )))
+                .child(
+                    div().text_sm().child(
+                        language
+                            .pick("确定删除命令 “{name}”？", "Delete command “{name}”?")
+                            .replace("{name}", &command_name),
+                    ),
+                )
                 .child(
                     div()
                         .text_xs()

@@ -231,10 +231,10 @@ impl SftpPanel {
     pub fn editor_view(&self) -> Option<(&str, bool, &'static str)> {
         let editor = self.editor.as_ref()?;
         let hint = match editor.kind {
-            EditorKind::Filter => "筛选远端文件",
-            EditorKind::Path => "输入远端路径",
-            EditorKind::CreateDirectory => "新文件夹名称",
-            EditorKind::Rename(_) => "输入新名称",
+            EditorKind::Filter => "Filtrar archivos remotos",
+            EditorKind::Path => "Escribe la ruta remota",
+            EditorKind::CreateDirectory => "Nombre de la nueva carpeta",
+            EditorKind::Rename(_) => "Escribe el nuevo nombre",
         };
         Some((&editor.text, editor.selection.is_selected(), hint))
     }
@@ -514,11 +514,11 @@ pub(super) fn draw_text(
     let filter_editor =
         panel.editor.as_ref().filter(|editor| !matches!(editor.kind, EditorKind::Path));
     let filter_text = filter_editor.map(|editor| editor.text.as_str()).unwrap_or(&panel.filter);
-    let filter_hint = filter_editor.map_or("筛选文件", |editor| match editor.kind {
-        EditorKind::Filter => "筛选文件",
-        EditorKind::CreateDirectory => "新文件夹名称",
-        EditorKind::Rename(_) => "输入新名称",
-        EditorKind::Path => "远端路径",
+    let filter_hint = filter_editor.map_or("Filtrar archivos", |editor| match editor.kind {
+        EditorKind::Filter => "Filtrar archivos",
+        EditorKind::CreateDirectory => "Nombre de la nueva carpeta",
+        EditorKind::Rename(_) => "Escribe el nuevo nombre",
+        EditorKind::Path => "Ruta remota",
     });
     let filter_shown = if filter_editor
         .is_some_and(|editor| !editor.selection.is_selected() && super::caret_blink_on())
@@ -538,9 +538,9 @@ pub(super) fn draw_text(
 
     if let Some(error) = panel.editor_error.as_deref().or(snapshot.error.as_deref()) {
         let user_error = crate::ux::UserFacingError::new(
-            "远端文件操作失败",
+            "Error en la operación con archivos remotos",
             error,
-            "检查网络和目录权限，然后点击刷新重试。",
+            "Revisa la red y los permisos de la carpeta y pulsa Actualizar para reintentar.",
         )
         .retry(crate::ux::RetryAction::Retry);
         renderer.draw_chrome_text(
@@ -556,7 +556,7 @@ pub(super) fn draw_text(
             layout.panel.0 + s(14.0),
             layout.list_y + s(20.0),
             skin.ink_dim,
-            &super::truncate_tab_label(&format!("原因：{}", user_error.cause), 30),
+            &super::truncate_tab_label(&format!("Motivo: {}", user_error.cause), 30),
             glyph_cache,
         );
         renderer.draw_chrome_text(
@@ -564,7 +564,7 @@ pub(super) fn draw_text(
             layout.panel.0 + s(14.0),
             layout.list_y + s(40.0),
             skin.accent,
-            "建议：检查权限后点击刷新",
+            "Consejo: revisa los permisos y pulsa Actualizar",
             glyph_cache,
         );
     } else if matches!(snapshot.phase, SftpPhase::Connecting | SftpPhase::Loading) {
@@ -573,7 +573,7 @@ pub(super) fn draw_text(
             layout.panel.0 + s(14.0),
             layout.list_y,
             skin.ink_dim,
-            "正在读取远端目录…",
+            "Leyendo carpeta remota…",
             glyph_cache,
         );
     } else {
@@ -622,15 +622,15 @@ pub(super) fn draw_text(
         if panel.visible_entries().is_empty() {
             let empty = if panel.filter.is_empty() {
                 crate::ux::EmptyState::new(
-                    "此目录为空",
-                    "远端目录中还没有文件或子目录。",
-                    "使用上方上传按钮添加第一个文件。",
+                    "Esta carpeta está vacía",
+                    "La carpeta remota aún no tiene archivos ni subcarpetas.",
+                    "Usa el botón Subir de arriba para añadir el primer archivo.",
                 )
             } else {
                 crate::ux::EmptyState::new(
-                    "没有匹配文件",
-                    "当前筛选条件未匹配任何远端条目。",
-                    "修改筛选词或清空筛选框。",
+                    "Sin coincidencias",
+                    "El filtro actual no coincide con ningún elemento remoto.",
+                    "Cambia el filtro o vacía el cuadro de filtro.",
                 )
             };
             renderer.draw_chrome_text(
@@ -664,7 +664,7 @@ pub(super) fn draw_text(
         let label = snapshot
             .progress
             .as_ref()
-            .map_or("正在处理 · 点击取消", |progress| progress.label.as_str());
+            .map_or("Procesando · pulsa para cancelar", |progress| progress.label.as_str());
         renderer.draw_chrome_text(
             size,
             layout.cancel.0 + s(8.0),
@@ -678,7 +678,7 @@ pub(super) fn draw_text(
             layout.cancel.0 + layout.cancel.2 - s(42.0),
             text_y(layout.cancel),
             skin.ink_dim,
-            "取消",
+            "Cancelar",
             glyph_cache,
         );
     }

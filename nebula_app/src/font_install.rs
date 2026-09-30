@@ -247,7 +247,7 @@ pub fn enumerate_system_font_families() -> Vec<SystemFontFamily> {
 #[cfg(windows)]
 pub fn probe_font_file_families(path: &Path) -> Result<Vec<String>, String> {
     let file = dwrote::FontFile::new_from_path(path)
-        .ok_or_else(|| format!("DirectWrite 无法解析 {}", path.display()))?;
+        .ok_or_else(|| format!("DirectWrite no puede interpretar {}", path.display()))?;
     let loader = dwrote::CustomFontCollectionLoaderImpl::new(&[file]);
     let collection = dwrote::FontCollection::from_loader(loader);
     let families = collection
@@ -255,7 +255,7 @@ pub fn probe_font_file_families(path: &Path) -> Result<Vec<String>, String> {
         .filter_map(|family| family.family_name().ok())
         .collect::<Vec<_>>();
     if families.is_empty() {
-        return Err("字体文件不含可用的字体族".to_owned());
+        return Err("El archivo de fuente no contiene familias utilizables".to_owned());
     }
     Ok(families)
 }
@@ -304,12 +304,12 @@ fn font_files_in(dir: &Path) -> Vec<PathBuf> {
 
 pub fn store_imported_font(source: &Path) -> Result<StoredFont, String> {
     if !supported_font_extension(source) {
-        return Err("只支持 .ttf、.otf、.ttc 和 .otc 字体文件".to_owned());
+        return Err("Solo se admiten archivos de fuente .ttf, .otf, .ttc y .otc".to_owned());
     }
     let bytes = std::fs::read(source)
-        .map_err(|error| format!("无法读取字体 {}: {error}", source.display()))?;
+        .map_err(|error| format!("No se pudo leer la fuente {}: {error}", source.display()))?;
     if bytes.is_empty() || bytes.len() > MAX_IMPORTED_FONT_BYTES {
-        return Err("字体文件为空或超过 64 MB 限制".to_owned());
+        return Err("El archivo de fuente está vacío o supera el límite de 64 MB".to_owned());
     }
 
     let digest = Sha256::digest(&bytes);
@@ -317,12 +317,12 @@ pub fn store_imported_font(source: &Path) -> Result<StoredFont, String> {
     let extension = source.extension().and_then(|value| value.to_str()).unwrap_or("ttf");
     let directory = imported_font_directory();
     std::fs::create_dir_all(&directory)
-        .map_err(|error| format!("无法创建字体目录 {}: {error}", directory.display()))?;
+        .map_err(|error| format!("No se pudo crear la carpeta de fuentes {}: {error}", directory.display()))?;
     let path = directory.join(format!("{id}.{}", extension.to_ascii_lowercase()));
     let created = !path.exists();
     if created {
         std::fs::write(&path, bytes)
-            .map_err(|error| format!("无法保存导入字体 {}: {error}", path.display()))?;
+            .map_err(|error| format!("No se pudo guardar la fuente importada {}: {error}", path.display()))?;
     }
     Ok(StoredFont { path, created })
 }

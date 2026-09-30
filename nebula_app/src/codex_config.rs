@@ -1,6 +1,6 @@
-//! Explicit export of one Pebrel provider to Codex CLI configuration.
+//! Explicit export of one PoxiTerminal provider to Codex CLI configuration.
 //!
-//! Pebrel normally keeps API keys in the Windows Credential Manager. Codex's
+//! PoxiTerminal normally keeps API keys in the Windows Credential Manager. Codex's
 //! file auth mode consumes `OPENAI_API_KEY` from `auth.json`, so this module is
 //! called only after a second user confirmation and always backs up both live
 //! files before replacing them.
@@ -17,15 +17,15 @@ use crate::ai_providers::AiProvider;
 
 pub fn apply_provider(provider: &AiProvider) -> Result<PathBuf, String> {
     if !provider.kind.uses_openai_protocol() {
-        return Err("Codex 需要 Responses/OpenAI 兼容供应商".to_owned());
+        return Err("Codex necesita un proveedor compatible con Responses/OpenAI".to_owned());
     }
     let secret = crate::ai_providers::load_api_key(&provider.id)
-        .map_err(|_| "无法从凭据管理器读取 API Key".to_owned())?
-        .ok_or_else(|| "请先保存 API Key".to_owned())?;
+        .map_err(|_| "No se pudo leer la API Key del administrador de credenciales".to_owned())?
+        .ok_or_else(|| "Guarda primero la API Key".to_owned())?;
     let key = Zeroizing::new(
-        String::from_utf8(secret).map_err(|_| "凭据管理器中的 API Key 编码无效".to_owned())?,
+        String::from_utf8(secret).map_err(|_| "La API Key del administrador de credenciales tiene una codificación no válida".to_owned())?,
     );
-    let home = codex_home().ok_or_else(|| "无法确定 Codex 配置目录".to_owned())?;
+    let home = codex_home().ok_or_else(|| "No se pudo determinar el directorio de configuración de Codex".to_owned())?;
     apply_to_dir(&home, provider, key.as_str()).map_err(|error| error.to_string())?;
     Ok(home)
 }
@@ -89,7 +89,7 @@ fn apply_to_dir(home: &Path, provider: &AiProvider, api_key: &str) -> io::Result
         None => JsonValue::Object(Map::new()),
     };
     let object = auth.as_object_mut().ok_or_else(|| {
-        io::Error::new(io::ErrorKind::InvalidData, "Codex auth.json 顶层必须是 JSON 对象")
+        io::Error::new(io::ErrorKind::InvalidData, "El nivel superior de auth.json de Codex debe ser un objeto JSON")
     })?;
     object.insert("OPENAI_API_KEY".to_owned(), JsonValue::String(api_key.to_owned()));
     let auth_text = Zeroizing::new(

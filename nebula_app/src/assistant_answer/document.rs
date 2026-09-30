@@ -67,13 +67,15 @@ pub fn prepare(source: &str) -> ReaderDocument {
                     images_omitted += 1;
                     replacements.push((
                         range,
-                        "\n\n图片数量超过本次阅读上限；原文仍可复制。\n\n".into(),
+                        "\n\nHay más imágenes de las que admite esta lectura; el texto original se \
+                         puede copiar.\n\n"
+                            .into(),
                         None,
                     ));
                     continue;
                 }
                 let alt = if alt.is_empty() {
-                    format!("图片 {}", image_count + 1)
+                    format!("Imagen {}", image_count + 1)
                 } else {
                     alt.to_owned()
                 };
@@ -245,7 +247,7 @@ pub fn literal_markdown(source: &str) -> String {
 
 pub fn local_image_path(target: &str, base: &Path) -> Result<PathBuf, String> {
     if target.len() > 4096 || target.chars().any(char::is_control) {
-        return Err("图片路径无效，未读取文件。".into());
+        return Err("Ruta de imagen no válida; no se ha leído el archivo.".into());
     }
     let lower = target.to_ascii_lowercase();
     if lower.contains("://")
@@ -254,14 +256,22 @@ pub fn local_image_path(target: &str, base: &Path) -> Result<PathBuf, String> {
         || network_path(target)
         || network_path(&base.to_string_lossy())
     {
-        return Err("网络图片不会自动下载；可选择本地图片查看。".into());
+        return Err("Las imágenes remotas no se descargan automáticamente; elige una imagen \
+                    local para verla."
+            .into());
     }
     let path = Path::new(target);
     let path = if path.is_absolute() { path.to_path_buf() } else { base.join(path) };
-    let root = base.canonicalize().map_err(|_| "无法确认当前本地目录，未读取图片。".to_owned())?;
-    let path = path.canonicalize().map_err(|_| "图片文件不存在或无法访问。".to_owned())?;
+    let root = base.canonicalize().map_err(|_| {
+        "No se pudo confirmar el directorio local actual; no se ha leído la imagen.".to_owned()
+    })?;
+    let path = path
+        .canonicalize()
+        .map_err(|_| "El archivo de imagen no existe o no es accesible.".to_owned())?;
     if !path.starts_with(root) {
-        return Err("图片不在当前目录内；请主动选择文件后查看。".into());
+        return Err("La imagen está fuera del directorio actual; elige el archivo manualmente \
+                    para verla."
+            .into());
     }
     Ok(path)
 }
@@ -276,25 +286,28 @@ pub fn read_image(path: &Path) -> Result<Vec<u8>, String> {
         .metadata()
         .is_ok_and(|metadata| metadata.is_file() && metadata.len() <= MAX_IMAGE_BYTES)
     {
-        return Err("图片不是普通文件，或超过 12 MiB 上限。".into());
+        return Err("La imagen no es un archivo normal o supera el límite de 12 MiB.".into());
     }
-    let file = std::fs::File::open(path).map_err(|_| "无法打开图片文件。".to_owned())?;
-    let metadata = file.metadata().map_err(|_| "无法读取图片文件信息。".to_owned())?;
+    let file = std::fs::File::open(path)
+        .map_err(|_| "No se pudo abrir el archivo de imagen.".to_owned())?;
+    let metadata = file
+        .metadata()
+        .map_err(|_| "No se pudo leer la información del archivo de imagen.".to_owned())?;
     if !metadata.is_file() || metadata.len() > MAX_IMAGE_BYTES {
-        return Err("图片不是普通文件，或超过 12 MiB 上限。".into());
+        return Err("La imagen no es un archivo normal o supera el límite de 12 MiB.".into());
     }
     let mut bytes = Vec::new();
     file.take(MAX_IMAGE_BYTES + 1)
         .read_to_end(&mut bytes)
-        .map_err(|_| "无法完整读取图片。".to_owned())?;
+        .map_err(|_| "No se pudo leer la imagen completa.".to_owned())?;
     if bytes.len() as u64 > MAX_IMAGE_BYTES {
-        return Err("图片超过 12 MiB 上限，未解码。".into());
+        return Err("La imagen supera el límite de 12 MiB; no se ha decodificado.".into());
     }
     if !matches!(
         image::guess_format(&bytes),
         Ok(image::ImageFormat::Png | image::ImageFormat::Jpeg)
     ) {
-        return Err("本版阅读视图仅支持 PNG / JPEG 图片。".into());
+        return Err("Esta vista de lectura solo admite imágenes PNG / JPEG.".into());
     }
     Ok(bytes)
 }

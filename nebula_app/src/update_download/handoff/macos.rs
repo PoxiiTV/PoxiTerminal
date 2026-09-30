@@ -70,7 +70,7 @@ fn run(path: &Path) -> Result<(), String> {
         if native::process_created(participant.pid).map_err(|e| e.to_string())? != Some(created)
             || native::running_copies(&plan.executable)? != vec![participant.pid]
         {
-            return Err("Close other copies of this Pebrel application before updating".into());
+            return Err("Close other copies of this PoxiTerminal application before updating".into());
         }
         native::verify_bundle(&plan.installation, &plan.original_version)?;
         let original_digest = file_digest(&plan.executable)?;
@@ -116,7 +116,7 @@ fn run(path: &Path) -> Result<(), String> {
         while native::process_created(participant.pid).map_err(|e| e.to_string())? == Some(created)
         {
             if Instant::now() >= deadline {
-                return Err("Pebrel did not exit; its application was not replaced".into());
+                return Err("PoxiTerminal did not exit; its application was not replaced".into());
             }
             std::thread::sleep(Duration::from_millis(50));
         }
@@ -193,14 +193,14 @@ fn relaunch(plan: &Plan, path: &Path) -> Result<(), String> {
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()
-        .map_err(|e| format!("Could not relaunch Pebrel: {e}"))?;
+        .map_err(|e| format!("Could not relaunch PoxiTerminal: {e}"))?;
     let deadline = Instant::now() + Duration::from_secs(2);
     while Instant::now() < deadline {
         if let Some(status) = child.try_wait().map_err(|e| e.to_string())? {
             return if status.success() {
                 Ok(())
             } else {
-                Err(format!("Updated Pebrel exited with {status}"))
+                Err(format!("Updated PoxiTerminal exited with {status}"))
             };
         }
         std::thread::sleep(Duration::from_millis(50));

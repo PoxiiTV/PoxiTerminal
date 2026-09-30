@@ -104,7 +104,7 @@ fn desktop_entry(executable: &Path) -> io::Result<String> {
     }
     let argument = argument.replace('\\', "\\\\");
     Ok(format!(
-        "[Desktop Entry]\nType=Application\nName=Pebrel\nExec=\"{argument}\" --gpui\nTerminal=false\nX-GNOME-Autostart-enabled=true\n"
+        "[Desktop Entry]\nType=Application\nName=PoxiTerminal\nExec=\"{argument}\" --gpui\nTerminal=false\nX-GNOME-Autostart-enabled=true\n"
     ))
 }
 
@@ -118,7 +118,7 @@ mod tests {
         let appdir = root.path().join("mount");
         std::fs::create_dir_all(appdir.join("usr/bin")).unwrap();
         let executable = appdir.join("usr/bin/pebrel");
-        let image = root.path().join("Pebrel.AppImage");
+        let image = root.path().join("PoxiTerminal.AppImage");
         std::fs::write(&executable, b"fixture").unwrap();
         std::fs::write(&image, b"fixture").unwrap();
         assert_eq!(linux_launcher(&executable, Some(&image), Some(&appdir)), image);

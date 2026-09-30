@@ -81,7 +81,7 @@ impl FileStamp {
         if !metadata.is_file() {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
-                format!("本地源不是普通文件: {}", path.display()),
+                format!("El origen local no es un archivo normal: {}", path.display()),
             ));
         }
         let modified = metadata.modified().ok().and_then(system_time_seconds);
@@ -149,7 +149,7 @@ fn local_sibling_path(destination: &Path, marker: &str, nonce: u64) -> io::Resul
     let name = destination
         .file_name()
         .and_then(|name| name.to_str())
-        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "目标路径缺少有效文件名"))?;
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "La ruta de destino no tiene un nombre de archivo válido"))?;
     Ok(destination.with_file_name(format!(".{name}.{marker}-{nonce:016x}")))
 }
 
@@ -173,7 +173,7 @@ pub(super) async fn duplicate_local_path(
     let name = destination
         .file_name()
         .and_then(|name| name.to_str())
-        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "目标路径缺少有效文件名"))?;
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "La ruta de destino no tiene un nombre de archivo válido"))?;
     for index in 1..1000 {
         let candidate = destination.with_file_name(duplicate_name(name, is_directory, index));
         match tokio::fs::symlink_metadata(&candidate).await {
@@ -184,7 +184,7 @@ pub(super) async fn duplicate_local_path(
     }
     Err(io::Error::new(
         io::ErrorKind::AlreadyExists,
-        format!("无法为“保留两者”找到可用名称: {}", destination.display()),
+        format!("No se encontró un nombre libre para «Conservar ambos»: {}", destination.display()),
     ))
 }
 
@@ -213,7 +213,7 @@ async fn set_remote_staging_metadata(
         if let Err(error) = sftp.set_metadata(staging.to_owned(), attributes).await {
             // 时间戳失败只会让 skip-unchanged 少命中，不能在完整 staging 已写好后
             // 把一次新文件上传判成失败；已有目标的权限恢复则在上面严格执行。
-            log::warn!("无法恢复远端文件时间戳（{staging}）: {error}");
+            log::warn!("No se pudo restaurar la marca de tiempo del archivo remoto ({staging}): {error}");
         }
     }
     Ok(())
@@ -262,7 +262,7 @@ pub(super) async fn upload_file_checked(
 
     if existing.as_ref().is_some_and(FileAttributes::is_dir) {
         return Err(
-            io::Error::other(format!("远端目标是目录，不能用文件覆盖: {destination}")).into()
+            io::Error::other(format!("El destino remoto es un directorio y no se puede sobrescribir con un archivo: {destination}")).into()
         );
     }
     if existing.as_ref().is_some_and(FileAttributes::is_symlink) {
@@ -314,14 +314,14 @@ pub(super) async fn upload_file_checked(
             if let Err(restore_error) = restore_remote_backup(sftp, &backup, destination).await {
                 preserve_staging = true;
                 return Err(io::Error::other(format!(
-                    "替换远端文件失败，且旧文件自动恢复失败；旧文件位于 {backup}，新文件位于 {staging}。发布错误: {publish_error}；恢复错误: {restore_error}"
+                    "No se pudo reemplazar el archivo remoto ni restaurar el anterior automáticamente; el anterior está en {backup} y el nuevo en {staging}. Error al publicar: {publish_error}; error al restaurar: {restore_error}"
                 ))
                 .into());
             }
             return Err(publish_error.into());
         }
         if let Err(error) = sftp.remove_file(backup.clone()).await {
-            log::warn!("远端替换已完成，但旧文件备份清理失败（{backup}）: {error}");
+            log::warn!("Reemplazo remoto completado, pero no se pudo limpiar la copia del archivo anterior ({backup}): {error}");
         }
         Ok(())
     }
@@ -340,7 +340,7 @@ async fn set_local_modified(path: PathBuf, modified: u64) -> io::Result<()> {
         file.set_times(std::fs::FileTimes::new().set_modified(time))
     })
     .await
-    .map_err(|error| io::Error::other(format!("设置本地文件时间戳任务失败: {error}")))?
+    .map_err(|error| io::Error::other(format!("Falló la tarea de fijar la marca de tiempo del archivo local: {error}")))?
 }
 
 pub(super) async fn publish_local_file(
@@ -377,7 +377,7 @@ pub(super) async fn publish_local_file(
         .await;
         if let Err(error) = write_result {
             return Err(io::Error::other(format!(
-                "写入本地符号链接目标失败；完整下载保留在 {}。错误: {error}",
+                "No se pudo escribir el destino del enlace simbólico local; la descarga completa se conserva en {}. Error: {error}",
                 staging.display()
             ))
             .into());
@@ -386,13 +386,13 @@ pub(super) async fn publish_local_file(
         if modified != 0
             && let Err(error) = set_local_modified(destination.to_owned(), modified).await
         {
-            log::warn!("无法恢复本地文件时间戳（{}）: {error}", destination.display());
+            log::warn!("No se pudo restaurar la marca de tiempo del archivo local ({}): {error}", destination.display());
         }
         return Ok(());
     }
     if existing.as_ref().is_some_and(|metadata| !metadata.is_file()) {
         return Err(io::Error::other(format!(
-            "本地目标不是普通文件，不能直接覆盖: {}",
+            "El destino local no es un archivo normal y no se puede sobrescribir: {}",
             destination.display()
         ))
         .into());
@@ -416,7 +416,7 @@ pub(super) async fn publish_local_file(
             if let Err(restore_error) = tokio::fs::rename(&backup, destination).await {
                 preserve_staging = true;
                 return Err(io::Error::other(format!(
-                    "替换本地文件失败，且旧文件自动恢复失败；旧文件位于 {}，新文件位于 {}。发布错误: {publish_error}；恢复错误: {restore_error}",
+                    "No se pudo reemplazar el archivo local ni restaurar el anterior automáticamente; el anterior está en {} y el nuevo en {}. Error al publicar: {publish_error}; error al restaurar: {restore_error}",
                     backup.display(),
                     staging.display()
                 ))
@@ -425,7 +425,7 @@ pub(super) async fn publish_local_file(
             return Err(publish_error.into());
         }
         if let Err(error) = tokio::fs::remove_file(&backup).await {
-            log::warn!("本地替换已完成，但旧文件备份清理失败（{}）: {error}", backup.display());
+            log::warn!("Reemplazo local completado, pero no se pudo limpiar la copia del archivo anterior ({}): {error}", backup.display());
         }
         Ok(())
     }
@@ -438,7 +438,7 @@ pub(super) async fn publish_local_file(
     if modified != 0
         && let Err(error) = set_local_modified(destination.to_owned(), modified).await
     {
-        log::warn!("无法恢复本地文件时间戳（{}）: {error}", destination.display());
+        log::warn!("No se pudo restaurar la marca de tiempo del archivo local ({}): {error}", destination.display());
     }
     Ok(())
 }

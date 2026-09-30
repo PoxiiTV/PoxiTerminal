@@ -49,7 +49,7 @@ fn apply_local_console_defaults(
     }
     // Grok 1.0.25 treats unknown terminal identities on Windows as legacy consoles and
     // omits its Braille logo. Keep our real identity and use its capability override.
-    // Remove this default when Grok recognizes Pebrel's terminal capabilities.
+    // Remove this default when Grok recognizes PoxiTerminal's terminal capabilities.
     // A complete refreshed environment is authoritative, including deleted keys.
     if (!options.env_is_complete && inherited_override)
         || options.env.keys().any(|name| name.eq_ignore_ascii_case(GROK_LEGACY_CONSOLE))

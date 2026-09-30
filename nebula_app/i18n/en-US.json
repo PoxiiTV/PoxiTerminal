@@ -1,6 +1,6 @@
 {
   "tray": {
-    "show": "Show Pebrel",
+    "show": "Show PoxiTerminal",
     "quit": "Quit"
   },
   "notification": {
@@ -28,7 +28,7 @@
     },
     "environment": {
       "refresh": "Refresh system environment for new terminals",
-      "refresh_description": "Read current Windows environment settings when opening a terminal. Turn off to inherit the environment used to launch Pebrel, including temporary PATH entries. Open terminals are unchanged."
+      "refresh_description": "Read current Windows environment settings when opening a terminal. Turn off to inherit the environment used to launch PoxiTerminal, including temporary PATH entries. Open terminals are unchanged."
     },
     "cursor_motion": {
       "title": "Smooth cursor",
@@ -188,14 +188,14 @@
     "reset_description": "This will reset your settings and keyboard shortcuts. SSH hosts, credentials and history will be kept, and your current settings will be backed up. Continue?",
     "startup": {
       "launch_at_login": "Start at login",
-      "launch_at_login_help": "Start Pebrel when you sign in to Windows. Uses the same startup shortcut as the installer.",
+      "launch_at_login_help": "Start PoxiTerminal when you sign in to Windows. Uses the same startup shortcut as the installer.",
       "silent_start": "Start silently",
       "silent_start_help": "Start in the background without showing a window. Enables the system tray; click its icon to reopen. Applies while the tray is enabled, except when opening a directory explicitly.",
       "save_failed": "Could not change startup settings: {error}"
     },
     "agents": {
       "title": "Coding agents",
-      "description": "Show agent activity, completion and approval requests in Pebrel. Claude Code and Codex are enabled by default.",
+      "description": "Show agent activity, completion and approval requests in PoxiTerminal. Claude Code and Codex are enabled by default.",
       "refresh": "Refresh",
       "platform_unsupported": "Automatic hook installation is currently available on Windows.",
       "checking": "Checking installed agents and hooks…",
@@ -211,7 +211,7 @@
       "enabled": "Hooks installed. Restart the agent to apply.",
       "disabled": "Hooks removed. Restart the agent to apply.",
       "failed": "Could not update hooks: {error}",
-      "helper_missing": "The hook helper is missing. Repair the Pebrel installation to enable hooks.",
+      "helper_missing": "The hook helper is missing. Repair the PoxiTerminal installation to enable hooks.",
       "needs_repair": "Hook installed · needs repair",
       "initialize": "Run this agent once to create its configuration, then refresh.",
       "config_path": "Configuration: {path}"
@@ -367,7 +367,7 @@
     "session": "Session",
     "key": "Key",
     "action": "Action",
-    "update_notice": "Pebrel v{latest} is available (current v{current})",
+    "update_notice": "PoxiTerminal v{latest} is available (current v{current})",
     "copied_lines": "Copied {lines} lines to clipboard",
     "copy_working_directory": "Copy working directory",
     "cwd_copied": "Working directory copied",
@@ -719,7 +719,7 @@
     "edit": "Edit",
     "delete": "Delete",
     "default_saved": "{shell} is now the default Shell.",
-    "admin_started": "Requested {shell} in a new administrator Pebrel window.",
+    "admin_started": "Requested {shell} in a new administrator PoxiTerminal window.",
     "admin_cancelled": "Administrator launch cancelled.",
     "admin_failed": "Could not open an administrator terminal: {error}"
   },
@@ -884,11 +884,11 @@
     "skip_version": "Skip version",
     "restart_install": "Restart and install",
     "install_next_launch": "Install on launch",
-    "ready_hint": "The update is ready. Pebrel will save your workspace and exit before installation, then reopen it.",
+    "ready_hint": "The update is ready. PoxiTerminal will save your workspace and exit before installation, then reopen it.",
     "later": "Later",
-    "prepare_failed": "Could not prepare the update: {error}. Pebrel will stay open.",
+    "prepare_failed": "Could not prepare the update: {error}. PoxiTerminal will stay open.",
     "draft_changed": "A document changed while preparing to exit. Save or discard the latest changes, then retry.",
-    "in_progress": "This installation is being updated. Wait for the update to finish; Pebrel will reopen automatically."
+    "in_progress": "This installation is being updated. Wait for the update to finish; PoxiTerminal will reopen automatically."
   },
   "files.search_failed": "Unable to complete search",
   "files.search_running": "Searching…",
@@ -1054,7 +1054,7 @@
     "busy_other": "Another host is transferring: {destination}"
   },
   "backup_flow": {
-    "password_notice": "Pebrel keeps this password in memory only for the current run and never writes it to disk. You will be asked again for the first backup after restarting. If you forget it, existing backups cannot be unlocked.",
+    "password_notice": "PoxiTerminal keeps this password in memory only for the current run and never writes it to disk. You will be asked again for the first backup after restarting. If you forget it, existing backups cannot be unlocked.",
     "connect_provider": "Connect {provider}",
     "address_label": "Address",
     "folder_label": "Directory",
@@ -1072,7 +1072,7 @@
     "bucket_placeholder": "pebrel-backup",
     "access_key_placeholder": "AKIA…",
     "secret_key_placeholder": "Enter it here once",
-    "folder_placeholder": "D:\\OneDrive\\Pebrel",
+    "folder_placeholder": "D:\\OneDrive\\PoxiTerminal",
     "remote_path_placeholder": "~/pebrel-backup",
     "new_password_placeholder": "At least 8 characters",
     "webdav_address_hint": "Start with https://. HTTP for a self-hosted NAS must be explicitly allowed in the backup configuration file.",
@@ -1164,7 +1164,7 @@
     "pair_description": "This QR code can be used once and expires after 10 minutes.",
     "lan": "LAN / Tailscale",
     "relay": "Self-hosted relay",
-    "step_open": "Open Pebrel on your phone",
+    "step_open": "Open PoxiTerminal on your phone",
     "step_scan": "Tap Connect computer and scan the QR code",
     "step_approve": "Compare the verification codes, then approve this phone here",
     "step_relay": "Use the same relay server on your phone and computer",

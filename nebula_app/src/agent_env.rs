@@ -50,8 +50,8 @@ const LEGACY_CLI_ENV: &str = "NEBULA_CLI";
 pub const BIN_DIR_ENV: &str = "PEBREL_BIN_DIR";
 const LEGACY_BIN_DIR_ENV: &str = "NEBULA_BIN_DIR";
 
-/// 当前 Pebrel 进程的 PID。和 pane id 一起构成进程归属，避免两个同时运行的
-/// Pebrel 实例各自的 pane 1 被身份探测混在一起；数字值可原样穿过 WSL。
+/// 当前 PoxiTerminal 进程的 PID。和 pane id 一起构成进程归属，避免两个同时运行的
+/// PoxiTerminal 实例各自的 pane 1 被身份探测混在一起；数字值可原样穿过 WSL。
 pub const PROCESS_ENV: &str = "PEBREL_PROCESS_ID";
 
 const TERM_PROGRAM_ENV: &str = "TERM_PROGRAM";

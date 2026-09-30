@@ -13,7 +13,7 @@ use crate::theme_library::{ImportCandidate, ThemeFormat};
 use gpui::accesskit::Role;
 
 const EXPORT_FORMATS: [ThemeFormat; 6] = [
-    ThemeFormat::Pebrel,
+    ThemeFormat::PoxiTerminal,
     ThemeFormat::WindowsTerminal,
     ThemeFormat::Kitty,
     ThemeFormat::Ghostty,

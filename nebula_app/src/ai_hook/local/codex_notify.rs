@@ -112,7 +112,7 @@ pub(super) fn remove_codex_notify() -> std::io::Result<bool> {
 mod codex_notify_tests {
     use super::{desired_codex_notify, stripped_codex_notify};
 
-    const HELPER: &str = "C:/Program Files/Pebrel/runtime/pebrel-hook.exe";
+    const HELPER: &str = "C:/Program Files/PoxiTerminal/runtime/pebrel-hook.exe";
 
     fn argv(args: &[&str]) -> Vec<String> {
         args.iter().map(|s| (*s).to_owned()).collect()

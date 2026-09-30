@@ -16,7 +16,7 @@ pub(super) fn palette_row(language: crate::display::UiLanguage) -> WorkspacePale
         label: language.text(Message::RecipeOpenLibrary).to_owned(),
         hint: "Ctrl+Alt+Shift+S".into(),
         hint_style: WorkspacePaletteHintStyle::Shortcut,
-        search: "recipe layout save restore 布局 配方 保存 恢复".into(),
+        search: "recipe layout save restore 布局 配方 保存 恢复 receta diseño guardar restaurar".into(),
         action: WorkspacePaletteAction::LayoutRecipes,
         icon: None,
         icon_glyph: None,

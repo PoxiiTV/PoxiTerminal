@@ -60,7 +60,6 @@ fn run_init(options: ConfigInitOptions) -> i32 {
     let language = match template::resolve_template_language(
         Some(requested_language),
         None,
-        template::system_locale().as_deref(),
     ) {
         Ok(language) => language,
         Err(error) => {

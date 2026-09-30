@@ -76,20 +76,20 @@ pub(crate) fn bundle(executable: &Path) -> Result<PathBuf, String> {
         || contents.file_name().is_none_or(|n| n != "Contents")
         || bundle.extension().is_none_or(|e| e != "app")
     {
-        return Err("Automatic installation requires a packaged Pebrel .app. Install it from the Releases page first.".into());
+        return Err("Automatic installation requires a packaged PoxiTerminal .app. Install it from the Releases page first.".into());
     }
     if !matches!(
         property(bundle, "CFBundleIdentifier")?.as_str(),
         "io.github.kuddev.pebrel" | "io.github.kuddev.pebrel.preview"
     ) || property(bundle, "CFBundleExecutable")? != "pebrel"
     {
-        return Err("This is not an official Pebrel application bundle".into());
+        return Err("This is not an official PoxiTerminal application bundle".into());
     }
     if bundle.starts_with("/Volumes")
         || bundle.components().any(|p| p.as_os_str() == "AppTranslocation")
     {
         return Err(
-            "Move Pebrel to a writable Applications folder before installing updates".into()
+            "Move PoxiTerminal to a writable Applications folder before installing updates".into()
         );
     }
     Ok(bundle.to_owned())
@@ -263,7 +263,7 @@ mod tests {
     #[test]
     fn atomic_exchange_keeps_a_complete_original_and_can_roll_back() {
         let dir = tempfile::tempdir().unwrap();
-        let old = dir.path().join("Pebrel.app");
+        let old = dir.path().join("PoxiTerminal.app");
         let new = dir.path().join("staged.app");
         std::fs::create_dir(&old).unwrap();
         std::fs::create_dir(&new).unwrap();
@@ -280,7 +280,7 @@ mod tests {
     #[test]
     fn developer_executables_are_not_treated_as_installable_bundles() {
         assert!(bundle(Path::new("/tmp/target/debug/pebrel")).is_err());
-        assert!(bundle(Path::new("/tmp/Pebrel.app/Contents/MacOS/not-pebrel")).is_err());
+        assert!(bundle(Path::new("/tmp/PoxiTerminal.app/Contents/MacOS/not-pebrel")).is_err());
     }
     #[test]
     fn process_identity_and_executable_inspection_find_this_process() {

@@ -23,7 +23,7 @@ pub(super) fn request_once(
     timeout: Duration,
 ) -> Result<ApiResponse, Box<dyn Error>> {
     let endpoint = read_endpoint()
-        .ok_or_else(|| CliError::new("runtime_unavailable", "no resident Pebrel runtime found"))?;
+        .ok_or_else(|| CliError::new("runtime_unavailable", "no resident PoxiTerminal runtime found"))?;
     let request = ApiRequest::new(endpoint.token.clone(), method, params);
     read_response(&endpoint, &request, timeout)
         .map_err(|error| input_transport_error(method, error))
@@ -36,7 +36,7 @@ pub(crate) fn request_once_bounded(
     timeout: Duration,
 ) -> Result<ApiResponse, ApiError> {
     let endpoint = read_endpoint()
-        .ok_or_else(|| ApiError::new("runtime_unavailable", "no resident Pebrel runtime found"))?;
+        .ok_or_else(|| ApiError::new("runtime_unavailable", "no resident PoxiTerminal runtime found"))?;
     let request = ApiRequest::new(endpoint.token.clone(), method, params);
     let mut bytes = serde_json::to_vec(&request)
         .map_err(|error| ApiError::invalid_params(error.to_string()))?;
@@ -636,7 +636,7 @@ pub(super) fn wait_state_name(state: ControlWaitState) -> &'static str {
 
 fn subscribe_cli(since: Option<u64>, timeout: Duration) -> Result<(), Box<dyn Error>> {
     let endpoint = read_endpoint()
-        .ok_or_else(|| CliError::new("runtime_unavailable", "no resident Pebrel runtime found"))?;
+        .ok_or_else(|| CliError::new("runtime_unavailable", "no resident PoxiTerminal runtime found"))?;
     let request = ApiRequest::new(
         endpoint.token.clone(),
         "events.subscribe",

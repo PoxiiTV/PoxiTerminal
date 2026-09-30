@@ -766,7 +766,7 @@ pub enum RuntimeCommand {
         /// 普通启动 / Explorer 右键要求新开窗口时，把目标目录一路带到首个标签。
         cwd: Option<PathBuf>,
         /// 命令行 `--shell <id>` 指名要用的 shell；`None` = 用设置里的默认 shell。
-        /// 右键菜单「在 Pebrel 中打开（Ubuntu）」靠它把 WSL 意图带进已有实例。
+        /// 右键菜单「在 PoxiTerminal 中打开（Ubuntu）」靠它把 WSL 意图带进已有实例。
         shell_id: Option<String>,
     },
     CloseWindow {

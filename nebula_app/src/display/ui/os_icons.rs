@@ -125,7 +125,7 @@ pub(crate) fn picker_rows(needle: &str, zh: bool) -> Vec<PickerRow> {
     let mut rows = Vec::with_capacity(CATALOG.len() + 3);
     // 「自动识别」不属于任何一组：它不是一个形状，是"别管这个字段"。放在
     // 最顶上，和它作为默认值的身份一致。
-    if hit(&["auto", "自动", "自动识别", "automatic"]) {
+    if hit(&["auto", "自动", "自动识别", "automatic", "automático", "detectar"]) {
         rows.push(PickerRow::Option(None));
     }
     for (title, range) in [
@@ -135,7 +135,9 @@ pub(crate) fn picker_rows(needle: &str, zh: bool) -> Vec<PickerRow> {
         let mut header_done = false;
         for index in range {
             let icon = &CATALOG[index];
-            if !hit(&[icon.id, icon.zh, icon.en]) {
+            // 西语名也进关键词：界面默认西语，用户会按看到的名字搜。
+            let es = crate::i18n::UiLanguage::EsEs.pick(icon.zh, icon.en);
+            if !hit(&[icon.id, icon.zh, icon.en, es]) {
                 continue;
             }
             if !header_done {

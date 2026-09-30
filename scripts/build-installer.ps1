@@ -7,8 +7,8 @@ param(
     [ValidateSet('release')]
     [string] $Configuration = 'release',
 
-    [ValidateSet('NebulaTerminal', 'Pebrel')]
-    [string] $PackageBrand = 'Pebrel',
+    [ValidateSet('PoxiTerminal')]
+    [string] $PackageBrand = 'PoxiTerminal',
 
     [ValidateSet('x64', 'arm64')]
     [string] $Architecture = 'x64',
@@ -30,9 +30,6 @@ Set-StrictMode -Version Latest
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $manifestPath = Join-Path $repo 'nebula_app\Cargo.toml'
 $installerScript = Join-Path $PSScriptRoot 'installer.iss'
-$translationPath = Join-Path $repo 'target\installer-tools\ChineseSimplified.isl'
-$translationUrl = 'https://raw.githubusercontent.com/jrsoftware/issrc/c495623a97376d524f298b1b160e8fd612375c62/Files/Languages/ChineseSimplified.isl'
-$translationSha256 = '6753BE2C5E2740D859900FD902824DB2EC568DA5C5B52486524C9762D778B0B0'
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
     $cargoManifest = Get-Content -LiteralPath $manifestPath -Raw -Encoding UTF8
@@ -64,13 +61,11 @@ $targetRoot = Join-Path $cargoTargetRoot $Configuration
 $setupPath = Join-Path $outputRoot "$PackageBrand-v$Version-windows-$Architecture-setup.exe"
 
 $requiredFiles = @(
-    (Join-Path $targetRoot 'pebrel.exe'),
+    (Join-Path $targetRoot 'poxiterminal.exe'),
     (Join-Path $targetRoot 'pebrel-hook.exe'),
     (Join-Path $targetRoot 'conpty.dll'),
     (Join-Path $targetRoot 'OpenConsole.exe'),
     (Join-Path $repo 'README.md'),
-    (Join-Path $repo 'README.zh-CN.md'),
-    (Join-Path $repo 'CHANGELOG.md'),
     (Join-Path $repo 'INSTALL.md'),
     (Join-Path $repo 'docs\lua-configuration.md'),
     (Join-Path $repo 'docs\runtime-control-api.md'),
@@ -97,11 +92,11 @@ if ($missing.Count -ne 0) {
     throw "Required installer files are missing:`n$($missing -join "`n")"
 }
 
-$packagedExe = Join-Path $targetRoot 'pebrel.exe'
+$packagedExe = Join-Path $targetRoot 'poxiterminal.exe'
 . (Join-Path $PSScriptRoot 'windows-package-architecture.ps1')
 Assert-WindowsPackageArchitecture -Root $targetRoot -Architecture $Architecture
-if ($PackageBrand -eq 'Pebrel' -and (Get-Item -LiteralPath $packagedExe).VersionInfo.ProductName -ne 'Pebrel') {
-    throw 'Pebrel packages require a freshly built Pebrel executable, not renamed Nebula binaries.'
+if ((Get-Item -LiteralPath $packagedExe).VersionInfo.ProductName -ne 'PoxiTerminal') {
+    throw 'PoxiTerminal packages require a freshly built PoxiTerminal executable.'
 }
 # 判据同 package-release.ps1：二进制不得早于其源码最新改动；cargo 对未
 # 变更目标不重链接，不能拿运行开始时刻当基准。
@@ -139,11 +134,11 @@ if (-not $AllowStale) {
 }
 $helpText = & $packagedExe --help 2>&1 | Out-String
 if ($helpText -notmatch '--gpui') {
-    throw "pebrel.exe at $packagedExe is the legacy shell (no --gpui in --help). Rebuild with --features gpui-shell; do not package a workspace-default binary."
+    throw "poxiterminal.exe at $packagedExe is the legacy shell (no --gpui in --help). Rebuild with --features gpui-shell; do not package a workspace-default binary."
 }
 $versionText = & $packagedExe --version 2>&1 | Out-String
 if ($versionText -notmatch [regex]::Escape($Version)) {
-    throw "pebrel.exe reports `"$($versionText.Trim())`" but the installer version is $Version. The staged exe does not match this release."
+    throw "poxiterminal.exe reports `"$($versionText.Trim())`" but the installer version is $Version. The staged exe does not match this release."
 }
 
 if ($ValidateOnly) {
@@ -179,32 +174,6 @@ if ([string]::IsNullOrWhiteSpace($InnoCompiler)) {
 if ([string]::IsNullOrWhiteSpace($InnoCompiler) -or
     -not (Test-Path -LiteralPath $InnoCompiler -PathType Leaf)) {
     throw 'ISCC.exe was not found. Install Inno Setup 6 or pass -InnoCompiler / set ISCC_PATH.'
-}
-
-# Inno 的基础安装不内置第三方翻译。固定提交与哈希可以保留中文向导，
-# 同时避免发布构建悄悄接受上游后来被替换的内容。
-$translationValid = $false
-if (Test-Path -LiteralPath $translationPath -PathType Leaf) {
-    $actualTranslationHash =
-        (Get-FileHash -LiteralPath $translationPath -Algorithm SHA256).Hash
-    $translationValid = $actualTranslationHash -eq $translationSha256
-}
-if (-not $translationValid) {
-    $translationDirectory = Split-Path -Parent $translationPath
-    New-Item -ItemType Directory -Path $translationDirectory -Force | Out-Null
-    $temporaryTranslation = "$translationPath.$PID.tmp"
-    try {
-        Invoke-WebRequest -UseBasicParsing -Uri $translationUrl -OutFile $temporaryTranslation
-        $actualHash = (Get-FileHash -LiteralPath $temporaryTranslation -Algorithm SHA256).Hash
-        if ($actualHash -ne $translationSha256) {
-            throw "Chinese translation hash mismatch: expected $translationSha256, got $actualHash"
-        }
-        Move-Item -LiteralPath $temporaryTranslation -Destination $translationPath -Force
-    } finally {
-        if (Test-Path -LiteralPath $temporaryTranslation) {
-            Remove-Item -LiteralPath $temporaryTranslation -Force
-        }
-    }
 }
 
 Push-Location $PSScriptRoot

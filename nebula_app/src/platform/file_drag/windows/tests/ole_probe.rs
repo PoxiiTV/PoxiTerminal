@@ -158,7 +158,7 @@ fn native_worker_drag_reaches_an_ole_target_and_copies_unicode_file() {
     }
     let _apartment = Apartment;
     let class: Vec<u16> = "PebrelFileDragAcceptance\0".encode_utf16().collect();
-    let title: Vec<u16> = "Pebrel isolated drag acceptance\0".encode_utf16().collect();
+    let title: Vec<u16> = "PoxiTerminal isolated drag acceptance\0".encode_utf16().collect();
     let window_class = WNDCLASSW {
         lpfnWndProc: Some(procedure),
         lpszClassName: class.as_ptr(),

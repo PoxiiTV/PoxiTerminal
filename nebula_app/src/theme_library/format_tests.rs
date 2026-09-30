@@ -4,7 +4,7 @@ use super::*;
 use nebula_settings::{ThemeDefinition, ThemeName};
 
 const STATIC_FORMATS: [ThemeFormat; 6] = [
-    ThemeFormat::Pebrel,
+    ThemeFormat::PoxiTerminal,
     ThemeFormat::WindowsTerminal,
     ThemeFormat::Kitty,
     ThemeFormat::Ghostty,
@@ -37,7 +37,7 @@ fn fifteen_presets_retain_default_and_ansi_colors_in_six_static_formats() {
                 "{theme:?} / {format} foreground"
             );
             assert_eq!(imported.palette(), original.palette(), "{theme:?} / {format} ANSI");
-            if format == ThemeFormat::Pebrel {
+            if format == ThemeFormat::PoxiTerminal {
                 assert_eq!(imported, original, "native envelope must preserve every field");
             }
         }
@@ -56,7 +56,7 @@ fn indexed_colors_and_cursor_selection_roles_survive_formats_that_support_them()
     }
     let document = from_definition(&definition).unwrap();
     for format in [
-        ThemeFormat::Pebrel,
+        ThemeFormat::PoxiTerminal,
         ThemeFormat::Kitty,
         ThemeFormat::Ghostty,
         ThemeFormat::WezTerm,
@@ -128,7 +128,7 @@ fn lossy_exports_report_omitted_fields_and_native_export_is_lossless() {
     let document = builtin_document(ThemeName::Nord).unwrap();
     for format in STATIC_FORMATS {
         let artifact = export(&document, format).unwrap();
-        assert_eq!(artifact.losses.is_empty(), format == ThemeFormat::Pebrel, "{format}");
+        assert_eq!(artifact.losses.is_empty(), format == ThemeFormat::PoxiTerminal, "{format}");
     }
     let windows = export(&document, ThemeFormat::WindowsTerminal).unwrap();
     assert!(windows.losses.iter().any(|loss| loss.contains("indexed")));

@@ -110,7 +110,7 @@ impl ComApartment {
             return Some(Self { should_uninitialize: false });
         }
 
-        warn_hresult("初始化目录选择器 COM 环境", result);
+        warn_hresult("Inicializar el entorno COM del selector de carpetas", result);
         None
     }
 }
@@ -177,7 +177,7 @@ pub(super) fn pick_with_hwnd(owner: HWND, title: &str) -> Option<PathBuf> {
             &mut dialog_pointer,
         )
     };
-    if !succeeded("创建目录选择器", result) {
+    if !succeeded("Crear el selector de carpetas", result) {
         return None;
     }
     let dialog = ComPtr::from_raw(dialog_pointer)?;
@@ -185,19 +185,19 @@ pub(super) fn pick_with_hwnd(owner: HWND, title: &str) -> Option<PathBuf> {
 
     let mut options = 0;
     let result = unsafe { (dialog_vtable.base.get_options)(dialog.0, &mut options) };
-    if !succeeded("读取目录选择器选项", result) {
+    if !succeeded("Leer las opciones del selector de carpetas", result) {
         return None;
     }
     let options =
         options | FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_NOCHANGEDIR;
     let result = unsafe { (dialog_vtable.base.set_options)(dialog.0, options) };
-    if !succeeded("设置目录选择器选项", result) {
+    if !succeeded("Configurar las opciones del selector de carpetas", result) {
         return None;
     }
 
     let title = title.encode_utf16().chain(std::iter::once(0)).collect::<Vec<_>>();
     let result = unsafe { (dialog_vtable.base.set_title)(dialog.0, title.as_ptr()) };
-    if !succeeded("设置目录选择器标题", result) {
+    if !succeeded("Definir el título del selector de carpetas", result) {
         return None;
     }
 
@@ -231,13 +231,13 @@ pub(super) fn pick_with_hwnd(owner: HWND, title: &str) -> Option<PathBuf> {
     if result == HRESULT_CANCELLED {
         return None;
     }
-    if !succeeded("显示目录选择器", result) {
+    if !succeeded("Mostrar el selector de carpetas", result) {
         return None;
     }
 
     let mut item_pointer = std::ptr::null_mut();
     let result = unsafe { (dialog_vtable.base.get_result)(dialog.0, &mut item_pointer) };
-    if !succeeded("获取所选目录", result) {
+    if !succeeded("Obtener la carpeta seleccionada", result) {
         return None;
     }
     let item = ComPtr::from_raw(item_pointer)?;
@@ -246,7 +246,7 @@ pub(super) fn pick_with_hwnd(owner: HWND, title: &str) -> Option<PathBuf> {
     let mut path_pointer = std::ptr::null_mut();
     let result =
         unsafe { (item_vtable.get_display_name)(item.0, SIGDN_FILESYSPATH, &mut path_pointer) };
-    if !succeeded("读取所选目录路径", result) || path_pointer.is_null() {
+    if !succeeded("Leer la ruta de la carpeta seleccionada", result) || path_pointer.is_null() {
         return None;
     }
 
@@ -265,7 +265,7 @@ fn succeeded(operation: &str, result: HRESULT) -> bool {
 }
 
 fn warn_hresult(operation: &str, result: HRESULT) {
-    log::warn!("{operation}失败，HRESULT=0x{:08X}", result as u32);
+    log::warn!("{operation}: error, HRESULT=0x{:08X}", result as u32);
 }
 
 unsafe fn path_from_nul_terminated_wide(pointer: *const u16) -> Option<PathBuf> {

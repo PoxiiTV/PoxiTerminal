@@ -252,7 +252,7 @@ impl NebulaWorkspace {
             },
             RuntimeCommand::NewTab { window_id, cwd, shell_id } => {
                 self.runtime_window_requested(*window_id)?;
-                // 带 shell 的请求（右键「在 Pebrel 中打开（Ubuntu）」并入驻留实例）
+                // 带 shell 的请求（右键「在 PoxiTerminal 中打开（Ubuntu）」并入驻留实例）
                 // 必须走 add_terminal_with：add_terminal_at 只认目录，会把 shell
                 // 悄悄丢掉，用户拿到一个自己没要过的 PowerShell 标签。
                 let pane_id = match shell_id {
