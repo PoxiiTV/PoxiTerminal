@@ -4,6 +4,7 @@
 mod activity_tests;
 mod agent_activity;
 mod ai_images;
+mod lightbox;
 mod session_thumbs;
 mod broadcast;
 mod completion;
@@ -286,6 +287,11 @@ pub struct TerminalView {
     image_mouse: gpui::Point<gpui::Pixels>,
     /// Miniaturas fijas junto a `[Image #N]` / `Read(foto.png)`.
     session_thumbs: session_thumbs::InlineImageCache,
+    /// Imagen abierta en grande sobre el panel.
+    lightbox: Option<lightbox::Lightbox>,
+    /// Filas que pintó el elemento en el último fotograma (para colocar
+    /// las miniaturas aunque el cambio de tamaño aún no esté comprometido).
+    pub(super) painted_rows: usize,
     pub pane_id: u64,
     pub session: Option<TerminalSession>,
     pub focus_handle: FocusHandle,
@@ -1108,6 +1114,11 @@ impl TerminalView {
         if self.marked_text.is_some() || keymap::is_native_window_shortcut(&event.keystroke) {
             return;
         }
+        // Con una imagen en grande, cualquier tecla (Esc) la cierra.
+        if self.close_lightbox(cx) {
+            cx.stop_propagation();
+            return;
+        }
         // Con la barra de búsqueda abierta, las teclas que se escriben en ella
         // suben hasta aquí: no son para el PTY.
         if self.search.is_some() && !self.focus_handle.is_focused(window) {
@@ -1445,7 +1456,13 @@ impl Render for TerminalView {
         if let Some(error) = &self.error {
             root = root.child(div().p_4().text_color(gpui::red()).child(error.clone()));
         } else {
-            root = root.child(TerminalElement::new(cx.entity()));
+            // Rejilla arriba y, si la IA ha leído imágenes, su barra debajo: la
+            // barra tiene su propia franja (el terminal se encoge), no tapa nada.
+            let image_bar = self.render_image_bar(cx);
+            root = root.flex().flex_col().child(
+                div().flex_1().min_h_0().w_full().child(TerminalElement::new(cx.entity())),
+            );
+            root = root.children(image_bar);
             root = root.children(self.render_inline_images(cx));
             // SSH 连接卡片（旧壳 `display::ssh_connect` 的 GPUI 形态）：
             // 状态机/文案/常量直接复用，卡片遮罩盖住空 grid。350ms 显示
@@ -1488,6 +1505,9 @@ impl Render for TerminalView {
             }
             if let Some(preview) = self.render_image_hover(cx) {
                 root = root.child(preview);
+            }
+            if let Some(lightbox) = self.render_lightbox(cx) {
+                root = root.child(lightbox);
             }
         }
         root.into_any_element()

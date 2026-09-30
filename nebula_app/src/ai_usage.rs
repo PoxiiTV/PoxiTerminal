@@ -130,6 +130,19 @@ pub(crate) fn context_window_for(model: &str) -> Option<u64> {
     Some(if model.contains("[1m]") { ONE_MILLION } else { window })
 }
 
+/// Herramientas seguidas de un turno (una línea resumida en Claude Code).
+#[derive(Clone, Debug, Default)]
+pub(crate) struct ToolGroup {
+    /// Cuántas lecturas (Read) tiene: el «N» de «Read N files».
+    pub reads: usize,
+    /// Imágenes que devolvieron esas lecturas.
+    pub images: Vec<SessionImage>,
+}
+
+/// Bloques que se recuerdan (los antiguos ya no se ven en pantalla).
+const MAX_GROUPS: usize = 400;
+const MAX_GROUP_IMAGES: usize = 8;
+
 pub(crate) struct UsageTracker {
     path: PathBuf,
     format: TranscriptFormat,
@@ -141,6 +154,14 @@ pub(crate) struct UsageTracker {
     seen_messages: HashMap<String, [u64; 4]>,
     /// Claude: tool_use id de un Read → file_path, para etiquetar su imagen.
     read_paths: HashMap<String, String>,
+    /// Claude: bloques de herramientas seguidas (lo que Claude Code resume en
+    /// una línea como «Read 2 files»), en orden. Solo los que incluyen lecturas.
+    groups: Vec<ToolGroup>,
+    /// Bloque abierto ahora (índice absoluto) y a qué bloque va cada tool_use.
+    open_group: Option<usize>,
+    group_of_tool: HashMap<String, usize>,
+    /// Bloques descartados del principio (para los índices absolutos).
+    groups_dropped: usize,
     cost: f64,
     cost_unknown: bool,
 }
@@ -160,6 +181,10 @@ impl UsageTracker {
             images: Vec::new(),
             seen_messages: HashMap::new(),
             read_paths: HashMap::new(),
+            groups: Vec::new(),
+            open_group: None,
+            group_of_tool: HashMap::new(),
+            groups_dropped: 0,
             cost: 0.0,
             cost_unknown: false,
         }
@@ -202,6 +227,44 @@ impl UsageTracker {
         &self.images
     }
 
+    /// Bloques de herramientas con lecturas, del más antiguo al más reciente.
+    /// Cada uno equivale a una línea «Read N files» de Claude Code.
+    pub fn read_groups(&self) -> impl DoubleEndedIterator<Item = &ToolGroup> {
+        self.groups.iter().filter(|group| group.reads > 0)
+    }
+
+    /// Cierra el bloque abierto: lo siguiente irá en una línea nueva.
+    fn close_group(&mut self) {
+        self.open_group = None;
+    }
+
+    fn group_for_tool(&mut self, tool_id: &str, is_read: bool) {
+        let absolute = match self.open_group {
+            Some(absolute) => absolute,
+            None => {
+                self.groups.push(ToolGroup::default());
+                if self.groups.len() > MAX_GROUPS {
+                    let drop = self.groups.len() - MAX_GROUPS;
+                    self.groups.drain(..drop);
+                    self.groups_dropped += drop;
+                }
+                let absolute = self.groups_dropped + self.groups.len() - 1;
+                self.open_group = Some(absolute);
+                absolute
+            },
+        };
+        if is_read {
+            if let Some(group) = self.group_at(absolute) {
+                group.reads += 1;
+            }
+        }
+        self.group_of_tool.insert(tool_id.to_owned(), absolute);
+    }
+
+    fn group_at(&mut self, absolute: usize) -> Option<&mut ToolGroup> {
+        absolute.checked_sub(self.groups_dropped).and_then(|index| self.groups.get_mut(index))
+    }
+
     pub fn path(&self) -> &Path {
         &self.path
     }
@@ -240,6 +303,7 @@ impl UsageTracker {
         if model == "<synthetic>" {
             return;
         }
+        let main_thread = value["isSidechain"] != true;
         for item in message["content"].as_array().into_iter().flatten() {
             if item["type"] == "tool_use" && item["name"] == "Read" {
                 if let (Some(id), Some(file)) =
@@ -247,6 +311,22 @@ impl UsageTracker {
                 {
                     self.read_paths.insert(id.to_owned(), file.to_owned());
                 }
+            }
+            if !main_thread {
+                continue;
+            }
+            // Un texto de la IA separa bloques; las herramientas seguidas se
+            // agrupan (Claude Code las resume en una sola línea).
+            match item["type"].as_str() {
+                Some("text") if item["text"].as_str().is_some_and(|t| !t.trim().is_empty()) => {
+                    self.close_group();
+                },
+                Some("tool_use") => {
+                    if let Some(id) = item["id"].as_str() {
+                        self.group_for_tool(id, item["name"] == "Read");
+                    }
+                },
+                _ => {},
             }
         }
 
@@ -298,8 +378,20 @@ impl UsageTracker {
 
     fn claude_user(&mut self, value: &Value, message: &Value) {
         let Some(items) = message["content"].as_array() else {
+            // Prompt del usuario en texto plano: empieza otra respuesta.
+            if message["content"].is_string() && value["isSidechain"] != true {
+                self.close_group();
+            }
             return;
         };
+        if value["isSidechain"] != true
+            && items.iter().any(|item| {
+                item["type"] == "text"
+                    && item["text"].as_str().is_some_and(|t| !t.trim().is_empty())
+            })
+        {
+            self.close_group();
+        }
         // Numeración: imagePasteIds si cuadra con las imágenes; si no, los
         // marcadores "[Image #N]" del texto, en orden.
         let sent = items.iter().filter(|item| item["type"] == "image").count();
@@ -322,8 +414,9 @@ impl UsageTracker {
                     self.push_claude_image(ImageOrigin::Sent, labels.next(), &item["source"])
                 },
                 Some("tool_result") => {
-                    let file =
-                        item["tool_use_id"].as_str().and_then(|id| self.read_paths.remove(id));
+                    let tool_id = item["tool_use_id"].as_str().unwrap_or_default();
+                    let file = self.read_paths.remove(tool_id);
+                    let group = self.group_of_tool.remove(tool_id);
                     for part in item["content"].as_array().into_iter().flatten() {
                         if part["type"] == "image" {
                             self.push_claude_image(
@@ -331,6 +424,14 @@ impl UsageTracker {
                                 file.clone(),
                                 &part["source"],
                             );
+                            let image = self.images.last().cloned();
+                            if let (Some(group), Some(image)) =
+                                (group.and_then(|group| self.group_at(group)), image)
+                            {
+                                if group.images.len() < MAX_GROUP_IMAGES {
+                                    group.images.push(image);
+                                }
+                            }
                         }
                     }
                 },
@@ -614,6 +715,54 @@ mod tests {
         assert_eq!(images.len(), 1);
         assert_eq!(images[0].origin, ImageOrigin::Read);
         assert_eq!(images[0].label.as_deref(), Some("C:\\img\\a.png"));
+    }
+
+    #[test]
+    fn read_groups_follow_claude_code_summary_lines() {
+        let dir = tempfile::tempdir().unwrap();
+        let png = b64(b"png");
+        let assistant = |content: serde_json::Value| {
+            serde_json::json!({"type": "assistant", "message": {
+                "id": format!("m{}", content.to_string().len()), "model": "claude-opus-5-5",
+                "content": content}})
+            .to_string()
+        };
+        let result = |id: &str, image: bool| {
+            let content = if image {
+                serde_json::json!([{"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": png}}])
+            } else {
+                serde_json::json!("texto")
+            };
+            serde_json::json!({"type": "user", "message": {"content": [
+                {"type": "tool_result", "tool_use_id": id, "content": content}]}})
+            .to_string()
+        };
+        let lines = [
+            assistant(serde_json::json!([{"type": "text", "text": "Miro la captura"}])),
+            assistant(
+                serde_json::json!([{"type": "tool_use", "id": "t1", "name": "Read", "input": {"file_path": "a.png"}}]),
+            ),
+            result("t1", true),
+            assistant(
+                serde_json::json!([{"type": "tool_use", "id": "t2", "name": "Bash", "input": {}}]),
+            ),
+            result("t2", false),
+            assistant(serde_json::json!([{"type": "text", "text": "Ahora el código"}])),
+            assistant(
+                serde_json::json!([{"type": "tool_use", "id": "t3", "name": "Bash", "input": {}}]),
+            ),
+            result("t3", false),
+            serde_json::json!({"type": "user", "message": {"content": "sigue"}}).to_string(),
+            assistant(serde_json::json!([
+                {"type": "tool_use", "id": "t4", "name": "Read", "input": {"file_path": "b.rs"}},
+                {"type": "tool_use", "id": "t5", "name": "Read", "input": {"file_path": "c.png"}}])),
+            result("t4", false),
+            result("t5", true),
+        ];
+        let tracker = tracker_for(dir.path(), "s.jsonl", &(lines.join("\n") + "\n"));
+        let groups: Vec<_> = tracker.read_groups().map(|g| (g.reads, g.images.len())).collect();
+        // El bloque solo de Bash no cuenta: Claude Code no pone «Read» en su línea.
+        assert_eq!(groups, [(1, 1), (2, 1)]);
     }
 
     #[test]

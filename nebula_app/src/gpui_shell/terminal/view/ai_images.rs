@@ -119,7 +119,11 @@ impl TerminalView {
     /// «Agentes». Solo existe si la CLI informó de su archivo y es accesible
     /// desde Windows.
     pub(crate) fn session_tracker(&mut self) -> Option<Arc<Mutex<UsageTracker>>> {
-        let path = PathBuf::from(self.agent_session_file()?);
+        let file = self.agent_session_file();
+        // Solo en desarrollo: forzar un transcript para probar la interfaz.
+        #[cfg(debug_assertions)]
+        let file = file.or_else(|| std::env::var("POXITERMINAL_DEBUG_TRANSCRIPT").ok());
+        let path = PathBuf::from(file?);
         let current = self.session_tracker.as_ref().is_some_and(|tracker| {
             tracker.try_lock().map_or(true, |tracker| tracker.path() == path)
         });
@@ -225,6 +229,32 @@ impl TerminalView {
                 })
             },
             ImageRef::Path(text) => {
+                // Primero, la imagen tal como la leyó la IA (transcript): vale
+                // también en WSL/SSH, donde la ruta no existe en este PC.
+                let key = format!("read:{text}");
+                if let Some(current) = &self.image_hover {
+                    if current.key == key {
+                        return Some(current.clone());
+                    }
+                }
+                let from_transcript = self.session_tracker().and_then(|tracker| {
+                    let guard = tracker.try_lock().ok()?;
+                    super::session_thumbs::read_image_for_path(guard.images(), &text)
+                });
+                if let Some(image) = from_transcript {
+                    return Some(ImageHover {
+                        key,
+                        label: text.rsplit(['/', '\\']).next().unwrap_or(&text).to_owned(),
+                        image: Arc::new(gpui::Image::from_bytes(
+                            image_format(&image.media_type),
+                            image.bytes.to_vec(),
+                        )),
+                        path: None,
+                        bytes: image.bytes,
+                        media_type: image.media_type,
+                        position: Point::default(),
+                    });
+                }
                 let mut path = PathBuf::from(&text);
                 if path.is_relative() {
                     path = self.local_cwd()?.join(path);
@@ -313,34 +343,10 @@ impl TerminalView {
         .detach();
     }
 
-    /// Ctrl+clic sobre una imagen: abrirla en grande en una pestaña.
-    pub(super) fn open_hovered_image(&self, cx: &mut Context<Self>) -> bool {
-        let Some(hover) = &self.image_hover else { return false };
-        let path = match &hover.path {
-            Some(path) => path.clone(),
-            None => {
-                let extension = match hover.media_type.as_str() {
-                    "image/jpeg" => "jpg",
-                    "image/gif" => "gif",
-                    "image/webp" => "webp",
-                    _ => "png",
-                };
-                let name = format!(
-                    "poxiterminal-{}-{}.{extension}",
-                    self.pane_id,
-                    hover.key.replace(['[', ']', ' ', '#'], "")
-                );
-                let path = std::env::temp_dir().join(name);
-                if std::fs::write(&path, hover.bytes.as_slice()).is_err() {
-                    return false;
-                }
-                path
-            },
-        };
-        let pane_id = self.pane_id;
-        cx.defer(move |cx| {
-            crate::gpui_shell::workspace::windowing::open_path_for_pane(pane_id, path, cx)
-        });
+    /// Ctrl+clic sobre una imagen: abrirla en grande sobre el panel.
+    pub(super) fn open_hovered_image(&mut self, cx: &mut Context<Self>) -> bool {
+        let Some(hover) = self.image_hover.clone() else { return false };
+        self.show_image(hover.image, hover.label, cx);
         true
     }
 
@@ -367,8 +373,8 @@ impl TerminalView {
                             .gap_1()
                             .child(
                                 img(hover.image.clone())
-                                    .max_w(px(360.0))
-                                    .max_h(px(260.0))
+                                    .max_w(px(260.0))
+                                    .max_h(px(180.0))
                                     .rounded_md()
                                     .object_fit(gpui::ObjectFit::Contain),
                             )

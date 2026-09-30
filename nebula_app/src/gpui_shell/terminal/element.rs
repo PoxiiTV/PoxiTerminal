@@ -333,7 +333,12 @@ impl Element for TerminalElement {
         };
         let suggest_anchor =
             snap.cursor.as_ref().map(|cursor| (cursor.row as usize, cursor.col as usize));
+        let painted_rows = layout.rows;
         self.view.update(cx, |view, cx| {
+            if view.painted_rows != painted_rows {
+                view.painted_rows = painted_rows;
+                cx.notify();
+            }
             view.refresh_suggestion_from_snapshot(prompt_line, suggest_anchor, cx);
             // 补齐只会**登记**要问哪个来宾/远端目录（按键路径上不做 IO），
             // 真正的往返在这里派出去。

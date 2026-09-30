@@ -287,6 +287,7 @@ impl NebulaWorkspace {
             RuntimeTaskState::Idle => (language.pick("空闲", "Idle"), theme.muted_foreground),
         };
         let pane_id = card.pane_id;
+        let view = card.view.clone();
         let folder = card
             .cwd
             .trim_end_matches(['/', '\\'])
@@ -377,12 +378,17 @@ impl NebulaWorkspace {
                         .tooltip(move |window, cx| {
                             gpui_component::tooltip::Tooltip::new(tooltip.clone()).build(window, cx)
                         })
-                        .on_click(cx.listener(move |workspace, _, window, cx| {
-                            cx.stop_propagation();
-                            if let Some(path) = write_temp_image(pane_id, index, &image) {
-                                workspace.open_document_path(path, window, cx);
-                            }
-                        }))
+                        .on_click({
+                            let view = view.clone();
+                            cx.listener(move |_, _, _, cx| {
+                                cx.stop_propagation();
+                                view.update(cx, |view, cx| view.show_session_image(&image, cx));
+                                // Lleva a ese panel para ver la imagen sobre él.
+                                cx.defer(move |cx| {
+                                    windowing::focus_notification(Some(pane_id), cx)
+                                });
+                            })
+                        })
                         .child(img(thumb).size_full().object_fit(gpui::ObjectFit::Cover)),
                 );
             }
@@ -519,31 +525,6 @@ fn image_format(media_type: &str) -> gpui::ImageFormat {
         "image/webp" => gpui::ImageFormat::Webp,
         _ => gpui::ImageFormat::Png,
     }
-}
-
-/// Vuelca una imagen de la sesión a un temporal para abrirla en una pestaña.
-fn write_temp_image(
-    pane_id: u64,
-    index: usize,
-    image: &SessionImage,
-) -> Option<std::path::PathBuf> {
-    let extension = match image.media_type.as_str() {
-        "image/jpeg" | "image/jpg" => "jpg",
-        "image/gif" => "gif",
-        "image/webp" => "webp",
-        _ => "png",
-    };
-    // Nombre estable por contenido: abrir la misma imagen no crea copias nuevas.
-    let digest = {
-        use std::hash::{Hash as _, Hasher as _};
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
-        image.bytes.hash(&mut hasher);
-        hasher.finish()
-    };
-    let _ = (pane_id, index);
-    let path = std::env::temp_dir().join(format!("poxiterminal-img-{digest:016x}.{extension}"));
-    std::fs::write(&path, image.bytes.as_slice()).ok()?;
-    Some(path)
 }
 
 /// Rama actual de la carpeta, o None si no es un repositorio.
