@@ -72,17 +72,10 @@ impl TerminalView {
         let hint = super::ui_language()
             .pick("单击任意处或按 Esc 关闭", "Click anywhere or press Esc to close");
         Some(
-            div()
+            image_stage(lightbox.image.clone(), lightbox.caption.clone(), hint)
                 .id("image-lightbox")
                 .absolute()
                 .inset_0()
-                .flex()
-                .flex_col()
-                .items_center()
-                .justify_center()
-                .gap(px(10.0))
-                .p(px(24.0))
-                .bg(gpui::black().opacity(0.78))
                 .cursor_pointer()
                 // Todo el panel es «cerrar»: ni selección ni ratón de la app.
                 .on_mouse_down(gpui::MouseButton::Left, cx.listener(|view, _, _, cx| {
@@ -90,24 +83,37 @@ impl TerminalView {
                     view.close_lightbox(cx);
                 }))
                 .on_mouse_down(gpui::MouseButton::Right, |_, _, cx| cx.stop_propagation())
-                .on_scroll_wheel(|_, _, cx| cx.stop_propagation())
-                .child(
-                    img(lightbox.image.clone())
-                        .max_w(relative(1.0))
-                        .max_h(relative(0.86))
-                        .rounded(px(8.0))
-                        .shadow_lg()
-                        .object_fit(gpui::ObjectFit::Contain),
-                )
-                .child(
-                    div()
-                        .flex()
-                        .gap(px(12.0))
-                        .text_xs()
-                        .text_color(gpui::white().opacity(0.8))
-                        .child(lightbox.caption.clone())
-                        .child(div().text_color(gpui::white().opacity(0.5)).child(hint.to_owned())),
-                ),
+                .on_scroll_wheel(|_, _, cx| cx.stop_propagation()),
         )
     }
+}
+
+/// Fondo oscurecido con la imagen centrada y un pie (nombre + ayuda). Lo
+/// comparten el visor fijo y la vista previa al pasar el ratón.
+pub(super) fn image_stage(image: Arc<gpui::Image>, caption: String, hint: &str) -> gpui::Div {
+    div()
+        .flex()
+        .flex_col()
+        .items_center()
+        .justify_center()
+        .gap(px(10.0))
+        .p(px(24.0))
+        .bg(gpui::black().opacity(0.78))
+        .child(
+            img(image)
+                .max_w(relative(1.0))
+                .max_h(relative(0.86))
+                .rounded(px(8.0))
+                .shadow_lg()
+                .object_fit(gpui::ObjectFit::Contain),
+        )
+        .child(
+            div()
+                .flex()
+                .gap(px(12.0))
+                .text_xs()
+                .text_color(gpui::white().opacity(0.8))
+                .child(caption)
+                .child(div().text_color(gpui::white().opacity(0.5)).child(hint.to_owned())),
+        )
 }

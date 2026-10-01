@@ -293,6 +293,32 @@ impl TerminalView {
         markers
     }
 
+    /// Etiqueta en línea bajo la celda `point` (puede ocupar varias filas: la de
+    /// su texto y los huecos de debajo): su clave y su primera imagen.
+    // ponytail: solo la primera imagen de «Read N files»; mostrar todas si se echa en falta.
+    pub(super) fn inline_image_at(
+        &mut self,
+        point: nebula_terminal::index::Point,
+    ) -> Option<(String, SessionImage)> {
+        let row = {
+            let session = self.session.as_ref()?;
+            let term = session.term.lock();
+            let rows = if self.painted_rows > 0 { self.painted_rows } else { self.rows };
+            usize::try_from((point.line - term.viewport_origin_for(rows)).0).ok()?
+        };
+        let col = point.column.0;
+        let (marker, _) = self.visible_markers().into_iter().find(|(marker, rows)| {
+            (marker.row..marker.row + rows).contains(&row)
+                && (marker.start_col..marker.end_col).contains(&col)
+        })?;
+        let tracker = self.session_tracker()?;
+        let guard = tracker.try_lock().ok()?;
+        let groups: Vec<(usize, Vec<SessionImage>)> =
+            guard.read_groups().rev().map(|group| (group.reads, group.images.clone())).collect();
+        let image = images_for(guard.images(), &groups, &marker.kind).into_iter().next()?;
+        Some((format!("inline:{}:{:?}", marker.row, marker.kind), image))
+    }
+
     fn picture(&mut self, image: &SessionImage) -> Arc<gpui::Image> {
         if self.session_thumbs.pictures.len() > CACHE_LIMIT {
             self.session_thumbs.pictures.clear();

@@ -11,9 +11,8 @@ use std::sync::{Arc, Mutex};
 
 use gpui::{
     Context, IntoElement, ParentElement as _, Pixels, Point, Styled as _, StyledImage as _,
-    anchored, deferred, div, img, px,
+    Window, anchored, deferred,
 };
-use gpui_component::ActiveTheme as _;
 use nebula_terminal::grid::Dimensions as _;
 use nebula_terminal::index::{Column, Point as TermPoint};
 
@@ -33,7 +32,6 @@ pub(in crate::gpui_shell::terminal) struct ImageHover {
     path: Option<PathBuf>,
     bytes: Arc<Vec<u8>>,
     media_type: String,
-    position: Point<Pixels>,
 }
 
 /// Qué hay bajo el ratón que pueda ser una imagen.
@@ -104,6 +102,21 @@ fn image_format(media_type: &str) -> gpui::ImageFormat {
     }
 }
 
+/// Vista previa de una imagen del transcript.
+fn session_hover(key: String, label: String, image: SessionImage) -> ImageHover {
+    ImageHover {
+        key,
+        label,
+        image: Arc::new(gpui::Image::from_bytes(
+            image_format(&image.media_type),
+            image.bytes.to_vec(),
+        )),
+        path: None,
+        bytes: image.bytes,
+        media_type: image.media_type,
+    }
+}
+
 fn media_type_for(path: &Path) -> &'static str {
     match path.extension().and_then(|e| e.to_str()).map(str::to_ascii_lowercase).as_deref() {
         Some("jpg" | "jpeg") => "image/jpeg",
@@ -149,19 +162,28 @@ impl TerminalView {
 
     /// Actualiza la miniatura según lo que haya bajo el ratón.
     pub(super) fn update_image_hover(&mut self, position: Point<Pixels>, cx: &mut Context<Self>) {
-        self.image_mouse = position;
         let (point, _) = self.grid_point(position);
-        let found = self
-            .grid_line_text(point)
-            .and_then(|line| image_ref_at(&line, point.column.0))
-            .and_then(|found| self.resolve_image_ref(found, cx));
-        match (found, &mut self.image_hover) {
-            (Some(next), Some(current)) if current.key == next.key => {
-                current.position = position;
-                cx.notify();
+        // Primero las miniaturas en línea (toda su superficie, no solo la fila
+        // de su texto); luego `[Image #N]` y rutas sin miniatura.
+        let found = match self.inline_image_at(point) {
+            Some((key, _)) if self.image_hover.as_ref().is_some_and(|hover| hover.key == key) => {
+                self.image_hover.clone()
             },
-            (Some(mut next), _) => {
-                next.position = position;
+            Some((key, image)) => {
+                let label = image.label.as_deref().map_or_else(
+                    || key.clone(),
+                    |label| label.rsplit(['/', '\\']).next().unwrap_or(label).to_owned(),
+                );
+                Some(session_hover(key, label, image))
+            },
+            None => self
+                .grid_line_text(point)
+                .and_then(|line| image_ref_at(&line, point.column.0))
+                .and_then(|found| self.resolve_image_ref(found, cx)),
+        };
+        match (found, &self.image_hover) {
+            (Some(next), Some(current)) if current.key == next.key => {},
+            (Some(next), _) => {
                 self.image_hover = Some(next);
                 cx.notify();
             },
@@ -215,18 +237,7 @@ impl TerminalView {
                     self.poll_session_tracker(tracker, cx);
                     return None;
                 };
-                Some(ImageHover {
-                    key: label.clone(),
-                    label: format!("[{label}]"),
-                    image: Arc::new(gpui::Image::from_bytes(
-                        image_format(&image.media_type),
-                        image.bytes.to_vec(),
-                    )),
-                    path: None,
-                    bytes: image.bytes,
-                    media_type: image.media_type,
-                    position: Point::default(),
-                })
+                Some(session_hover(label.clone(), format!("[{label}]"), image))
             },
             ImageRef::Path(text) => {
                 // Primero, la imagen tal como la leyó la IA (transcript): vale
@@ -242,18 +253,8 @@ impl TerminalView {
                     super::session_thumbs::read_image_for_path(guard.images(), &text)
                 });
                 if let Some(image) = from_transcript {
-                    return Some(ImageHover {
-                        key,
-                        label: text.rsplit(['/', '\\']).next().unwrap_or(&text).to_owned(),
-                        image: Arc::new(gpui::Image::from_bytes(
-                            image_format(&image.media_type),
-                            image.bytes.to_vec(),
-                        )),
-                        path: None,
-                        bytes: image.bytes,
-                        media_type: image.media_type,
-                        position: Point::default(),
-                    });
+                    let label = text.rsplit(['/', '\\']).next().unwrap_or(&text).to_owned();
+                    return Some(session_hover(key, label, image));
                 }
                 let mut path = PathBuf::from(&text);
                 if path.is_relative() {
@@ -298,19 +299,17 @@ impl TerminalView {
                 path: Some(path),
                 bytes: Arc::new(bytes),
                 media_type,
-                position: Point::default(),
             })
         });
         cx.spawn(async move |this, cx| {
             let loaded = task.await;
             let _ = this.update(cx, |view, cx| {
-                let Some(mut hover) = loaded else {
+                let Some(hover) = loaded else {
                     view.image_loading = None;
                     return;
                 };
                 if view.image_loading.as_deref() == Some(hover.key.as_str()) {
                     view.image_loading = None;
-                    hover.position = view.image_mouse;
                     view.image_hover = Some(hover);
                     cx.notify();
                 }
@@ -350,46 +349,20 @@ impl TerminalView {
         true
     }
 
-    pub(super) fn render_image_hover(&self, cx: &Context<Self>) -> Option<impl IntoElement> {
+    /// Vista previa a ventana completa mientras el ratón esté encima. No tiene
+    /// zona de ratón propia: los movimientos siguen llegando al terminal, que
+    /// la quita en cuanto el ratón sale de la imagen.
+    pub(super) fn render_image_hover(&self, window: &Window) -> Option<impl IntoElement> {
         let hover = self.image_hover.as_ref()?;
-        let theme = cx.theme();
-        let hint = super::ui_language().pick("Ctrl+单击放大", "Ctrl+click to enlarge");
+        let size = window.viewport_size();
+        let hint = super::ui_language().pick("Ctrl+单击固定", "Ctrl+click to pin");
         Some(
             deferred(
-                anchored()
-                    .position(hover.position)
-                    .offset(gpui::point(px(14.0), px(18.0)))
-                    .snap_to_window_with_margin(px(8.0))
-                    .child(
-                        div()
-                            .p_1p5()
-                            .rounded_lg()
-                            .border_1()
-                            .border_color(theme.border)
-                            .bg(theme.popover)
-                            .shadow_lg()
-                            .flex()
-                            .flex_col()
-                            .gap_1()
-                            .child(
-                                img(hover.image.clone())
-                                    .max_w(px(260.0))
-                                    .max_h(px(180.0))
-                                    .rounded_md()
-                                    .object_fit(gpui::ObjectFit::Contain),
-                            )
-                            .child(
-                                div()
-                                    .flex()
-                                    .justify_between()
-                                    .gap_3()
-                                    .px_0p5()
-                                    .text_xs()
-                                    .text_color(theme.muted_foreground)
-                                    .child(hover.label.clone())
-                                    .child(hint.to_owned()),
-                            ),
-                    ),
+                anchored().position(Point::default()).child(
+                    super::lightbox::image_stage(hover.image.clone(), hover.label.clone(), hint)
+                        .w(size.width)
+                        .h(size.height),
+                ),
             )
             .with_priority(3),
         )

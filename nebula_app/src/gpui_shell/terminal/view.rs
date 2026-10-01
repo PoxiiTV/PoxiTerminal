@@ -284,7 +284,6 @@ pub struct TerminalView {
     image_hover: Option<ai_images::ImageHover>,
     /// Clave de la imagen que se está leyendo de disco para la miniatura.
     image_loading: Option<String>,
-    image_mouse: gpui::Point<gpui::Pixels>,
     /// Miniaturas fijas junto a `[Image #N]` / `Read(foto.png)`.
     session_thumbs: session_thumbs::InlineImageCache,
     /// Imagen abierta en grande sobre el panel.
@@ -1503,7 +1502,7 @@ impl Render for TerminalView {
             if let Some(bar) = self.render_search_bar(cx) {
                 root = root.child(bar);
             }
-            if let Some(preview) = self.render_image_hover(cx) {
+            if let Some(preview) = self.render_image_hover(window) {
                 root = root.child(preview);
             }
             if let Some(lightbox) = self.render_lightbox(cx) {

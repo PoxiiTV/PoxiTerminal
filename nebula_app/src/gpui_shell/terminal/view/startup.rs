@@ -267,7 +267,6 @@ impl TerminalView {
             session_tracker_polling: false,
             image_hover: None,
             image_loading: None,
-            image_mouse: gpui::Point::default(),
             session_thumbs: Default::default(),
             lightbox: None,
             painted_rows: 0,
