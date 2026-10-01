@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0
+
+### 🇪🇸 Español
+
+- **Vista previa a ventana completa**: al pasar el ratón por una imagen de la IA (miniatura, `[Image #N]` o ruta de imagen) se ve **en grande ocupando toda la ventana** y se quita sola al apartar el ratón. `Ctrl+clic` la deja fija.
+- **Toda la miniatura responde**: también la parte de abajo de las miniaturas altas y los resúmenes `Read N files`, que antes no tenían vista previa.
+- **Corrección**: la vista previa ya no sale como una columna estrecha y estirada con la imagen diminuta.
+
+### 🇬🇧 English
+
+- **Full-window preview**: hovering an AI image (thumbnail, `[Image #N]` or image path) shows it **large, filling the whole window**, and it goes away when the mouse moves off. `Ctrl+click` pins it.
+- **The whole thumbnail responds**: including the lower part of tall thumbnails and `Read N files` summaries, which had no preview before.
+- **Fix**: the preview no longer shows up as a narrow stretched column with a tiny image.
+
 ## 0.2.0
 
 ### 🇪🇸 Español

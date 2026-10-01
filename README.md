@@ -4,7 +4,7 @@
 
 <br />
 
-![Versión](https://img.shields.io/badge/versión-0.2.0-4fd1ff?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-0.3.0-4fd1ff?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/Windows-10%20%7C%2011-a06bff?style=flat-square)
 ![Instalador](https://img.shields.io/badge/instalador-32%20MB-34e0a1?style=flat-square)
 ![Idioma](https://img.shields.io/badge/idioma-castellano-ffb454?style=flat-square)
@@ -40,8 +40,8 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 
 | Archivo | Para qué |
 |---|---|
-| `PoxiTerminal-v0.2.0-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
-| `PoxiTerminal-v0.2.0-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
+| `PoxiTerminal-v0.3.0-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
+| `PoxiTerminal-v0.3.0-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
 
 > 🤝 **Convive con pebrel.** Usa su propia carpeta de ajustes (`%APPDATA%\PoxiTerminal`),
 > sus propias credenciales y sus propias integraciones de IA. Puedes tener los dos
@@ -53,7 +53,7 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 |---|---|
 | 🧠 **Centro de control de IA** | Una tarjeta por agente (Claude Code, Codex…): si trabaja o te espera, carpeta y rama, % de contexto, tokens, coste estimado e imágenes de la sesión. `Ctrl` + `Shift` + `A` |
 | 🧾 **¿Qué ha tocado la IA?** | Al terminar cada turno, «Ver cambios» te enseña solo lo que la IA cambió en esa respuesta, archivo por archivo, y puedes descartar lo que no quieras |
-| 🖼️ **Imágenes de la IA** | Las imágenes que le mandas (`[Image #3]`) y las que lee Claude (`Read 2 files`) se ven en miniatura dentro del terminal, sin tapar nada; un clic las abre en grande |
+| 🖼️ **Imágenes de la IA** | Las imágenes que le mandas (`[Image #3]`) y las que lee Claude (`Read 2 files`) se ven en miniatura dentro del terminal, sin tapar nada; pasa el ratón por encima para verlas a ventana completa |
 | 🔍 **Buscar en el historial** | `Ctrl` + `F` con contador, resaltado y salto entre coincidencias |
 | 🚇 **Túneles SSH** | Reenvía puertos (local o SOCKS) de cada host guardado; se abren al conectar y se cierran solos |
 | ⚡ **Acelerado por GPU** | Interfaz nativa con GPUI: desplazamiento suave, temas, transparencia y fondos |
@@ -152,7 +152,7 @@ Spanish (English remains available in the settings).
 - ⚡ Native GPU rendering, tabs, split panes, themes and backgrounds.
 - 🧠 AI control center: one card per agent with live state, branch, context %, tokens, estimated cost and session images.
 - 🧾 "What did the AI change?": per-turn diff viewer with per-file discard.
-- 🖼️ Images you send and images the AI reads show as thumbnails inside the terminal; click to enlarge.
+- 🖼️ Images you send and images the AI reads show as thumbnails inside the terminal; hover to see them filling the whole window.
 - 🔍 Scrollback search (`Ctrl+F`) and SSH tunnels (local and SOCKS).
 - 🔐 Built-in SSH and SFTP with saved hosts, proxies and jump hosts.
 - 🤖 Claude Code, Codex and other AI CLIs with per-turn status and notifications.
