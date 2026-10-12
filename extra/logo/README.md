@@ -3,13 +3,14 @@
 ## Nebula App Icon
 
 The rounded, asymmetric symbol and cutout prompt are shared by 25 colorways.
-Titanium (palette 21) is the default application and README identity. The
+Graphite (palette 20) is the default application and README identity. The
 display name is Pebrel; asset paths retain Nebula for compatibility. The original 01–24 palettes are available as
 personal choices, with graphite violet retained as palette 25.
 
 | Setting | Source | Role |
 | --- | --- | --- |
-| `titanium` | `nebula-titanium.svg` | Default identity; palette 21 |
+| `graphite` | `nebula-graphite.svg` | Default identity; palette 20 |
+| `titanium` | `nebula-titanium.svg` | Optional titanium colorway; palette 21 |
 | `silver-violet` | `nebula-light.svg` | Optional silver-violet colorway; palette 12 |
 | `graphite-violet` | `nebula-dark.svg` | Optional graphite / gray-violet colorway; palette 25 |
 
@@ -21,7 +22,7 @@ exclusive colors or completed trademark clearance.
 ### Switching
 
 GPUI Settings → Appearance → App icon writes `app_icon=` to
-`nebula_settings.txt`. Missing or invalid values fall back to Titanium.
+`nebula_settings.txt`. Missing or invalid values fall back to Graphite.
 Existing valid selections remain unchanged. The picker initially shows the
 three colorways above and the current selection, with a button to show all 25.
 Appearance reset restores the default; appearance backup includes the
@@ -56,13 +57,13 @@ partially covered edge pixels, and shell/browser scaling can affect appearance.
 Windows embeds one default icon group and one shared coverage atlas, not 25
 complete ICOs or PNG collections. Palette colors are applied at runtime using
 the existing image dependency. Non-Windows in-app previews use the same atlas.
-The combined Windows image payload is 80,402 bytes (78.52 KiB), below the
+The combined Windows image payload is 33,972 bytes (33.18 KiB), below the
 96 KiB budget enforced by the generator and tests. This measures image data,
 not installer growth. PNG/preview caches have a 128-entry limit; native window
 icon handles are reused, and owned tray handles are destroyed when replaced.
 
-`nebula.ico` is byte-identical to `nebula-titanium.ico`, and `nebula.png` to
-`nebula-titanium.png`. Alternate ICOs and 1024px PNG exports are design assets,
+`nebula.ico` is byte-identical to `nebula-graphite.ico`, and `nebula.png` to
+`nebula-graphite.png`. Alternate ICOs and 1024px PNG exports are design assets,
 not extra GPUI runtime embeds.
 
 Regenerate using Node.js 24+ with `@resvg/resvg-js` (verified with 2.6.2):
@@ -77,7 +78,7 @@ cargo test -p nebula --bin nebula --features gpui-shell app_icon::tests
 
 The renderer is development-only; it adds no application dependency. The
 optional argument locates a separate renderer installation. The default
-`nebula.ico` and `nebula.png` exports always remain Titanium.
+`nebula.ico` and `nebula.png` exports always remain Graphite.
 
 ### Design archive
 

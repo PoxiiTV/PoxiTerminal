@@ -47,6 +47,7 @@ macro_rules! app_icons {
 }
 
 app_icons! {
+    Graphite => ("graphite", "20", "石墨", "Graphite", 0x232730, 0xF1F3F7, 0x717984),
     Titanium => ("titanium", "21", "钛银", "Titanium", 0xD9DFE6, 0x374151, 0x909BA9),
     Glacier => ("glacier", "01", "冰川白", "Glacier", 0xEEF4FC, 0x234B85, 0x93AEC9),
     IceBlue => ("ice-blue", "02", "冰蓝雾", "Ice blue", 0xDCEBFF, 0x2353BA, 0x839DC8),
@@ -67,7 +68,6 @@ app_icons! {
     Emerald => ("emerald", "17", "冷翡翠", "Emerald", 0x116953, 0xECFFF5, 0x0B4C3E),
     NightMint => ("night-mint", "18", "夜薄荷", "Night mint", 0x112A28, 0xA5EDD6, 0x527F76),
     Porcelain => ("porcelain", "19", "冷瓷白", "Porcelain", 0xF4F5F7, 0x252A33, 0xA5ACB7),
-    Graphite => ("graphite", "20", "石墨", "Graphite", 0x232730, 0xF1F3F7, 0x717984),
     Monochrome => ("monochrome", "22", "纯黑白", "Monochrome", 0x111318, 0xFFFFFF, 0x737982),
     SageLight => ("sage-light", "23", "原版浅苔", "Original light sage", 0xE4EBDD, 0x263A32, 0x819581),
     SageDark => ("sage-dark", "24", "原版深苔", "Original dark sage", 0x18231F, 0xE8EFE2, 0x819581),

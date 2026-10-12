@@ -1430,10 +1430,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn app_icon_defaults_and_unknown_values_use_titanium() {
+    fn app_icon_defaults_and_unknown_values_use_graphite() {
         for text in ["", "app_icon=\n", "app_icon=unknown\n", "app_icon=../custom.ico\n"] {
             let settings = RuntimeSettings::from_raw(&RawSettings::from_text(text));
-            assert_eq!(settings.app_icon, AppIconName::Titanium);
+            assert_eq!(settings.app_icon, AppIconName::Graphite);
         }
     }
 

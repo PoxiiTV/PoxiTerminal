@@ -196,7 +196,7 @@ mod tests {
     #[test]
     fn all_25_palettes_share_a_small_coverage_atlas() {
         assert_eq!(AppIconName::ALL.len(), 25);
-        assert_eq!(AppIconName::default(), AppIconName::Titanium);
+        assert_eq!(AppIconName::default(), AppIconName::Graphite);
         assert!(COVERAGE_PNG.len() + include_bytes!("../windows/nebula.ico").len() <= 96 * 1024);
         for variant in AppIconName::ALL {
             for size in FRAME_SIZES {
@@ -211,7 +211,7 @@ mod tests {
     #[test]
     fn runtime_pixels_match_the_default_and_legacy_exports() {
         for (variant, bytes) in [
-            (AppIconName::Titanium, include_bytes!("../windows/nebula.ico").as_slice()),
+            (AppIconName::Graphite, include_bytes!("../windows/nebula.ico").as_slice()),
             (AppIconName::SilverViolet, include_bytes!("../windows/nebula-light.ico").as_slice()),
             (AppIconName::GraphiteViolet, include_bytes!("../windows/nebula-dark.ico").as_slice()),
         ] {

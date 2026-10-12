@@ -40,8 +40,8 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 
 | Archivo | Para qué |
 |---|---|
-| `PoxiTerminal-v0.3.0-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
-| `PoxiTerminal-v0.3.0-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
+| `PoxiTerminal-v0.3.1-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
+| `PoxiTerminal-v0.3.1-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
 
 > 🤝 **Convive con pebrel.** Usa su propia carpeta de ajustes (`%APPDATA%\PoxiTerminal`),
 > sus propias credenciales y sus propias integraciones de IA. Puedes tener los dos

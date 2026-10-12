@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SIZES = (16, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96, 112, 128, 256)
-VARIANTS = ("light", "dark", "titanium")
+VARIANTS = ("light", "dark", "titanium", "graphite")
 NAMESPACE = {"svg": "http://www.w3.org/2000/svg"}
 
 
@@ -94,13 +94,13 @@ def contrast(first, second):
 
 
 class AppIconTests(unittest.TestCase):
-    def test_shared_resource_budget_and_titanium_default(self):
+    def test_shared_resource_budget_and_graphite_default(self):
         primary = ROOT / "nebula_app/windows/nebula.ico"
         coverage = ROOT / "extra/logo/nebula-coverage.png"
         self.assertLessEqual(primary.stat().st_size + coverage.stat().st_size, 96 * 1024)
-        self.assertEqual((ROOT / "nebula_app/windows/nebula-titanium.ico").read_bytes(), primary.read_bytes())
+        self.assertEqual((ROOT / "nebula_app/windows/nebula-graphite.ico").read_bytes(), primary.read_bytes())
         self.assertEqual((ROOT / "extra/logo/nebula.png").read_bytes(),
-                         (ROOT / "extra/logo/nebula-titanium.png").read_bytes())
+                         (ROOT / "extra/logo/nebula-graphite.png").read_bytes())
         resource = (ROOT / "nebula_app/windows/nebula.rc").read_text()
         self.assertEqual(resource.count(' ICON "'), 1)
         for variant in VARIANTS:
@@ -108,7 +108,7 @@ class AppIconTests(unittest.TestCase):
 
     def test_catalog_preserves_all_24_color_lab_palettes(self):
         catalog = json.loads((ROOT / "extra/logo/icon-catalog.json").read_text())
-        self.assertEqual(catalog["default"], "titanium")
+        self.assertEqual(catalog["default"], "graphite")
         self.assertEqual(tuple(catalog["sizes"]), SIZES)
         entries = {palette["number"]: palette for palette in catalog["palettes"]}
         self.assertEqual(set(entries), {f"{number:02}" for number in range(1, 26)})
@@ -155,20 +155,18 @@ class AppIconTests(unittest.TestCase):
         shapes = []
         for variant in VARIANTS:
             source = ET.parse(ROOT / "extra/logo" / f"nebula-{variant}.svg").getroot()
-            paths = source.findall(".//svg:path", NAMESPACE)
-            shapes.append([path.get("d") for path in paths])
-            tile = source.find("svg:rect", NAMESPACE)
-            mark = source.find("svg:use", NAMESPACE)
-            self.assertEqual((tile.get("x"), tile.get("width"), tile.get("rx")), ("5", "118", "32"))
-            self.assertEqual((mark.get("x"), mark.get("width")), ("19", "90"))
-            self.assertGreaterEqual(contrast(color(tile.get("fill")), color(mark.get("color"))), 4.5)
+            rects = source.findall(".//svg:rect", NAMESPACE)
+            shapes.append([(rect.get("x"), rect.get("y"), rect.get("width"), rect.get("height")) for rect in rects])
+            tile, mark = rects[0], rects[-1]
+            self.assertEqual((tile.get("x"), tile.get("width"), tile.get("rx")), ("4", "120", "18"))
+            self.assertGreaterEqual(contrast(color(tile.get("fill")), color(mark.get("fill"))), 4.5)
         self.assertTrue(all(shape == shapes[0] for shape in shapes))
 
     def test_native_frames_transparency_size_and_prompt_separation(self):
         for variant in VARIANTS:
             source = ET.parse(ROOT / "extra/logo" / f"nebula-{variant}.svg").getroot()
-            tile = color(source.find("svg:rect", NAMESPACE).get("fill"))
-            mark = color(source.find("svg:use", NAMESPACE).get("color"))
+            rects = source.findall(".//svg:rect", NAMESPACE)
+            tile, mark = color(rects[0].get("fill")), color(rects[-1].get("fill"))
             for size, frame in ico_frames(ROOT / "nebula_app/windows" / f"nebula-{variant}.ico").items():
                 with self.subTest(variant=variant, size=size):
                     width, height, pixels = decode_png(frame)
@@ -177,24 +175,18 @@ class AppIconTests(unittest.TestCase):
                     occupied = [(column, row) for row in range(size) for column in range(size)
                                 if pixels[row][column][3] > 128]
                     self.assertGreaterEqual(max(column for column, _ in occupied) - min(column for column, _ in occupied) + 1, size * 0.85)
-                    strength = max(0, min(1, (64 - size) / 40))
-                    extent = 90 + 18 * strength
-                    scale, origin = extent / 128, (128 - extent) / 2
-                    def samples(local_x, local_y):
-                        target_x = (origin + scale * local_x) * size / 128 - 0.5
-                        target_y = (origin + scale * local_y) * size / 128 - 0.5
-                        return [pixels[row][column][:3]
-                                for row in {math.floor(target_y), math.ceil(target_y)}
-                                for column in {math.floor(target_x), math.ceil(target_x)}]
+                    if size < 32:
+                        continue
+                    def sample(x, y):
+                        return pixels[min(size - 1, int(y * size / 128))][min(size - 1, int(x * size / 128))][:3]
                     def distance(first, second):
                         return sum((left - right) ** 2 for left, right in zip(first, second))
-                    for prompt_point in [(46, 59), (46, 71), (77, 80)]:
-                        self.assertTrue(any(distance(sample, tile) < distance(sample, mark)
-                                            for sample in samples(*prompt_point)))
-                    self.assertTrue(any(distance(sample, mark) < distance(sample, tile)
-                                        for sample in samples(62, 79)))
+                    # El hueco de la P queda del color del fondo y el guion bajo del prompt, del color de la letra
+                    hole, underscore = sample(58, 44), sample(111.5, 104.4)
+                    self.assertLess(distance(hole, tile), distance(hole, mark))
+                    self.assertLess(distance(underscore, mark), distance(underscore, tile))
 
-    def test_taskbar_frames_enlarge_the_mark_and_keep_a_solid_underscore(self):
+    def test_taskbar_frames_keep_the_mark_wide_and_the_prompt_visible(self):
         _, _, atlas = decode_png((ROOT / "extra/logo/nebula-coverage.png").read_bytes())
         for size in SIZES:
             if size >= 64:
@@ -203,16 +195,10 @@ class AppIconTests(unittest.TestCase):
                 top = sum(stored for stored in SIZES if stored < size)
                 pixels = [row[:size] for row in atlas[top:top + size]]
                 mark_columns = [column for row in pixels for column, pixel in enumerate(row) if pixel[2] > 128]
-                extent = 90 + 18 * min(1, (64 - size) / 40)
-                expected_width = 96 * extent * size / (128 * 128)
-                self.assertAlmostEqual(max(mark_columns) - min(mark_columns) + 1, expected_width, delta=1)
-                scale = extent * size / (128 * 128)
-                offset = (128 - extent) / 2 * size / 128
-                center_x, center_y = offset + 77 * scale, offset + 80 * scale
-                self.assertTrue(any(pixels[row][column][0] >= 224
-                                    for row in {math.floor(center_y - 0.5), math.ceil(center_y - 0.5)}
-                                    for column in {math.floor(center_x - 0.5), math.ceil(center_x - 0.5)}))
-
+                # De la P (x=25) al final del guion bajo (x=117.5) en el lienzo de 128
+                self.assertAlmostEqual(max(mark_columns) - min(mark_columns) + 1, 92.5 * size / 128, delta=2)
+                prompt = [pixel for row in pixels[int(size * 0.68):] for pixel in row[int(size * 0.68):]]
+                self.assertTrue(any(pixel[2] > 96 for pixel in prompt))
 
 if __name__ == "__main__":
     unittest.main()

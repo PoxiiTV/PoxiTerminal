@@ -22,7 +22,7 @@ const palettes = [...catalogSource.matchAll(palettePattern)].map(([, key, number
 assert.equal(palettes.length, 25);
 assert.equal(new Set(palettes.map(palette => palette.key)).size, 25);
 assert.equal(new Set(palettes.map(palette => palette.number)).size, 25);
-assert.equal(palettes[0].key, 'titanium');
+assert.equal(palettes[0].key, 'graphite');
 
 function pngChunk(kind, payload) {
   const chunk = Buffer.alloc(payload.length + 12);
@@ -162,6 +162,11 @@ function encodeIco(frames) {
   return Buffer.concat([header, ...frames]);
 }
 
+// Tono intermedio de la sombra: mitad borde, mitad fondo (igual que pesa #808000 en la cobertura)
+function mixHex(a, b) {
+  return '#' + [1, 3, 5].map(i => Math.round((parseInt(a.slice(i, i + 2), 16) + parseInt(b.slice(i, i + 2), 16)) / 2).toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+
 const coverageFrames = new Map(atlasSizes.map(size => [size, coverage(size)]));
 const atlas = Buffer.alloc(atlasWidth * atlasHeight * 4);
 let atlasTop = 0;
@@ -174,17 +179,18 @@ for (const [size, weights] of coverageFrames) {
 const atlasPng = encodePng(atlas, atlasWidth, atlasHeight);
 const outputs = new Map([['extra/logo/nebula-coverage.png', atlasPng]]);
 const largeCoverage = coverage(1024);
-const aliases = { titanium: 'titanium', 'silver-violet': 'light', 'graphite-violet': 'dark' };
+const aliases = { graphite: 'graphite', titanium: 'titanium', 'silver-violet': 'light', 'graphite-violet': 'dark' };
 for (const palette of palettes.filter(palette => palette.key in aliases)) {
   const alias = aliases[palette.key];
   const png = encodePng(colorize(largeCoverage, palette), 1024, 1024);
   const ico = encodeIco(sizes.map(size => encodePng(colorize(coverageFrames.get(size), palette), size, size)));
   const svg = source.replace('Nebula icon coverage master', `Nebula ${palette.nameEn.toLowerCase()} app icon`)
-    .replace('#FF0000', palette.tile).replace('#00FF00', palette.border).replace('#0000FF', palette.mark);
+    .replaceAll('#FF0000', palette.tile).replaceAll('#00FF00', palette.border).replaceAll('#0000FF', palette.mark)
+    .replaceAll('#808000', mixHex(palette.tile, palette.border));
   outputs.set(`extra/logo/nebula-${alias}.svg`, Buffer.from(svg));
   outputs.set(`extra/logo/nebula-${alias}.png`, png);
   outputs.set(`nebula_app/windows/nebula-${alias}.ico`, ico);
-  if (palette.key === 'titanium') {
+  if (palette.key === 'graphite') {
     outputs.set('extra/logo/nebula.png', png);
     outputs.set('nebula_app/windows/nebula.ico', ico);
   }
@@ -192,7 +198,7 @@ for (const palette of palettes.filter(palette => palette.key in aliases)) {
 const payloadBytes = atlasPng.length + outputs.get('nebula_app/windows/nebula.ico').length;
 assert.ok(payloadBytes <= 96 * 1024, `Runtime icon payload exceeds 96 KiB: ${payloadBytes}`);
 outputs.set('extra/logo/icon-catalog.json', Buffer.from(`${JSON.stringify({
-  default: 'titanium', sizes, atlasSizes, atlasWidth, atlasHeight, payloadBytes, palettes,
+  default: 'graphite', sizes, atlasSizes, atlasWidth, atlasHeight, payloadBytes, palettes,
 }, null, 2)}\n`));
 for (const [path, content] of outputs) {
   const destination = join(root, path);
@@ -202,5 +208,5 @@ for (const [path, content] of outputs) {
     await writeFile(destination, content);
   }
 }
-console.log(`25 palettes; default titanium; ${sizes.length} ICO frames; ${payloadBytes} runtime image bytes (96 KiB budget).`);
+console.log(`25 palettes; default graphite; ${sizes.length} ICO frames; ${payloadBytes} runtime image bytes (96 KiB budget).`);
 console.log(`Coverage atlas: ${atlasPng.length} bytes; supersampling: 8x at 16–64px, 4x above; premultiplied area averaging.`);

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.1
+
+### 🇪🇸 Español
+
+- **Icono nuevo**: PoxiTerminal estrena icono con el estilo de la familia de programas de Poxi, una P pixelada con el `>_` del terminal.
+- **Graphite por defecto**: el icono arranca en gris grafito. Los 25 colores siguen disponibles en **Configuración → Apariencia → Icono de la app**, Titanium incluido.
+
+### 🇬🇧 English
+
+- **New icon**: PoxiTerminal gets a new icon in the style of the Poxi app family, a pixel-art P with the terminal's `>_`.
+- **Graphite by default**: the icon now starts in graphite gray. All 25 colors are still available under **Settings → Appearance → App icon**, Titanium included.
+
 ## 0.3.0
 
 ### 🇪🇸 Español

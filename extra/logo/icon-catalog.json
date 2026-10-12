@@ -1,5 +1,5 @@
 {
-  "default": "titanium",
+  "default": "graphite",
   "sizes": [
     16,
     20,
@@ -35,8 +35,17 @@
   ],
   "atlasWidth": 512,
   "atlasHeight": 1512,
-  "payloadBytes": 74792,
+  "payloadBytes": 33972,
   "palettes": [
+    {
+      "key": "graphite",
+      "number": "20",
+      "nameZh": "石墨",
+      "nameEn": "Graphite",
+      "tile": "#232730",
+      "mark": "#F1F3F7",
+      "border": "#717984"
+    },
     {
       "key": "titanium",
       "number": "21",
@@ -216,15 +225,6 @@
       "tile": "#F4F5F7",
       "mark": "#252A33",
       "border": "#A5ACB7"
-    },
-    {
-      "key": "graphite",
-      "number": "20",
-      "nameZh": "石墨",
-      "nameEn": "Graphite",
-      "tile": "#232730",
-      "mark": "#F1F3F7",
-      "border": "#717984"
     },
     {
       "key": "monochrome",
