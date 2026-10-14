@@ -31,6 +31,7 @@
 //! nebula-hook codex --chain <exe> <fixed…> <json> # + exec previous notifier
 //! nebula-hook opencode <json>                     # payload as last arg
 //! nebula-hook pi <json>                           # payload as last arg
+//! nebula-hook claude-statusline --dir <pool dir>  # statusline de Claude (módulo Pool)
 //! ```
 //! `--chain` exists because codex has a single `notify` slot which may
 //! already be taken (e.g. OpenAI's own computer-use notifier): we forward to
@@ -41,6 +42,8 @@
 //! here with a normalized `{"kind":...}` payload — same wire shape as codex.
 
 use std::io::{Read, Write};
+
+mod statusline;
 
 const MAX_PAYLOAD_BYTES: usize = 1 << 20;
 const FORWARD_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(2);
@@ -169,6 +172,11 @@ fn log_outcome(source: &str, pane: &str, bytes: usize, outcome: &Outcome) {
 fn main() {
     // Constraint 1: never leak a failure to the calling CLI.
     let args: Vec<String> = std::env::args().skip(1).collect();
+    // Statusline de Claude (módulo Pool): es el único modo que imprime por stdout y no usa el pipe.
+    if args.first().is_some_and(|source| source == "claude-statusline") {
+        statusline::run(&args[1..]);
+        return;
+    }
     let forwarding_args = args.clone();
     let (done, finished) = std::sync::mpsc::sync_channel(1);
     // Bound the entire forwarding operation, including stdin drain and pipe

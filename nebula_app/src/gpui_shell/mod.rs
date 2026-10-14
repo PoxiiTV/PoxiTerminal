@@ -175,6 +175,8 @@ pub fn run_shell(
     let _runtime_server = runtime_server;
     let _acrylic = crate::platform::acrylic::RunGuard::default();
     let _ai_config_guard = crate::ai_hook::spawn_config_guard();
+    // Módulo Pool (opt-in): sin `poxiterminal pool setup` este hilo no hace nada.
+    crate::pool::spawn();
     // 驻留由工作区持有隐藏窗口；真正关闭最后窗口时统一退出并回收服务。
     let application = gpui_platform::application()
         .with_assets(NebulaAssets)

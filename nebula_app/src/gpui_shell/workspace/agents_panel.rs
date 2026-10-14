@@ -216,6 +216,9 @@ impl NebulaWorkspace {
         }
         let mut list = v_flex().id("agents-panel").size_full().overflow_y_scroll().gap_2().p_2();
         list = list.child(div().px_1().text_xs().text_color(theme.muted_foreground).child(summary));
+        if let Some(pool) = super::pool_card::render_pool_card(language, &theme) {
+            list = list.child(pool);
+        }
         if cards.is_empty() {
             list = list.child(div().p_3().text_sm().text_color(theme.muted_foreground).child(
                 language.pick(

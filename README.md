@@ -40,8 +40,8 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 
 | Archivo | Para qué |
 |---|---|
-| `PoxiTerminal-v0.3.1-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
-| `PoxiTerminal-v0.3.1-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
+| `PoxiTerminal-v0.4.0-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
+| `PoxiTerminal-v0.4.0-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
 
 > 🤝 **Convive con pebrel.** Usa su propia carpeta de ajustes (`%APPDATA%\PoxiTerminal`),
 > sus propias credenciales y sus propias integraciones de IA. Puedes tener los dos
@@ -52,6 +52,7 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 | | |
 |---|---|
 | 🧠 **Centro de control de IA** | Una tarjeta por agente (Claude Code, Codex…): si trabaja o te espera, carpeta y rama, % de contexto, tokens, coste estimado e imágenes de la sesión. `Ctrl` + `Shift` + `A` |
+| 🤝 **Pool: repartir Claude entre dos** | Opcional. Mide quién gasta cuánta cuota de una suscripción compartida usando el % real que muestra Claude Code, con tarjeta en el centro de control y línea en la statusline. Solo envía contadores, nunca prompts ni código. `poxiterminal pool setup` |
 | 🧾 **¿Qué ha tocado la IA?** | Al terminar cada turno, «Ver cambios» te enseña solo lo que la IA cambió en esa respuesta, archivo por archivo, y puedes descartar lo que no quieras |
 | 🖼️ **Imágenes de la IA** | Las imágenes que le mandas (`[Image #3]`) y las que lee Claude (`Read 2 files`) se ven en miniatura dentro del terminal, sin tapar nada; pasa el ratón por encima para verlas a ventana completa |
 | 🔍 **Buscar en el historial** | `Ctrl` + `F` con contador, resaltado y salto entre coincidencias |
@@ -151,6 +152,7 @@ Spanish (English remains available in the settings).
 
 - ⚡ Native GPU rendering, tabs, split panes, themes and backgrounds.
 - 🧠 AI control center: one card per agent with live state, branch, context %, tokens, estimated cost and session images.
+- 🤝 Pool (optional): share one Claude subscription between two people, measured from the real usage % Claude Code shows. Only counters are sent, never prompts or code. `poxiterminal pool setup`
 - 🧾 "What did the AI change?": per-turn diff viewer with per-file discard.
 - 🖼️ Images you send and images the AI reads show as thumbnails inside the terminal; hover to see them filling the whole window.
 - 🔍 Scrollback search (`Ctrl+F`) and SSH tunnels (local and SOCKS).

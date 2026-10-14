@@ -116,6 +116,8 @@ const CLAUDE_EVENTS: [&str; 10] = [
 ];
 
 pub use local::{setup_ai_cli, spawn_config_guard};
+// Reutilizados por el módulo Pool para instalar su statusline junto al helper.
+pub(crate) use local::{claude_config_dir, helper_command};
 #[cfg(windows)]
 pub use windows::spawn_gpui_server;
 #[cfg(all(windows, feature = "legacy-shell"))]

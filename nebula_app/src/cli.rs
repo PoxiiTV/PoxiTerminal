@@ -313,6 +313,8 @@ pub enum Subcommands {
     Config(ConfigOptions),
     /// Check or invoke a local plugin package without starting a GUI or plugin daemon.
     Plugin(crate::plugins::cli::Options),
+    /// Reparto de una suscripción de Claude entre dos personas (servidor CMKristian).
+    Pool(crate::pool::cli::Options),
     /// Test system notification (toast) delivery.
     #[cfg(windows)]
     NotifyTest,

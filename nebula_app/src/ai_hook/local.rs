@@ -342,7 +342,7 @@ pub fn setup_ai_cli(remove: bool) -> i32 {
     i32::from(failed)
 }
 
-fn claude_config_dir() -> Option<PathBuf> {
+pub(crate) fn claude_config_dir() -> Option<PathBuf> {
     if let Some(dir) = std::env::var_os("CLAUDE_CONFIG_DIR") {
         return Some(PathBuf::from(dir));
     }
@@ -532,7 +532,7 @@ fn helper_path_from_exe(exe: &Path) -> Option<PathBuf> {
 ///
 /// Forward slashes stay: `CreateProcess` accepts them and they keep the
 /// entry readable when the user opens `settings.json`.
-fn helper_command() -> Option<String> {
+pub(crate) fn helper_command() -> Option<String> {
     let path = helper_path()?.to_string_lossy().into_owned();
     Some(if cfg!(windows) { path.replace('\\', "/") } else { path })
 }

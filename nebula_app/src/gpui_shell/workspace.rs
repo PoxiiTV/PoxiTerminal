@@ -64,6 +64,7 @@ mod logos;
 mod notifications;
 mod palette;
 mod pane_header;
+mod pool_card;
 mod quick_jump;
 mod quick_terminal;
 mod recipes;

@@ -96,6 +96,7 @@ mod notify;
 mod panic;
 mod platform;
 mod plugins;
+mod pool;
 #[cfg(all(unix, feature = "legacy-shell"))]
 mod polling;
 mod process_tree;
@@ -268,6 +269,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Some(Subcommands::Msg(options)) => msg(options)?,
         Some(Subcommands::Migrate(options)) => migrate::migrate(options),
         Some(Subcommands::Config(options)) => std::process::exit(config_cli::run(options)),
+        Some(Subcommands::Pool(options)) => std::process::exit(pool::cli::run(options)),
         Some(Subcommands::Plugin(options)) => std::process::exit(plugins::cli::run(options)),
         #[cfg(windows)]
         Some(Subcommands::NotifyTest) => std::process::exit(crate::notify::notify_test()),
