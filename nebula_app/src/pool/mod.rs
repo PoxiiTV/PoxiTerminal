@@ -1,4 +1,4 @@
-//! Módulo Pool: reparto de una suscripción de Claude entre dos personas (servidor CMKristian).
+//! Módulo Pool: reparto de una suscripción de Claude entre dos personas (servidor Fifty).
 //!
 //! Es opt-in (`poxiterminal pool setup`). Sin activarlo no se toca ninguna configuración ni se hace
 //! ninguna petición de red.
@@ -18,4 +18,4 @@ mod state;
 mod transcript;
 
 pub use engine::{Phase, spawn, status};
-pub use state::{KindState, ServerState, level_tag};
+pub use state::{KindState, ServerState, UserState, countdown_parts, display_name, fmt_points};

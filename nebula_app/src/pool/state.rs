@@ -12,6 +12,15 @@ pub struct UserState {
     pub remaining: f64,
     pub pct: f64,
     pub level: String,
+    pub loans_in: f64,
+    pub loans_out: f64,
+}
+
+#[derive(Debug, Clone, Default, Deserialize, PartialEq)]
+#[serde(default)]
+pub struct WindowInfo {
+    /// Segundos Unix en que se reinicia la ventana.
+    pub resets_at: i64,
 }
 
 #[derive(Debug, Clone, Default, Deserialize, PartialEq)]
@@ -21,6 +30,8 @@ pub struct KindState {
     pub account_pct: Option<f64>,
     pub status: String,
     pub stale: bool,
+    pub mode: String,
+    pub window: Option<WindowInfo>,
     pub users: Vec<UserState>,
 }
 
@@ -31,6 +42,30 @@ pub struct ServerState {
     pub five: KindState,
     pub seven: KindState,
     pub desync: Vec<String>,
+    /// Equipos que parecen medir cuentas de Claude distintas.
+    pub mixed: Vec<String>,
+}
+
+/// Puntos con coma decimal solo si hace falta: 6, 27,9.
+pub fn fmt_points(value: f64) -> String {
+    let rounded = (value * 10.0).round() / 10.0;
+    if rounded.fract().abs() < f64::EPSILON {
+        format!("{rounded:.0}")
+    } else {
+        format!("{rounded:.1}").replace('.', ",")
+    }
+}
+
+/// Primera letra en mayúscula para los nombres de usuario.
+pub fn display_name(name: &str) -> String {
+    let mut chars = name.chars();
+    chars.next().map(|first| first.to_uppercase().chain(chars).collect()).unwrap_or_default()
+}
+
+/// Cuenta atrás en (días, horas, minutos), sin negativos.
+pub fn countdown_parts(seconds: i64) -> (i64, i64, i64) {
+    let s = seconds.max(0);
+    (s / 86_400, (s % 86_400) / 3_600, (s % 3_600) / 60)
 }
 
 impl ServerState {
@@ -96,6 +131,7 @@ mod tests {
             remaining: limit - used,
             pct: used / limit * 100.0,
             level: level.into(),
+            ..Default::default()
         }
     }
 
@@ -110,6 +146,7 @@ mod tests {
                     user("alexis", 18.0, 50.0, "normal"),
                     user("kristian", 12.0, 50.0, "normal"),
                 ],
+                ..Default::default()
             },
             seven: KindState {
                 account_pct: Some(15.0),
@@ -119,8 +156,9 @@ mod tests {
                     user("alexis", 9.0, 50.0, "normal"),
                     user("kristian", 6.0, 50.0, "normal"),
                 ],
+                ..Default::default()
             },
-            desync: vec![],
+            ..Default::default()
         }
     }
 
@@ -149,6 +187,28 @@ mod tests {
         let mut s = state();
         s.five = KindState::default();
         assert!(format_line(&s).starts_with("Pool · 5h: sin datos · sem:"));
+    }
+
+    #[test]
+    fn points_names_and_countdowns_are_formatted_for_the_card() {
+        assert_eq!(fmt_points(6.0), "6");
+        assert_eq!(fmt_points(27.94), "27,9");
+        assert_eq!(fmt_points(18.04), "18");
+        assert_eq!(display_name("kristian"), "Kristian");
+        assert_eq!(display_name(""), "");
+        assert_eq!(countdown_parts(2 * 3_600 + 13 * 60 + 5), (0, 2, 13));
+        assert_eq!(countdown_parts(3 * 86_400 + 4 * 3_600), (3, 4, 0));
+        assert_eq!(countdown_parts(-10), (0, 0, 0));
+    }
+
+    #[test]
+    fn the_card_gets_reset_time_loans_mode_and_mixed_accounts_from_the_server() {
+        let json = r#"{"user":"alexis","mixed":["alexis/pc","kristian/pc"],"five":{"account_pct":38,"mode":"hybrid","window":{"resets_at":1792012200,"start":1791994200},"users":[{"name":"alexis","used":38,"limit":44,"remaining":6,"pct":86,"level":"importante","loans_in":0,"loans_out":6}]}}"#;
+        let parsed: ServerState = serde_json::from_str(json).unwrap();
+        assert_eq!(parsed.five.window.as_ref().unwrap().resets_at, 1_792_012_200);
+        assert_eq!(parsed.five.mode, "hybrid");
+        assert_eq!(parsed.five.users[0].loans_out, 6.0);
+        assert_eq!(parsed.mixed.len(), 2);
     }
 
     #[test]

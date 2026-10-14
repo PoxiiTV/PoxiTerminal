@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.4.1
+
+### 🇪🇸 Español
+
+**Tarjeta Pool renovada** en el centro de control de IA (`Ctrl+Shift+A`), para quien usa el módulo Pool con su servidor Fifty.
+
+- **Lo que te queda, en grande**, por cada ventana (5 h y semana), con lo que llevas gastado y tu nivel (Normal, Aviso, Importante, Crítico, Agotado).
+- **Barra partida**: un tramo por persona, proporcional a su parte, relleno con lo que ha gastado. En modo compartido, una sola bolsa.
+- **Lo que le queda a la otra persona**, los préstamos que das o recibes y **cuánto falta para que se reinicie** cada ventana.
+- **Avisos**: si dos equipos miden cuentas de Claude distintas, si un reloj está desajustado o si hay datos pendientes de enviar.
+- El servidor del módulo pasa a llamarse **Fifty**.
+
+### 🇬🇧 English
+
+**Revamped Pool card** in the AI control center (`Ctrl+Shift+A`), for people using the Pool module with their Fifty server.
+
+- **What you have left, big**, for each window (5 h and week), with what you have used and your level (Normal, Warning, Important, Critical, Exhausted).
+- **Split bar**: one segment per person, sized by their share and filled with what they used. In shared mode, a single pool.
+- **What the other person has left**, the loans you give or receive and **how long until each window resets**.
+- **Warnings**: when two machines measure different Claude accounts, when a clock is off or when data is waiting to be sent.
+- The module's server is now called **Fifty**.
+
 ## 0.4.0
 
 ### 🇪🇸 Español

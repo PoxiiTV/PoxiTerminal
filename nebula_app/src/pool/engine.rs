@@ -654,7 +654,8 @@ mod tests {
         // Claude Code guarda cada subagente en <sesión>/subagents/agent-*.jsonl
         let subagents = project.join("s1").join("subagents");
         std::fs::create_dir_all(&subagents).unwrap();
-        let side = assistant("sub1", 7).replace(r#"{"type":"assistant","#, r#"{"type":"assistant","isSidechain":true,"#);
+        let side = assistant("sub1", 7)
+            .replace(r#"{"type":"assistant","#, r#"{"type":"assistant","isSidechain":true,"#);
         std::fs::write(subagents.join("agent-abc.jsonl"), format!("{side}\n")).unwrap();
         std::fs::write(subagents.join("notas.txt"), "no es un transcript").unwrap();
         write_statusline(&fx, &transcript);
@@ -671,14 +672,19 @@ mod tests {
         assert_eq!(by_id("sub1")["output_tokens"], 7);
 
         // un subagente que aparece más tarde también se recoge
-        std::fs::write(subagents.join("agent-def.jsonl"), format!("{}\n", assistant("sub2", 3))).unwrap();
+        std::fs::write(subagents.join("agent-def.jsonl"), format!("{}\n", assistant("sub2", 3)))
+            .unwrap();
         fx.engine.last_flush = None;
         fx.engine.last_sweep = None;
         fx.engine.collect(now_ms());
         fx.engine.flush(now_ms());
         let later = ingest_bodies(&seen);
-        let ids: Vec<&str> =
-            later[1]["events"].as_array().unwrap().iter().map(|e| e["message_id"].as_str().unwrap()).collect();
+        let ids: Vec<&str> = later[1]["events"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|e| e["message_id"].as_str().unwrap())
+            .collect();
         assert_eq!(ids, ["sub2"]);
     }
 

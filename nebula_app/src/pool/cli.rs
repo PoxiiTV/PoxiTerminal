@@ -7,7 +7,7 @@ use clap::{Args, Subcommand};
 use super::client::{Client, normalize_server};
 use super::{config, install};
 
-/// Reparto de una suscripción de Claude entre dos personas (servidor CMKristian).
+/// Reparto de una suscripción de Claude entre dos personas (servidor Fifty).
 #[derive(Args, Debug)]
 pub struct Options {
     #[clap(subcommand)]
@@ -55,7 +55,10 @@ fn sync() -> i32 {
     if let Some(detail) = &report.detail {
         println!("Detalle: {detail}");
     }
-    println!("Enviado: {} muestras de cuota y {} eventos de uso.", report.sent_samples, report.sent_events);
+    println!(
+        "Enviado: {} muestras de cuota y {} eventos de uso.",
+        report.sent_samples, report.sent_events
+    );
     match report.line {
         Some(line) => {
             println!("\n{line}");

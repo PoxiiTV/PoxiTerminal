@@ -1,4 +1,4 @@
-//! Cliente HTTP bloqueante hacia el servidor CMKristian (`ureq`, ya presente en la app).
+//! Cliente HTTP bloqueante hacia el servidor Fifty (`ureq`, ya presente en la app).
 
 use std::fmt;
 use std::time::Duration;
