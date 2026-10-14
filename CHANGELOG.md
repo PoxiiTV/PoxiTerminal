@@ -4,25 +4,25 @@
 
 ### 🇪🇸 Español
 
-**Repartir una suscripción de Claude entre dos personas.** Módulo opcional **Pool**: mide quién gasta cuánta cuota y lo muestra en vivo.
+**Repartir una suscripción de Claude entre dos personas (avanzado).** Módulo opcional **Pool**, pensado para quien comparte una suscripción: necesita un servidor propio compatible (no incluido) y, si no lo usas, no cambia nada. Mide quién gasta cuánta cuota y lo muestra en vivo.
 
 - **Cuota real, no estimada**: usa el % de uso que muestra Claude Code (ventana de 5 h y semanal) y reparte cada subida entre las personas según sus tokens, **subagentes incluidos**.
 - **Tarjeta «Pool»** en el centro de control de IA (`Ctrl+Shift+A`): tu consumo y el de la otra persona, con aviso al acercarte a tu parte.
 - **Línea de estado en la statusline de Claude**. Si ya tenías una statusline (por ejemplo la de Orca), queda **encadenada** y se restaura exactamente al desactivar el módulo.
 - **Opcional y seguro**: no hace nada hasta ejecutar `poxiterminal pool setup`. Solo envía contadores, modelos y porcentajes por HTTPS (nunca prompts, respuestas ni código) y el token se guarda en el almacén de credenciales del sistema.
 - **Comandos nuevos**: `poxiterminal pool setup`, `pool status`, `pool sync` (un ciclo completo para diagnosticar sin abrir la ventana) y `pool off`.
-- Necesita un servidor compatible (CMKristian).
+- Necesita un servidor compatible (CMKristian, no incluido). Sin él el módulo no hace nada.
 
 ### 🇬🇧 English
 
-**Share one Claude subscription between two people.** Optional **Pool** module: it measures who uses how much quota and shows it live.
+**Share one Claude subscription between two people (advanced).** Optional **Pool** module, meant for people who share a subscription: it needs your own compatible server (not included) and changes nothing if you don't use it. It measures who uses how much quota and shows it live.
 
 - **Real quota, not an estimate**: it uses the usage % that Claude Code shows (5-hour and weekly windows) and splits every increase between people by their tokens, **subagents included**.
 - **"Pool" card** in the AI control center (`Ctrl+Shift+A`): your usage and the other person's, with a warning as you approach your share.
 - **Status line in Claude's statusline**. If you already had a statusline (for example Orca's), it is **chained** and restored exactly when the module is turned off.
 - **Optional and safe**: it does nothing until you run `poxiterminal pool setup`. It only sends counters, models and percentages over HTTPS (never prompts, answers or code) and the token is kept in the system credential store.
 - **New commands**: `poxiterminal pool setup`, `pool status`, `pool sync` (one full cycle to diagnose without opening the window) and `pool off`.
-- Requires a compatible server (CMKristian).
+- Requires a compatible server (CMKristian, not included). Without it the module does nothing.
 
 ## 0.3.1
 
