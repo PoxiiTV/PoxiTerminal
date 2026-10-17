@@ -46,8 +46,8 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 
 > 🍎 **En Mac:** como la app aún no está firmada por Apple, macOS la bloquea la primera vez.
 > Ábrela, cierra el aviso y ve a **Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente**.
-> Los atajos básicos usan `⌘` (`⌘T`, `⌘C`, `⌘V`, `⌘F`); la lista completa está en
-> **Configuración → Atajos de teclado**.
+> Los atajos básicos usan `⌘` (`⌘T`, `⌘C`, `⌘V`, `⌘F`) y están también en la barra de menús;
+> la lista completa está en **Configuración → Atajos de teclado**.
 
 > 🤝 **Convive con pebrel.** Usa su propia carpeta de ajustes (`%APPDATA%\PoxiTerminal` en
 > Windows, `~/Library/Application Support/PoxiTerminal` en Mac),
@@ -102,7 +102,7 @@ Todos se pueden cambiar en **Configuración → Atajos de teclado**.
 | 🎯 **Descarta solo lo que sobra** | En «Ver cambios», *Descartar* devuelve un archivo a como estaba antes del turno; los archivos nuevos van a la Papelera, nunca se borran del todo |
 | 🖱️ **Doble clic en el panel de Git** | Abre ese archivo directamente en el visor de cambios |
 | 🔍 **Busca en español** | La paleta de comandos y la configuración entienden «nueva pestaña», «fuente», «transparencia», «copia de seguridad»… |
-| 🖱️ **Clic derecho en una carpeta** | En el Explorador de Windows: *Abrir en PoxiTerminal* (también en WSL) |
+| 🖱️ **Clic derecho en una carpeta** | En el Explorador de Windows: *Abrir en PoxiTerminal* (también en WSL). En Mac, haz doble clic en *Abrir en PoxiTerminal.workflow* del `.dmg` y tendrás la opción en el Finder (clic derecho → Acciones rápidas) |
 | 🔔 **Las notificaciones te llevan al panel** | Pulsa el aviso de «Turno terminado» y saltas al terminal donde está esa IA |
 | 📋 **Pega imágenes** | Una captura en el portapapeles se guarda como PNG y se pega su ruta en el terminal (local, WSL o SSH) |
 | 💾 **Guarda tu distribución** | Paleta → *Exportar espacio de trabajo* guarda pestañas y paneles para abrirlos otro día |

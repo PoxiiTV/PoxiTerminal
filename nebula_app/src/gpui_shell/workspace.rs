@@ -61,6 +61,8 @@ mod file_tree;
 mod key_actions;
 mod launcher_menu;
 mod logos;
+#[cfg(target_os = "macos")]
+mod mac_menu;
 mod notifications;
 mod palette;
 mod pane_header;
@@ -183,6 +185,9 @@ fn title_bar_panel_controls() -> gpui::Div {
 /// 注册工作区快捷键；在 `gpui_component::init` 之后调用一次。
 pub fn init(cx: &mut App) {
     keyboard_bindings::init(cx);
+    // Después de los atajos: macOS enseña en cada menú el atajo de su acción.
+    #[cfg(target_os = "macos")]
+    mac_menu::init(cx);
 }
 
 /// 一个终端 pane：视图实体 + 宿主订阅。id 即 `TerminalView::pane_id`

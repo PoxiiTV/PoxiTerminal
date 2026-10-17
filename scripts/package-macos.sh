@@ -260,6 +260,13 @@ if [[ "$(lipo -archs "$contents/MacOS/poxiterminal")" != "$expected_uname" ]]; t
 fi
 
 ln -s /Applications "$stage/Applications"
+# Acción rápida de Finder «Abrir en PoxiTerminal»: se instala con doble clic.
+finder_action="$repo/packaging/macos/Abrir en PoxiTerminal.workflow"
+if [[ ! -f "$finder_action/Contents/document.wflow" ]]; then
+  echo "missing Finder quick action: $finder_action" >&2
+  exit 1
+fi
+cp -R "$finder_action" "$stage/"
 df -h "$output_directory" "$work"
 du -sh "$stage"
 size_mib="$(python3 "$script_directory/macos_dmg.py" "$stage")"

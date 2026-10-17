@@ -21,6 +21,9 @@ struct Server {
 impl Drop for Server {
     fn drop(&mut self) {
         self.stop.store(true, Ordering::Release);
+        // El hilo espera bloqueado en accept(): una conexión propia lo despierta
+        // para que vea la orden de parar (sin sondear el socket cada pocos ms).
+        let _ = UnixStream::connect(&self.endpoint);
         if let Some(worker) = self.worker.take() {
             let _ = worker.join();
         }
@@ -47,13 +50,13 @@ fn start(tx: mpsc::SyncSender<AiHookEvent>) -> io::Result<Server> {
     std::fs::set_permissions(directory.path(), std::fs::Permissions::from_mode(0o700))?;
     let endpoint = directory.path().join("events.sock");
     let listener = UnixListener::bind(&endpoint)?;
-    listener.set_nonblocking(true)?;
     let stop = Arc::new(AtomicBool::new(false));
     let stopping = stop.clone();
     let worker = std::thread::Builder::new().name("poxiterminal-ai-socket".into()).spawn(move || {
         let _directory = directory;
         while !stopping.load(Ordering::Acquire) {
             match listener.accept() {
+                Ok(_) if stopping.load(Ordering::Acquire) => break,
                 Ok((mut stream, _)) => {
                     let Some(client_pid) = peer_pid(&stream) else { continue };
                     if let Ok(bytes) = read_message(&mut stream, &stopping)
@@ -75,9 +78,7 @@ fn start(tx: mpsc::SyncSender<AiHookEvent>) -> io::Result<Server> {
                         let _ = stream.write_all(b"\n");
                     }
                 },
-                Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
-                    std::thread::sleep(Duration::from_millis(20));
-                },
+                Err(error) if error.kind() == io::ErrorKind::Interrupted => {},
                 Err(error) => {
                     log::warn!("ai_hook: socket accept failed: {error}");
                     break;
@@ -191,6 +192,20 @@ mod tests {
         assert_eq!(event.client_pid, Some(std::process::id()));
         assert_eq!(event.kind, super::super::AiHookKind::TurnDone);
         drop(server);
+        assert!(!directory.exists());
+    }
+
+    /// En reposo el hilo duerme en accept() (0 % de CPU); cerrar la app debe
+    /// despertarlo y terminar enseguida, sin quedarse colgado esperando conexiones.
+    #[test]
+    fn idle_hook_socket_stops_promptly_without_polling() {
+        let (tx, _rx) = mpsc::sync_channel(1);
+        let server = start(tx).unwrap();
+        let directory = server.endpoint.parent().unwrap().to_path_buf();
+        std::thread::sleep(Duration::from_millis(50));
+        let started = Instant::now();
+        drop(server);
+        assert!(started.elapsed() < Duration::from_secs(1), "{:?}", started.elapsed());
         assert!(!directory.exists());
     }
 }

@@ -1126,15 +1126,15 @@ impl TerminalView {
         let ks = &event.keystroke;
         let mods = &ks.modifiers;
 
-        // Ctrl+F busca en el historial, salvo en apps a pantalla completa
-        // (vim, nano, htop…), que usan Ctrl+F para lo suyo.
-        if mods.control
-            && !mods.shift
-            && !mods.alt
-            && !mods.platform
-            && ks.key == "f"
-            && !self.term_mode().contains(TermMode::ALT_SCREEN)
-        {
+        // Ctrl+F (y ⌘F en Mac) busca en el historial. Ctrl+F no lo hace en apps a
+        // pantalla completa (vim, nano, htop…), que lo usan para lo suyo; ⌘F no
+        // llega a esas apps, así que en Mac siempre abre la búsqueda.
+        let search_chord = if cfg!(target_os = "macos") && mods.platform && !mods.control {
+            true
+        } else {
+            mods.control && !mods.platform && !self.term_mode().contains(TermMode::ALT_SCREEN)
+        };
+        if search_chord && !mods.shift && !mods.alt && ks.key == "f" {
             self.open_search(window, cx);
             cx.stop_propagation();
             return;

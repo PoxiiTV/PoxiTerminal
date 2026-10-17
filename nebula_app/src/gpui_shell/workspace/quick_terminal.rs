@@ -3,9 +3,9 @@
 //! 进程内持有一扇独立窗口，切换时保留 PTY 与终端状态。
 //! 窗口系统决定显示位置和动画能力；全局键注册与窗口生命周期分开管理。
 //!
-//! 为什么用轮询而不是阻塞接收：`global_hotkey` 的事件走进程级 channel，而 GPUI 主线程
-//! 不能阻塞。这里沿用仓库既有的 `start_ai_hook_pump` / `start_agent_screen_watchdog`
-//! 同一套「timer 让出 + `try_recv` 排空」节奏，不引入第三种调度风格。
+//! `global_hotkey` 的事件走进程级 channel，而 GPUI 主线程不能阻塞。一个小线程阻塞
+//! 在那个 channel 上（不耗 CPU），再通过异步 channel 交给 GPUI：主线程只在真的按下
+//! 组合键时才醒。以前每 16 ms 轮询一次，空闲时每秒唤醒主线程 60 次。
 
 use std::time::Duration;
 
@@ -15,20 +15,24 @@ use gpui::{App, Context, Global, Window};
 
 use super::NebulaWorkspace;
 
-/// 全局热键 channel 不会主动唤醒 GPUI；按一帧的节奏排空，避免旧实现最多
-/// 80ms 的可感知迟滞。窗口位移动画本身由 GPUI 帧回调驱动，不使用这个 timer。
+/// Linux portal 仍按一帧的节奏排空（它的 channel 不能阻塞等待）。
+#[cfg(target_os = "linux")]
 const POLL_INTERVAL: Duration = Duration::from_millis(16);
 
 #[cfg(windows)]
 pub(super) use crate::platform::quick_window::*;
 
-/// 每多少次轮询回读一次设置里的组合键（约 2 秒）。
+/// 每多少次轮询回读一次设置里的组合键（Linux portal，约 2 秒）。
 ///
 /// 设置页改键后要立刻生效，但它的持久化路径（`settings_pane/keymap.rs::persist`）没有
 /// 面向进程级单例的通知通道，而 GPUI 的内存全局 `config::Settings` 里也不存这个键。
 /// 与其为一个低频动作新加一条事件链，这里在后台按固定节拍回读——它不在渲染路径上，
 /// 每次只读一个不到 1KB 的设置文件。
+#[cfg(target_os = "linux")]
 const RESYNC_EVERY: u32 = 125;
+
+/// 回读设置里组合键的节拍（改键后最多 2 秒生效）。
+const RESYNC_INTERVAL: Duration = Duration::from_secs(2);
 
 /// 当前注册状态。`GlobalHotKeyManager` 必须活到进程结束：它的 `Drop` 会向系统注销热键。
 struct QuickTerminalHotkey {
@@ -71,22 +75,44 @@ impl NebulaWorkspace {
         let hotkey = register(&manager, &combo);
         cx.set_global(QuickTerminalHotkey { manager, hotkey, combo });
 
-        let executor = cx.background_executor().clone();
-        cx.spawn(async move |_this, cx| {
-            let mut ticks: u32 = 0;
-            loop {
-                executor.timer(POLL_INTERVAL).await;
-                ticks = ticks.wrapping_add(1);
-                let resync = ticks % RESYNC_EVERY == 0;
-                let pressed = cx.update(|cx| {
-                    if resync {
-                        resync_combo(cx);
+        // 线程阻塞在全局热键 channel 上，有事件才转发；GPUI 侧 await，无需轮询。
+        let (events_tx, mut events_rx) = futures::channel::mpsc::unbounded::<GlobalHotKeyEvent>();
+        if let Err(error) =
+            std::thread::Builder::new().name("poxiterminal-quick-hotkey".into()).spawn(move || {
+                while let Ok(event) = GlobalHotKeyEvent::receiver().recv() {
+                    if events_tx.unbounded_send(event).is_err() {
+                        break;
                     }
-                    drain_pressed(cx)
+                }
+            })
+        {
+            log::warn!("quick terminal disabled: hotkey thread failed: {error}");
+            return;
+        }
+        cx.spawn(async move |_this, cx| {
+            use futures::StreamExt as _;
+            while let Some(first) = events_rx.next().await {
+                // 同一批的多次按下合并成一次切换，避免窗口来回闪。
+                let mut events = vec![first];
+                while let Ok(event) = events_rx.try_recv() {
+                    events.push(event);
+                }
+                let pressed = cx.update(|cx| {
+                    let id = cx.global::<QuickTerminalHotkey>().hotkey.map(|hotkey| hotkey.id());
+                    pressed_in(&events, id)
                 });
                 if pressed {
                     cx.update(super::windowing::toggle_quick_terminal_window);
                 }
+            }
+        })
+        .detach();
+
+        let executor = cx.background_executor().clone();
+        cx.spawn(async move |_this, cx| {
+            loop {
+                executor.timer(RESYNC_INTERVAL).await;
+                cx.update(resync_combo);
             }
         })
         .detach();
@@ -184,19 +210,37 @@ fn resync_combo(cx: &mut App) {
     state.combo = latest;
 }
 
-/// 排空事件队列，返回本轮是否收到过按下。
+/// ¿Hay en este lote alguna pulsación (no suelta) de nuestro atajo?
 ///
-/// 必须整队排空而不是只看第一条：连按会攒下多条，留在队列里会在后续轮次里
-/// 反复触发切换，看起来像窗口自己闪。同一轮的多次按下合并成一次切换。
-fn drain_pressed(cx: &mut App) -> bool {
-    let Some(id) = cx.global::<QuickTerminalHotkey>().hotkey.map(|hotkey| hotkey.id()) else {
-        return false;
-    };
-    let mut pressed = false;
-    while let Ok(event) = GlobalHotKeyEvent::receiver().try_recv() {
-        if event.id == id && event.state == HotKeyState::Pressed {
-            pressed = true;
-        }
+/// Se mira el lote entero: varias pulsaciones seguidas cuentan como una sola
+/// para que la ventana no se abra y cierre sola.
+fn pressed_in(events: &[GlobalHotKeyEvent], id: Option<u32>) -> bool {
+    id.is_some_and(|id| {
+        events.iter().any(|event| event.id == id && event.state == HotKeyState::Pressed)
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn event(id: u32, state: HotKeyState) -> GlobalHotKeyEvent {
+        GlobalHotKeyEvent { id, state }
     }
-    pressed
+
+    /// Varias pulsaciones del mismo lote cuentan como una sola (no hace parpadear la
+    /// ventana); soltar la tecla o la de otro atajo no cuentan.
+    #[test]
+    fn only_a_press_of_our_shortcut_toggles_once_per_batch() {
+        let ours = 7;
+        assert!(!pressed_in(&[], Some(ours)));
+        assert!(!pressed_in(&[event(ours, HotKeyState::Released)], Some(ours)));
+        assert!(!pressed_in(&[event(9, HotKeyState::Pressed)], Some(ours)));
+        assert!(!pressed_in(&[event(ours, HotKeyState::Pressed)], None));
+        assert!(pressed_in(
+            &[event(ours, HotKeyState::Pressed), event(ours, HotKeyState::Released),
+              event(ours, HotKeyState::Pressed)],
+            Some(ours)
+        ));
+    }
 }

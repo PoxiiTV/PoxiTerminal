@@ -1,5 +1,25 @@
 # Changelog
 
+## Próxima versión
+
+### 🇪🇸 Español
+
+Mejoras para Mac.
+
+- **Barra de menús en castellano:** PoxiTerminal, Archivo, Edición, Visualización y Ventana, con «Salir», «Ocultar», «Minimizar» y los atajos con ⌘ al lado de cada opción.
+- **«Abrir en PoxiTerminal» desde el Finder:** el `.dmg` trae una acción rápida; doble clic para instalarla y aparece al hacer clic derecho en una carpeta.
+- **⌘F busca en el historial**, igual que Ctrl+F.
+- **Consume menos en reposo:** con la ventana abierta y sin hacer nada pasa de ~2 % a ~1 % de CPU, y a ~0,3 % con la ventana tapada. El socket de las IA y el atajo del terminal rápido ya no se despiertan decenas de veces por segundo para nada.
+
+### 🇬🇧 English
+
+Mac improvements.
+
+- **Menu bar** (PoxiTerminal, File, Edit, View, Window) with Quit, Hide, Minimize and the ⌘ shortcut next to each item.
+- **"Abrir en PoxiTerminal" from Finder:** the `.dmg` includes a Quick Action; double-click to install it.
+- **⌘F searches the scrollback**, like Ctrl+F.
+- **Lighter at idle:** ~2 % → ~1 % CPU with the window visible, ~0.3 % when covered. The AI socket and the quick-terminal hotkey no longer wake up dozens of times per second.
+
 ## 0.4.1
 
 ### 🇪🇸 Español
