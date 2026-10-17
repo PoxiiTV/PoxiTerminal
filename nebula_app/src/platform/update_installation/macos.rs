@@ -71,7 +71,7 @@ pub(crate) fn bundle(executable: &Path) -> Result<PathBuf, String> {
     let macos = executable.parent().ok_or("Missing executable directory")?;
     let contents = macos.parent().ok_or("Missing bundle contents")?;
     let bundle = contents.parent().ok_or("Missing application bundle")?;
-    if executable.file_name().is_none_or(|n| n != "pebrel")
+    if executable.file_name().is_none_or(|n| n != "poxiterminal")
         || macos.file_name().is_none_or(|n| n != "MacOS")
         || contents.file_name().is_none_or(|n| n != "Contents")
         || bundle.extension().is_none_or(|e| e != "app")
@@ -80,8 +80,8 @@ pub(crate) fn bundle(executable: &Path) -> Result<PathBuf, String> {
     }
     if !matches!(
         property(bundle, "CFBundleIdentifier")?.as_str(),
-        "io.github.kuddev.pebrel" | "io.github.kuddev.pebrel.preview"
-    ) || property(bundle, "CFBundleExecutable")? != "pebrel"
+        "dev.alexiis.poxiterminal" | "dev.alexiis.poxiterminal.preview"
+    ) || property(bundle, "CFBundleExecutable")? != "poxiterminal"
     {
         return Err("This is not an official PoxiTerminal application bundle".into());
     }
@@ -171,13 +171,13 @@ pub(crate) fn exchange(first: &Path, second: &Path) -> Result<(), String> {
 
 pub(crate) fn verify_bundle(bundle: &Path, version: &str) -> Result<(), String> {
     let id = property(bundle, "CFBundleIdentifier")?;
-    if !matches!(id.as_str(), "io.github.kuddev.pebrel" | "io.github.kuddev.pebrel.preview")
-        || property(bundle, "CFBundleExecutable")? != "pebrel"
+    if !matches!(id.as_str(), "dev.alexiis.poxiterminal" | "dev.alexiis.poxiterminal.preview")
+        || property(bundle, "CFBundleExecutable")? != "poxiterminal"
         || property(bundle, "CFBundleShortVersionString")? != version
     {
         return Err("The downloaded bundle identity or version does not match the release".into());
     }
-    let executable = bundle.join("Contents/MacOS/pebrel");
+    let executable = bundle.join("Contents/MacOS/poxiterminal");
     if std::fs::canonicalize(&executable).map_err(|e| e.to_string())? != executable {
         return Err("The bundle executable must not redirect outside the application".into());
     }
@@ -279,7 +279,7 @@ mod tests {
     }
     #[test]
     fn developer_executables_are_not_treated_as_installable_bundles() {
-        assert!(bundle(Path::new("/tmp/target/debug/pebrel")).is_err());
+        assert!(bundle(Path::new("/tmp/target/debug/poxiterminal")).is_err());
         assert!(bundle(Path::new("/tmp/PoxiTerminal.app/Contents/MacOS/not-pebrel")).is_err());
     }
     #[test]

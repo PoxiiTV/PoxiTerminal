@@ -17,6 +17,7 @@ _poxiterminal() {
     _arguments "${_arguments_options[@]}" : \
 '--embed=[X11 window ID to embed PoxiTerminal within (decimal or hexadecimal with "0x" prefix)]:EMBED:_default' \
 '--config-file=[Specify an alternative configuration file.]:CONFIG_FILE:_files' \
+'--socket=[Path for IPC socket creation]:SOCKET:_files' \
 '--working-directory=[Start the shell in the specified working directory]:WORKING_DIRECTORY:_files' \
 '(-e --command)--shell=[Start this shell instead of the configured default one, by the same id the \`shell\` setting uses (\`pwsh\`, \`cmd\`, \`wsl\:Ubuntu\`, or a profile'\''s settings id)]:ID:_default' \
 '*-e+[Command and args to execute (must be last argument)]:COMMAND:_default' \
@@ -1188,11 +1189,86 @@ esac
     ;;
 esac
 ;;
-(notify-test)
+(pool)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+":: :_poxiterminal__pool_commands" \
+"*::: :->pool" \
+&& ret=0
+
+    case $state in
+    (pool)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:poxiterminal-pool-command-$line[1]:"
+        case $line[1] in
+            (setup)
+_arguments "${_arguments_options[@]}" : \
+'--server=[Dirección del servidor (https\://…; http solo en localhost)]:URL:_default' \
+'--token=[Token del dispositivo. Si se omite se lee de la entrada estándar, así no queda en el historial de la terminal]:TOKEN:_default' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(status)
 _arguments "${_arguments_options[@]}" : \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0
+;;
+(sync)
+_arguments "${_arguments_options[@]}" : \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(off)
+_arguments "${_arguments_options[@]}" : \
+'--forget[Borra también el token guardado]' \
+'-h[Print help]' \
+'--help[Print help]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_poxiterminal__pool__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:poxiterminal-pool-help-command-$line[1]:"
+        case $line[1] in
+            (setup)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(status)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(sync)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(off)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
 ;;
 (setup-ai)
 _arguments "${_arguments_options[@]}" : \
@@ -1202,13 +1278,6 @@ _arguments "${_arguments_options[@]}" : \
 '--remove[Remove PoxiTerminal-managed hooks for every supported agent and preserve other integrations. Without this flag, enable Claude Code and Codex plus agents explicitly enabled in settings]' \
 '-h[Print help]' \
 '--help[Print help]' \
-&& ret=0
-;;
-(ssh)
-_arguments "${_arguments_options[@]}" : \
-'-h[Print help]' \
-'--help[Print help]' \
-'*::args -- All arguments forwarded verbatim to `ssh` (destination and flags):_default' \
 && ret=0
 ;;
 (help)
@@ -1559,15 +1628,39 @@ _arguments "${_arguments_options[@]}" : \
     ;;
 esac
 ;;
-(notify-test)
+(pool)
+_arguments "${_arguments_options[@]}" : \
+":: :_poxiterminal__help__pool_commands" \
+"*::: :->pool" \
+&& ret=0
+
+    case $state in
+    (pool)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:poxiterminal-help-pool-command-$line[1]:"
+        case $line[1] in
+            (setup)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
+;;
+(status)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(sync)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(off)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
 ;;
 (setup-ai)
-_arguments "${_arguments_options[@]}" : \
-&& ret=0
-;;
-(ssh)
 _arguments "${_arguments_options[@]}" : \
 && ret=0
 ;;
@@ -1596,9 +1689,8 @@ _poxiterminal_commands() {
 'migrate:Migrate the configuration file' \
 'config:Validate or create the PoxiTerminal configuration' \
 'plugin:Check or invoke a local plugin package without starting a GUI or plugin daemon' \
-'notify-test:Test system notification (toast) delivery' \
+'pool:Reparto de una suscripción de Claude entre dos personas (servidor Fifty)' \
 'setup-ai:Install (or --remove) AI hooks plus the PoxiTerminal Runtime Skill for Codex and Claude Code' \
-'ssh:SSH with PoxiTerminal shell integration bootstrapped on the remote host, so tab icons / spinner / cwd track the program running over the connection (claude, vim, cargo…). All arguments are forwarded to the system \`ssh\`' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'poxiterminal commands' commands "$@"
@@ -2145,9 +2237,8 @@ _poxiterminal__help_commands() {
 'migrate:Migrate the configuration file' \
 'config:Validate or create the PoxiTerminal configuration' \
 'plugin:Check or invoke a local plugin package without starting a GUI or plugin daemon' \
-'notify-test:Test system notification (toast) delivery' \
+'pool:Reparto de una suscripción de Claude entre dos personas (servidor Fifty)' \
 'setup-ai:Install (or --remove) AI hooks plus the PoxiTerminal Runtime Skill for Codex and Claude Code' \
-'ssh:SSH with PoxiTerminal shell integration bootstrapped on the remote host, so tab icons / spinner / cwd track the program running over the connection (claude, vim, cargo…). All arguments are forwarded to the system \`ssh\`' \
 'help:Print this message or the help of the given subcommand(s)' \
     )
     _describe -t commands 'poxiterminal help commands' commands "$@"
@@ -2419,11 +2510,6 @@ _poxiterminal__help__migrate_commands() {
     local commands; commands=()
     _describe -t commands 'poxiterminal help migrate commands' commands "$@"
 }
-(( $+functions[_poxiterminal__help__notify-test_commands] )) ||
-_poxiterminal__help__notify-test_commands() {
-    local commands; commands=()
-    _describe -t commands 'poxiterminal help notify-test commands' commands "$@"
-}
 (( $+functions[_poxiterminal__help__pane_commands] )) ||
 _poxiterminal__help__pane_commands() {
     local commands; commands=(
@@ -2502,15 +2588,40 @@ _poxiterminal__help__plugin__run_commands() {
     local commands; commands=()
     _describe -t commands 'poxiterminal help plugin run commands' commands "$@"
 }
+(( $+functions[_poxiterminal__help__pool_commands] )) ||
+_poxiterminal__help__pool_commands() {
+    local commands; commands=(
+'setup:Conecta este PC con el servidor, guarda el token en el almacén seguro del sistema e instala la statusline de Claude (encadenando la que ya tengas)' \
+'status:Muestra el estado del módulo y lo que responde el servidor' \
+'sync:Hace ahora un ciclo completo (leer, enviar y pedir el estado) y cuenta qué ha pasado. Sirve para diagnosticar sin abrir la ventana; no toca tu configuración de Claude' \
+'off:Desactiva el módulo y restaura tu statusline original' \
+    )
+    _describe -t commands 'poxiterminal help pool commands' commands "$@"
+}
+(( $+functions[_poxiterminal__help__pool__off_commands] )) ||
+_poxiterminal__help__pool__off_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal help pool off commands' commands "$@"
+}
+(( $+functions[_poxiterminal__help__pool__setup_commands] )) ||
+_poxiterminal__help__pool__setup_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal help pool setup commands' commands "$@"
+}
+(( $+functions[_poxiterminal__help__pool__status_commands] )) ||
+_poxiterminal__help__pool__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal help pool status commands' commands "$@"
+}
+(( $+functions[_poxiterminal__help__pool__sync_commands] )) ||
+_poxiterminal__help__pool__sync_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal help pool sync commands' commands "$@"
+}
 (( $+functions[_poxiterminal__help__setup-ai_commands] )) ||
 _poxiterminal__help__setup-ai_commands() {
     local commands; commands=()
     _describe -t commands 'poxiterminal help setup-ai commands' commands "$@"
-}
-(( $+functions[_poxiterminal__help__ssh_commands] )) ||
-_poxiterminal__help__ssh_commands() {
-    local commands; commands=()
-    _describe -t commands 'poxiterminal help ssh commands' commands "$@"
 }
 (( $+functions[_poxiterminal__help__tab_commands] )) ||
 _poxiterminal__help__tab_commands() {
@@ -2552,11 +2663,6 @@ _poxiterminal__help__window__close_commands() {
 _poxiterminal__migrate_commands() {
     local commands; commands=()
     _describe -t commands 'poxiterminal migrate commands' commands "$@"
-}
-(( $+functions[_poxiterminal__notify-test_commands] )) ||
-_poxiterminal__notify-test_commands() {
-    local commands; commands=()
-    _describe -t commands 'poxiterminal notify-test commands' commands "$@"
 }
 (( $+functions[_poxiterminal__pane_commands] )) ||
 _poxiterminal__pane_commands() {
@@ -2728,15 +2834,77 @@ _poxiterminal__plugin__run_commands() {
     local commands; commands=()
     _describe -t commands 'poxiterminal plugin run commands' commands "$@"
 }
+(( $+functions[_poxiterminal__pool_commands] )) ||
+_poxiterminal__pool_commands() {
+    local commands; commands=(
+'setup:Conecta este PC con el servidor, guarda el token en el almacén seguro del sistema e instala la statusline de Claude (encadenando la que ya tengas)' \
+'status:Muestra el estado del módulo y lo que responde el servidor' \
+'sync:Hace ahora un ciclo completo (leer, enviar y pedir el estado) y cuenta qué ha pasado. Sirve para diagnosticar sin abrir la ventana; no toca tu configuración de Claude' \
+'off:Desactiva el módulo y restaura tu statusline original' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'poxiterminal pool commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pool__help_commands] )) ||
+_poxiterminal__pool__help_commands() {
+    local commands; commands=(
+'setup:Conecta este PC con el servidor, guarda el token en el almacén seguro del sistema e instala la statusline de Claude (encadenando la que ya tengas)' \
+'status:Muestra el estado del módulo y lo que responde el servidor' \
+'sync:Hace ahora un ciclo completo (leer, enviar y pedir el estado) y cuenta qué ha pasado. Sirve para diagnosticar sin abrir la ventana; no toca tu configuración de Claude' \
+'off:Desactiva el módulo y restaura tu statusline original' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'poxiterminal pool help commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pool__help__help_commands] )) ||
+_poxiterminal__pool__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pool help help commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pool__help__off_commands] )) ||
+_poxiterminal__pool__help__off_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pool help off commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pool__help__setup_commands] )) ||
+_poxiterminal__pool__help__setup_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pool help setup commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pool__help__status_commands] )) ||
+_poxiterminal__pool__help__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pool help status commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pool__help__sync_commands] )) ||
+_poxiterminal__pool__help__sync_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pool help sync commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pool__off_commands] )) ||
+_poxiterminal__pool__off_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pool off commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pool__setup_commands] )) ||
+_poxiterminal__pool__setup_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pool setup commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pool__status_commands] )) ||
+_poxiterminal__pool__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pool status commands' commands "$@"
+}
+(( $+functions[_poxiterminal__pool__sync_commands] )) ||
+_poxiterminal__pool__sync_commands() {
+    local commands; commands=()
+    _describe -t commands 'poxiterminal pool sync commands' commands "$@"
+}
 (( $+functions[_poxiterminal__setup-ai_commands] )) ||
 _poxiterminal__setup-ai_commands() {
     local commands; commands=()
     _describe -t commands 'poxiterminal setup-ai commands' commands "$@"
-}
-(( $+functions[_poxiterminal__ssh_commands] )) ||
-_poxiterminal__ssh_commands() {
-    local commands; commands=()
-    _describe -t commands 'poxiterminal ssh commands' commands "$@"
 }
 (( $+functions[_poxiterminal__tab_commands] )) ||
 _poxiterminal__tab_commands() {

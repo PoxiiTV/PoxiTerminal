@@ -4,14 +4,14 @@
 
 <br />
 
-![Versión](https://img.shields.io/badge/versión-0.3.0-4fd1ff?style=flat-square)
-![Plataforma](https://img.shields.io/badge/Windows-10%20%7C%2011-a06bff?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-0.5.0-4fd1ff?style=flat-square)
+![Plataforma](https://img.shields.io/badge/Windows%2010%20%7C%2011%20·%20macOS%2014+-a06bff?style=flat-square)
 ![Instalador](https://img.shields.io/badge/instalador-32%20MB-34e0a1?style=flat-square)
 ![Idioma](https://img.shields.io/badge/idioma-castellano-ffb454?style=flat-square)
 ![Rust](https://img.shields.io/badge/hecho%20con-Rust%20%2B%20GPUI-ff8a5c?style=flat-square)
 ![Licencia](https://img.shields.io/badge/licencia-GPL--3.0-ff6ec7?style=flat-square)
 
-**Terminal acelerado por GPU para Windows, todo en castellano.**
+**Terminal acelerado por GPU para Windows y Mac, todo en castellano.**
 Pestañas, paneles, SSH, SFTP y tus sesiones de Claude Code o Codex en una sola ventana.
 
 <sub><a href="#-english">English below</a></sub>
@@ -22,7 +22,7 @@ Pestañas, paneles, SSH, SFTP y tus sesiones de Claude Code o Codex en una sola 
 
 ## 🎯 Qué es
 
-PoxiTerminal es un terminal nativo para Windows, escrito en **Rust** y dibujado por la
+PoxiTerminal es un terminal nativo para Windows y macOS, escrito en **Rust** y dibujado por la
 **GPU** con GPUI, el mismo motor gráfico que usa el editor Zed. No hay navegador
 embebido ni Electron: la ventana va fluida aunque tengas diez paneles abiertos.
 
@@ -40,10 +40,17 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 
 | Archivo | Para qué |
 |---|---|
-| `PoxiTerminal-v0.4.1-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
-| `PoxiTerminal-v0.4.1-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
+| `PoxiTerminal-v0.5.0-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
+| `PoxiTerminal-v0.5.0-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
+| `PoxiTerminal-v0.5.0-macos-arm64.dmg` | **Mac con Apple Silicon** (M1 o posterior, macOS 14+). Abre el `.dmg` y arrastra PoxiTerminal a **Aplicaciones** |
 
-> 🤝 **Convive con pebrel.** Usa su propia carpeta de ajustes (`%APPDATA%\PoxiTerminal`),
+> 🍎 **En Mac:** como la app aún no está firmada por Apple, macOS la bloquea la primera vez.
+> Ábrela, cierra el aviso y ve a **Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente**.
+> Los atajos básicos usan `⌘` (`⌘T`, `⌘C`, `⌘V`, `⌘F`); la lista completa está en
+> **Configuración → Atajos de teclado**.
+
+> 🤝 **Convive con pebrel.** Usa su propia carpeta de ajustes (`%APPDATA%\PoxiTerminal` en
+> Windows, `~/Library/Application Support/PoxiTerminal` en Mac),
 > sus propias credenciales y sus propias integraciones de IA. Puedes tener los dos
 > instalados sin que se pisen.
 
@@ -103,12 +110,20 @@ Todos se pueden cambiar en **Configuración → Atajos de teclado**.
 
 ## 🔧 Compilar
 
-Requiere [Rust](https://rustup.rs), Visual Studio Build Tools (C++) e
+**Windows:** requiere [Rust](https://rustup.rs), Visual Studio Build Tools (C++) e
 [Inno Setup 6](https://jrsoftware.org/isinfo.php) para el instalador.
 
 ```bat
 start.bat     :: compila y abre PoxiTerminal en modo desarrollo
 build.bat     :: genera el ZIP portable y el instalador en dist\
+```
+
+**Mac:** requiere [Rust](https://rustup.rs) y las Command Line Tools
+(`xcode-select --install`); no hace falta Xcode completo, porque los shaders de Metal
+se compilan al abrir la app (`runtime_shaders`).
+
+```bash
+./build-mac.sh   # genera dist/PoxiTerminal-vX.Y.Z-macos-arm64.dmg
 ```
 
 Pruebas: `cargo test -p nebula --bin poxiterminal --features gpui-shell`
@@ -146,7 +161,7 @@ Las licencias de terceros están en [`THIRD-PARTY-NOTICES`](THIRD-PARTY-NOTICES)
 
 ## 🇬🇧 English
 
-**PoxiTerminal** is a GPU-accelerated Windows terminal built with Rust and GPUI. It is a
+**PoxiTerminal** is a GPU-accelerated terminal for Windows and macOS built with Rust and GPUI. It is a
 fork of [pebrel](https://github.com/Kuddev/pebrel) with the whole interface translated to
 Spanish (English remains available in the settings).
 
@@ -161,7 +176,10 @@ Spanish (English remains available in the settings).
 - 🔄 Automatic updates from this repository's releases.
 - 🤝 Runs side by side with pebrel: separate settings, credentials and AI hooks.
 
-Download the installer or the portable ZIP from **[Releases](../../releases/latest)**.
-Build with `build.bat` (Rust, VS Build Tools and Inno Setup 6 required).
+Download the Windows installer, the portable ZIP or the Mac `.dmg` (Apple Silicon, macOS 14+)
+from **[Releases](../../releases/latest)**. The Mac app is not signed by Apple yet: the first
+time, open it, close the warning and go to **System Settings → Privacy & Security → Open Anyway**.
+Build with `build.bat` on Windows (Rust, VS Build Tools and Inno Setup 6) or `./build-mac.sh`
+on a Mac (Rust and the Command Line Tools).
 
 Licensed under **[GPL-3.0](LICENSE)**, as a derivative work of pebrel by Kuddev.

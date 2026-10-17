@@ -38,7 +38,7 @@ fn run(path: &Path) -> Result<(), String> {
         || plan.sha256 != plan.asset.sha256.clone().unwrap_or_default()
         || canonical(&nebula_settings::settings_dir()).map_err(|e| e.to_string())?
             != plan.config_directory
-        || plan.executable != plan.installation.join("Contents/MacOS/pebrel")
+        || plan.executable != plan.installation.join("Contents/MacOS/poxiterminal")
         || native::bundle(&plan.executable)? != plan.installation
         || plan.guard_path != guard_base(&plan.executable).with_extension("nebula-lock")
         || plan.installer != plan.config_directory.join("updates").join(&plan.asset.name)
@@ -53,7 +53,7 @@ fn run(path: &Path) -> Result<(), String> {
         .installation
         .parent()
         .ok_or("Missing bundle parent")?
-        .join(format!(".pebrel-update-{}.app", plan.transaction));
+        .join(format!(".poxiterminal-update-{}.app", plan.transaction));
     if std::fs::symlink_metadata(&staged).is_ok() {
         return Err("The staging bundle already exists".into());
     }

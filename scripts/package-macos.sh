@@ -6,14 +6,13 @@ export LC_ALL=en_US.UTF-8
 usage() {
   cat <<'EOF'
 Usage: scripts/package-macos.sh --binary PATH --version VERSION
-       [--channel preview --preview-id ID|--channel stable]
        --architecture aarch64|x86_64 --build-number NUMBER
        [--output-directory DIR] [--force]
        [--sign-identity ID --notary-profile PROFILE [--signing-keychain PATH]]
 
-Builds an ad-hoc-signed Pebrel .app and packages it in a DMG. Preview
-packages require --preview-id; stable packages use formal bundle metadata and
-arm64/x64 asset names.
+Builds an ad-hoc-signed PoxiTerminal .app and packages it in
+PoxiTerminal-vVERSION-macos-arm64|x64.dmg, the name the in-app updater looks for.
+Whether a release is a pre-release is decided on GitHub, not in the file name.
 Developer ID mode requires both signing and notarization; failures never
 silently downgrade to an ad-hoc signature.
 EOF
@@ -21,8 +20,6 @@ EOF
 
 binary=""
 version=""
-preview_id=""
-channel="preview"
 architecture=""
 build_number=""
 output_directory="dist"
@@ -39,14 +36,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     --version)
       version="${2:-}"
-      shift 2
-      ;;
-    --preview-id)
-      preview_id="${2:-}"
-      shift 2
-      ;;
-    --channel)
-      channel="${2:-}"
       shift 2
       ;;
     --architecture)
@@ -87,18 +76,6 @@ if [[ -n "$sign_identity" || -n "$notary_profile" || -n "$signing_keychain" ]]; 
   fi
 fi
 
-if [[ "$channel" != "preview" && "$channel" != "stable" ]]; then
-  echo "unsupported package channel: $channel (expected preview or stable)" >&2
-  exit 2
-fi
-if [[ "$channel" == "preview" && -z "$preview_id" ]]; then
-  echo "Preview packages require --preview-id" >&2
-  exit 2
-fi
-if [[ "$channel" == "stable" && -n "$preview_id" ]]; then
-  echo "stable packages must not include --preview-id" >&2
-  exit 2
-fi
 if [[ -z "$binary" || -z "$version" || \
       -z "$architecture" || -z "$build_number" ]]; then
   usage >&2
@@ -106,10 +83,6 @@ if [[ -z "$binary" || -z "$version" || \
 fi
 if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]; then
   echo "invalid Cargo package version: $version" >&2
-  exit 2
-fi
-if [[ -n "$preview_id" && ! "$preview_id" =~ ^[0-9A-Za-z][0-9A-Za-z.-]{0,31}$ ]]; then
-  echo "invalid Preview id: $preview_id" >&2
   exit 2
 fi
 if [[ "$architecture" != "aarch64" && "$architecture" != "x86_64" ]]; then
@@ -140,7 +113,7 @@ for command in codesign hdiutil iconutil lipo otool plutil shasum sips; do
   fi
 done
 if [[ ! -f "$binary" || ! -x "$binary" ]]; then
-  echo "Pebrel binary is missing or not executable: $binary" >&2
+  echo "PoxiTerminal binary is missing or not executable: $binary" >&2
   exit 1
 fi
 
@@ -158,9 +131,8 @@ mkdir -p "$output_directory"
 output_directory="$(cd "$output_directory" && pwd -P)"
 
 plist_source="$repo/packaging/macos/Info.plist"
-icon_source="$repo/extra/logo/nebula.png"
+icon_source="$repo/packaging/macos/icon.png"
 for required in "$plist_source" "$icon_source" "$repo/README.md" \
-  "$repo/README.zh-CN.md" \
   "$repo/CHANGELOG.md" "$repo/INSTALL.md" "$repo/LICENSE" \
   "$repo/THIRD-PARTY-NOTICES" "$repo/licenses/LICENSE-LUA" \
   "$repo/licenses/LICENSE-MLUA" "$repo/licenses/LICENSE-LATIN-MODERN-MATH"; do
@@ -172,7 +144,7 @@ done
 
 help_text="$("$binary" --help 2>&1)"
 if [[ "$help_text" != *"--gpui"* ]]; then
-  echo "refusing to package a non-GPUI Pebrel binary" >&2
+  echo "refusing to package a non-GPUI PoxiTerminal binary" >&2
   exit 1
 fi
 version_text="$("$binary" --version 2>&1)"
@@ -192,24 +164,16 @@ while IFS= read -r dependency; do
   esac
 done < <(otool -L "$binary" | tail -n +2 | awk '{print $1}')
 
-if [[ "$channel" == "stable" ]]; then
-  release="$version"
-  bundle_name="Pebrel"
-  bundle_id="io.github.kuddev.pebrel"
-  if [[ "$architecture" == "aarch64" ]]; then
-    asset_architecture="arm64"
-  else
-    asset_architecture="x64"
-  fi
-  volume_name="Pebrel"
+release="$version"
+bundle_name="PoxiTerminal"
+bundle_id="dev.alexiis.poxiterminal"
+if [[ "$architecture" == "aarch64" ]]; then
+  asset_architecture="arm64"
 else
-  release="$version-preview.$preview_id"
-  bundle_name="Pebrel Preview"
-  bundle_id="io.github.kuddev.pebrel.preview"
-  asset_architecture="$architecture"
-  volume_name="Pebrel Preview"
+  asset_architecture="x64"
 fi
-dmg_path="$output_directory/Pebrel-v$release-macos-$asset_architecture.dmg"
+volume_name="PoxiTerminal"
+dmg_path="$output_directory/PoxiTerminal-v$release-macos-$asset_architecture.dmg"
 if [[ -e "$dmg_path" && $force -ne 1 ]]; then
   echo "package already exists: $dmg_path (pass --force to replace it)" >&2
   exit 1
@@ -218,7 +182,7 @@ if [[ $force -eq 1 ]]; then
   rm -f -- "$dmg_path"
 fi
 
-work="$(mktemp -d "${TMPDIR:-/tmp}/pebrel-macos-package.XXXXXX")"
+work="$(mktemp -d "${TMPDIR:-/tmp}/poxiterminal-macos-package.XXXXXX")"
 cleanup() {
   if [[ -n "${work:-}" && -d "$work" ]]; then
     rm -rf -- "$work"
@@ -231,7 +195,7 @@ app="$stage/$bundle_name.app"
 contents="$app/Contents"
 resources="$contents/Resources"
 mkdir -p "$contents/MacOS" "$resources/docs" "$resources/licenses"
-install -m 0755 "$binary" "$contents/MacOS/pebrel"
+install -m 0755 "$binary" "$contents/MacOS/poxiterminal"
 install -m 0755 "$hook_binary" "$contents/MacOS/poxiterminal-hook"
 install -m 0644 "$plist_source" "$contents/Info.plist"
 plutil -replace CFBundleShortVersionString -string "$version" "$contents/Info.plist"
@@ -243,7 +207,7 @@ plutil -replace CFBundleName -string "$bundle_name" "$contents/Info.plist"
 plutil -replace CFBundleIdentifier -string "$bundle_id" "$contents/Info.plist"
 plutil -lint "$contents/Info.plist"
 
-iconset="$work/pebrel.iconset"
+iconset="$work/PoxiTerminal.iconset"
 mkdir -p "$iconset"
 while read -r pixels filename; do
   sips -z "$pixels" "$pixels" "$icon_source" --out "$iconset/$filename" >/dev/null
@@ -259,10 +223,9 @@ done <<'EOF'
 512 icon_512x512.png
 1024 icon_512x512@2x.png
 EOF
-iconutil -c icns "$iconset" -o "$resources/pebrel.icns"
+iconutil -c icns "$iconset" -o "$resources/PoxiTerminal.icns"
 
 install -m 0644 "$repo/README.md" "$resources/docs/README.md"
-install -m 0644 "$repo/README.zh-CN.md" "$resources/docs/README.zh-CN.md"
 install -m 0644 "$repo/CHANGELOG.md" "$resources/docs/CHANGELOG.md"
 install -m 0644 "$repo/INSTALL.md" "$resources/docs/INSTALL.md"
 install -m 0644 "$repo/LICENSE" "$resources/licenses/LICENSE"
@@ -291,7 +254,7 @@ if [[ "$(plutil -extract CFBundleIdentifier raw -o - "$contents/Info.plist")" !=
   echo "application bundle identifier verification failed" >&2
   exit 1
 fi
-if [[ "$(lipo -archs "$contents/MacOS/pebrel")" != "$expected_uname" ]]; then
+if [[ "$(lipo -archs "$contents/MacOS/poxiterminal")" != "$expected_uname" ]]; then
   echo "packaged Mach-O architecture verification failed" >&2
   exit 1
 fi

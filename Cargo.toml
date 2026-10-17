@@ -71,7 +71,9 @@ toml_edit = "0.24.0"
 # GPUI v1.16.1 把平台启动入口拆到独立 crate。它必须与 `gpui` 使用完全相同
 # 的 Git URL 和 rev，否则 Cargo 会把同名类型解析成两套互不兼容的 crate。
 # Without font-kit, the macOS platform uses NoopTextSystem and renders no text.
-gpui_platform = { git = "https://github.com/Kuddev/zed", rev = "fc05d637cc7029d75de051fd7f52c1a0fb8fa6b4", version = "=0.1.0", features = ["font-kit"] }
+# runtime_shaders: en macOS los shaders de Metal se compilan al arrancar, así que
+# basta con las Command Line Tools (sin Xcode completo). En Windows/Linux no hace nada.
+gpui_platform = { git = "https://github.com/Kuddev/zed", rev = "fc05d637cc7029d75de051fd7f52c1a0fb8fa6b4", version = "=0.1.0", features = ["font-kit", "runtime_shaders"] }
 
 # TODO: Drop this pin and return to the crates.io release once the fix ships there.
 [patch.crates-io]

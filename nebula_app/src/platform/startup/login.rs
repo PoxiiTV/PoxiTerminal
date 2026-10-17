@@ -6,7 +6,7 @@ pub(super) fn entry_path() -> io::Result<PathBuf> {
     let home = crate::platform::dirs::home_dir()
         .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Home directory unavailable"))?;
     if cfg!(target_os = "macos") {
-        Ok(home.join("Library/LaunchAgents/io.github.kuddev.pebrel.plist"))
+        Ok(home.join("Library/LaunchAgents/dev.alexiis.poxiterminal.plist"))
     } else {
         let config = std::env::var_os("XDG_CONFIG_HOME")
             .map(PathBuf::from)
@@ -81,7 +81,7 @@ fn launch_agent(executable: &Path) -> io::Result<String> {
         r#"<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-<key>Label</key><string>io.github.kuddev.pebrel</string>
+<key>Label</key><string>dev.alexiis.poxiterminal</string>
 <key>ProgramArguments</key><array><string>{executable}</string><string>--gpui</string></array>
 <key>RunAtLoad</key><true/>
 <key>LimitLoadToSessionType</key><string>Aqua</string>

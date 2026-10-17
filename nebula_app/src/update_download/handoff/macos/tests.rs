@@ -38,7 +38,7 @@ fn app(path: &Path, version: &str, fails: bool) {
 #include <unistd.h>
 int main(int argc, char **argv) {{
     if (argc > 1 && strcmp(argv[1], "--version") == 0) {{
-        puts("pebrel {version}"); return 0;
+        puts("PoxiTerminal {version}"); return 0;
     }}
     char path[4096];
     snprintf(path, sizeof(path), "%s/launched.txt", getenv("PEBREL_CONFIG_DIR"));
@@ -53,15 +53,15 @@ int main(int argc, char **argv) {{
     )
     .unwrap();
     native::run(
-        Command::new("/usr/bin/cc").arg(&source).arg("-o").arg(path.join("Contents/MacOS/pebrel")),
+        Command::new("/usr/bin/cc").arg(&source).arg("-o").arg(path.join("Contents/MacOS/poxiterminal")),
     )
     .unwrap();
     fs::remove_file(source).unwrap();
     fs::write(path.join("Contents/Info.plist"), format!(r#"<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-<key>CFBundleIdentifier</key><string>io.github.kuddev.pebrel</string>
-<key>CFBundleExecutable</key><string>pebrel</string>
+<key>CFBundleIdentifier</key><string>dev.alexiis.poxiterminal</string>
+<key>CFBundleExecutable</key><string>poxiterminal</string>
 <key>CFBundlePackageType</key><string>APPL</string>
 <key>CFBundleShortVersionString</key><string>{version}</string>
 </dict></plist>"#)).unwrap();
@@ -103,7 +103,7 @@ impl Fixture {
         .unwrap();
         let hash: String =
             file_digest(&installer).unwrap().iter().map(|b| format!("{b:02x}")).collect();
-        let executable = installation.join("Contents/MacOS/pebrel");
+        let executable = installation.join("Contents/MacOS/poxiterminal");
         let old = Command::new(&executable).env("PEBREL_CONFIG_DIR", &config).spawn().unwrap();
         let created = native::process_created(old.id()).unwrap().unwrap();
         let plan = Plan {
@@ -112,7 +112,7 @@ impl Fixture {
                 version: version.into(),
                 name: name.clone(),
                 download_url: format!(
-                    "https://github.com/Kuddev/pebrel/releases/download/v{version}/{name}"
+                    "https://github.com/PoxiiTV/PoxiTerminal/releases/download/v{version}/{name}"
                 ),
                 size: Some(fs::metadata(&installer).unwrap().len()),
                 sha256: Some(hash.clone()),
@@ -248,7 +248,7 @@ fn native_macos_update_installs_cancels_rejects_and_rolls_back() {
                 .installation
                 .parent()
                 .unwrap()
-                .join(".pebrel-update-native-acceptance.app");
+                .join(".poxiterminal-update-native-acceptance.app");
             native::verify_bundle(&backup, env!("CARGO_PKG_VERSION")).unwrap();
             assert!(
                 fs::read_to_string(fixture.plan.config_directory.join("launched.txt"))

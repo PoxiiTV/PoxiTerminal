@@ -34,20 +34,17 @@ _poxiterminal() {
             poxiterminal,migrate)
                 cmd="poxiterminal__migrate"
                 ;;
-            poxiterminal,notify-test)
-                cmd="poxiterminal__notify__test"
-                ;;
             poxiterminal,pane)
                 cmd="poxiterminal__pane"
                 ;;
             poxiterminal,plugin)
                 cmd="poxiterminal__plugin"
                 ;;
+            poxiterminal,pool)
+                cmd="poxiterminal__pool"
+                ;;
             poxiterminal,setup-ai)
                 cmd="poxiterminal__setup__ai"
-                ;;
-            poxiterminal,ssh)
-                cmd="poxiterminal__ssh"
                 ;;
             poxiterminal,tab)
                 cmd="poxiterminal__tab"
@@ -325,20 +322,17 @@ _poxiterminal() {
             poxiterminal__help,migrate)
                 cmd="poxiterminal__help__migrate"
                 ;;
-            poxiterminal__help,notify-test)
-                cmd="poxiterminal__help__notify__test"
-                ;;
             poxiterminal__help,pane)
                 cmd="poxiterminal__help__pane"
                 ;;
             poxiterminal__help,plugin)
                 cmd="poxiterminal__help__plugin"
                 ;;
+            poxiterminal__help,pool)
+                cmd="poxiterminal__help__pool"
+                ;;
             poxiterminal__help,setup-ai)
                 cmd="poxiterminal__help__setup__ai"
-                ;;
-            poxiterminal__help,ssh)
-                cmd="poxiterminal__help__ssh"
                 ;;
             poxiterminal__help,tab)
                 cmd="poxiterminal__help__tab"
@@ -496,6 +490,18 @@ _poxiterminal() {
             poxiterminal__help__plugin,run)
                 cmd="poxiterminal__help__plugin__run"
                 ;;
+            poxiterminal__help__pool,off)
+                cmd="poxiterminal__help__pool__off"
+                ;;
+            poxiterminal__help__pool,setup)
+                cmd="poxiterminal__help__pool__setup"
+                ;;
+            poxiterminal__help__pool,status)
+                cmd="poxiterminal__help__pool__status"
+                ;;
+            poxiterminal__help__pool,sync)
+                cmd="poxiterminal__help__pool__sync"
+                ;;
             poxiterminal__help__tab,close)
                 cmd="poxiterminal__help__tab__close"
                 ;;
@@ -586,6 +592,36 @@ _poxiterminal() {
             poxiterminal__plugin__help,run)
                 cmd="poxiterminal__plugin__help__run"
                 ;;
+            poxiterminal__pool,help)
+                cmd="poxiterminal__pool__help"
+                ;;
+            poxiterminal__pool,off)
+                cmd="poxiterminal__pool__off"
+                ;;
+            poxiterminal__pool,setup)
+                cmd="poxiterminal__pool__setup"
+                ;;
+            poxiterminal__pool,status)
+                cmd="poxiterminal__pool__status"
+                ;;
+            poxiterminal__pool,sync)
+                cmd="poxiterminal__pool__sync"
+                ;;
+            poxiterminal__pool__help,help)
+                cmd="poxiterminal__pool__help__help"
+                ;;
+            poxiterminal__pool__help,off)
+                cmd="poxiterminal__pool__help__off"
+                ;;
+            poxiterminal__pool__help,setup)
+                cmd="poxiterminal__pool__help__setup"
+                ;;
+            poxiterminal__pool__help,status)
+                cmd="poxiterminal__pool__help__status"
+                ;;
+            poxiterminal__pool__help,sync)
+                cmd="poxiterminal__pool__help__sync"
+                ;;
             poxiterminal__tab,close)
                 cmd="poxiterminal__tab__close"
                 ;;
@@ -629,7 +665,7 @@ _poxiterminal() {
 
     case "${cmd}" in
         poxiterminal)
-            opts="-q -v -e -T -o -h -V --print-events --ref-test --embed --gpui --config-file --daemon --working-directory --shell --hold --command --title --class --option --help --version [DIRECTORY] ctl env window tab pane agent migrate config plugin notify-test setup-ai ssh help"
+            opts="-q -v -e -T -o -h -V --print-events --ref-test --embed --gpui --config-file --socket --daemon --working-directory --shell --hold --command --title --class --option --help --version [DIRECTORY] ctl env window tab pane agent migrate config plugin pool setup-ai help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -640,6 +676,21 @@ _poxiterminal() {
                     return 0
                     ;;
                 --config-file)
+                    local oldifs
+                    if [ -n "${IFS+x}" ]; then
+                        oldifs="$IFS"
+                    fi
+                    IFS=$'\n'
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    if [ -n "${oldifs+x}" ]; then
+                        IFS="$oldifs"
+                    fi
+                    if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
+                        compopt -o filenames
+                    fi
+                    return 0
+                    ;;
+                --socket)
                     local oldifs
                     if [ -n "${IFS+x}" ]; then
                         oldifs="$IFS"
@@ -2533,7 +2584,7 @@ _poxiterminal() {
             return 0
             ;;
         poxiterminal__help)
-            opts="ctl env window tab pane agent migrate config plugin notify-test setup-ai ssh help"
+            opts="ctl env window tab pane agent migrate config plugin pool setup-ai help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -3176,20 +3227,6 @@ _poxiterminal() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        poxiterminal__help__notify__test)
-            opts=""
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
         poxiterminal__help__pane)
             opts="list read send paste wait exec close zoom resize"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
@@ -3372,8 +3409,8 @@ _poxiterminal() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        poxiterminal__help__setup__ai)
-            opts=""
+        poxiterminal__help__pool)
+            opts="setup status sync off"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -3386,7 +3423,63 @@ _poxiterminal() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
-        poxiterminal__help__ssh)
+        poxiterminal__help__pool__off)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__help__pool__setup)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__help__pool__status)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__help__pool__sync)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__help__setup__ai)
             opts=""
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -3521,20 +3614,6 @@ _poxiterminal() {
                     fi
                     return 0
                     ;;
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        poxiterminal__notify__test)
-            opts="-h --help"
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
                 *)
                     COMPREPLY=()
                     ;;
@@ -4057,6 +4136,168 @@ _poxiterminal() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
+        poxiterminal__pool)
+            opts="-h --help setup status sync off help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__pool__help)
+            opts="setup status sync off help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__pool__help__help)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__pool__help__off)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__pool__help__setup)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__pool__help__status)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__pool__help__sync)
+            opts=""
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 4 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__pool__off)
+            opts="-h --forget --help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__pool__setup)
+            opts="-h --server --token --help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                --server)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --token)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__pool__status)
+            opts="-h --help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        poxiterminal__pool__sync)
+            opts="-h --help"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 3 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
         poxiterminal__setup__ai)
             opts="-h --remove --ssh --wsl --wsl-user --help"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
@@ -4076,20 +4317,6 @@ _poxiterminal() {
                     COMPREPLY=($(compgen -f "${cur}"))
                     return 0
                     ;;
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-            return 0
-            ;;
-        poxiterminal__ssh)
-            opts="-h --help [ARGS]..."
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-                return 0
-            fi
-            case "${prev}" in
                 *)
                     COMPREPLY=()
                     ;;

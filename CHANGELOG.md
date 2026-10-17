@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.5.0
+
+### 🇪🇸 Español
+
+**PoxiTerminal llega a Mac.** Primera versión para macOS con Apple Silicon (macOS 14 o posterior).
+
+- **Descarga `PoxiTerminal-v0.5.0-macos-arm64.dmg`**, ábrelo y arrastra PoxiTerminal a Aplicaciones.
+- Todo en castellano, como en Windows: pestañas, paneles, SSH, SFTP, panel de Git y centro de control de IA.
+- **Icono propio para Mac**, con el margen y las esquinas del resto de apps de macOS.
+- **Actualizaciones automáticas también en Mac:** busca el `.dmg` nuevo en las releases y se instala sola cuando tú le dices.
+- Convive con pebrel también en Mac: su propia carpeta de ajustes (`~/Library/Application Support/PoxiTerminal`) y su propio identificador.
+- Para compilar en Mac basta con Rust y las Command Line Tools: `./build-mac.sh`.
+
+> Aún no está firmada por Apple: la primera vez, ábrela, cierra el aviso y ve a **Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente**.
+
+### 🇬🇧 English
+
+**PoxiTerminal comes to the Mac.** First release for Apple Silicon Macs (macOS 14 or later).
+
+- **Download `PoxiTerminal-v0.5.0-macos-arm64.dmg`**, open it and drag PoxiTerminal to Applications.
+- Fully in Spanish, as on Windows: tabs, panes, SSH, SFTP, Git panel and the AI control center.
+- **Mac-specific icon**, with the margin and corners of other macOS apps.
+- **Automatic updates on Mac too:** it looks for the new `.dmg` in releases and installs it when you say so.
+- Runs side by side with pebrel on Mac too: its own settings folder and bundle identifier.
+- Building on a Mac only needs Rust and the Command Line Tools: `./build-mac.sh`.
+
+> Not signed by Apple yet: the first time, open it, close the warning and go to **System Settings → Privacy & Security → Open Anyway**.
+
 ## 0.4.1
 
 ### 🇪🇸 Español
