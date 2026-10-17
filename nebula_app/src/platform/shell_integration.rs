@@ -140,4 +140,42 @@ mod tests {
             assert_eq!(String::from_utf8(output.stdout).unwrap().trim(), expected, "{rc}");
         }
     }
+
+    /// `cd desk` + Tab → Desktop, como en Windows; sin pisar el completado propio.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_zsh_completion_defaults_respect_user_policy() {
+        let directory = tempfile::tempdir().unwrap();
+        let integration = directory.path().join("integration.zsh");
+        std::fs::write(&integration, include_str!("../../res/shell/zshrc")).unwrap();
+        let insensitive = "m:{a-zA-Z}={A-Za-z} r:|[._-]=* r:|=*";
+        for (rc, expected) in [
+            ("", format!("1:{insensitive}:select")),
+            ("zstyle ':completion:*' matcher-list ''", "1::select".to_owned()),
+            ("zstyle ':completion:*' menu no", format!("1:{insensitive}:no")),
+            ("compdef() { :; }", format!("1:{insensitive}:select")),
+        ] {
+            std::fs::write(directory.path().join(".zshrc"), rc).unwrap();
+            let output = std::process::Command::new("/bin/zsh")
+                .args([
+                    "-d",
+                    "-f",
+                    "-c",
+                    "source \"$1\"; zstyle -a ':completion:*' matcher-list m; \
+                     zstyle -s ':completion:*' menu menu; \
+                     print -r -- \"$+functions[compdef]:${m[*]}:$menu\"",
+                    "poxi-completion-test",
+                ])
+                .arg(&integration)
+                .env("NEBULA_ZDOTDIR_WAS_SET", "1")
+                .env("NEBULA_ORIGINAL_ZDOTDIR", directory.path())
+                .env("ZDOTDIR", directory.path())
+                .env("XDG_CACHE_HOME", directory.path())
+                .env("TERM", "xterm-256color")
+                .output()
+                .unwrap();
+            assert!(output.status.success(), "{rc}: {:?}", output.stderr);
+            assert_eq!(String::from_utf8(output.stdout).unwrap().trim(), expected, "{rc}");
+        }
+    }
 }

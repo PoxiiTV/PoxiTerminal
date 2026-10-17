@@ -16,6 +16,24 @@ if [[ "$OSTYPE" == darwin* && -z "$NO_COLOR" && "$TERM" != dumb ]]; then
     export CLICOLOR LSCOLORS
 fi
 
+# Autocompletado como en Windows: `cd desk` + Tab completa a Desktop sin
+# distinguir mayúsculas, y con varias opciones se elige en un menú. Solo si el
+# usuario no ha cargado su propio sistema de completado (oh-my-zsh, prezto…)
+# ni ha definido su propio matcher-list.
+if (( ! $+functions[compdef] )); then
+    autoload -Uz compinit
+    __poxi_zcompdump="${XDG_CACHE_HOME:-$HOME/.cache}/poxiterminal/zcompdump-$ZSH_VERSION"
+    mkdir -p "${__poxi_zcompdump:h}" 2>/dev/null
+    compinit -i -d "$__poxi_zcompdump"
+    unset __poxi_zcompdump
+fi
+if ! zstyle -L ':completion:*' matcher-list >/dev/null; then
+    zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*'
+fi
+if ! zstyle -L ':completion:*' menu >/dev/null; then
+    zstyle ':completion:*' menu select
+fi
+
 unset NEBULA_ZDOTDIR_WAS_SET NEBULA_ORIGINAL_ZDOTDIR NEBULA_ZSH_INTEGRATION
 
 __pebrel_shell_token=$(printf '%s' "${WSL_DISTRO_NAME:+wsl|${WSL_DISTRO_NAME}|}zsh:${HOST:-localhost}:$$:$RANDOM" | base64 | tr -d '\r\n')

@@ -272,6 +272,21 @@ pub(super) fn is_native_window_shortcut(ks: &Keystroke) -> bool {
         && matches!(ks.key.as_str(), "f4" | "space")
 }
 
+/// ⌥ (sin Ctrl ni ⌘) que produce un carácter visible distinto de la tecla (⌥espacio sigue siendo Alt).
+#[cfg(target_os = "macos")]
+fn option_composes_text(ks: &Keystroke) -> bool {
+    let mods = &ks.modifiers;
+    mods.alt
+        && !mods.control
+        && !mods.platform
+        && !mods.function
+        && ks.key_char.as_deref().is_some_and(|text| {
+            !text.is_empty()
+                && !text.chars().any(|c| c.is_control() || c.is_whitespace())
+                && text != ks.key
+        })
+}
+
 /// 返回 `None` 表示这次按键交给系统窗口处理或 IME/文本输入路径。
 pub fn encode(ks: &Keystroke, mode: &TermMode) -> Option<Vec<u8>> {
     if is_native_window_shortcut(ks) {
@@ -294,6 +309,15 @@ pub fn encode(ks: &Keystroke, mode: &TermMode) -> Option<Vec<u8>> {
             .as_deref()
             .is_some_and(|text| !text.is_empty() && !text.chars().any(char::is_control))
     {
+        return None;
+    }
+
+    // macOS: muchos teclados escriben caracteres normales con ⌥ (en el español,
+    // ⌥2 = @, ⌥ñ = ~, ⌥º = \). Si AppKit dice que la combinación produce otro
+    // carácter, es texto y va por la ruta de texto, como en Terminal.app; si no
+    // produce nada distinto (flechas, borrar…), ⌥ sigue siendo Alt.
+    #[cfg(target_os = "macos")]
+    if option_composes_text(ks) {
         return None;
     }
 
@@ -419,6 +443,30 @@ mod tests {
 
     fn keystroke(key: &str) -> Keystroke {
         Keystroke { modifiers: gpui::Modifiers::default(), key: key.to_owned(), key_char: None }
+    }
+
+    /// Teclado español de Mac: ⌥ escribe caracteres de uso diario (@ # | \ ~ [ ] { }).
+    /// Si AppKit dice que la combinación produce otro carácter, es texto y no Alt/Meta.
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_option_characters_are_text_not_meta() {
+        for (key, text) in
+            [("2", "@"), ("3", "#"), ("1", "|"), ("º", "\\"), ("ñ", "~"), ("+", "]"), ("ç", "}")]
+        {
+            let mut ks = keystroke(key);
+            ks.modifiers.alt = true;
+            ks.key_char = Some(text.to_owned());
+            for mode in [TermMode::empty(), TermMode::DISAMBIGUATE_ESC_CODES] {
+                assert_eq!(encode(&ks, &mode), None, "⌥{key} debe escribir {text} ({mode:?})");
+            }
+        }
+        // ⌥ con flechas y teclas sin texto sigue siendo un modificador.
+        let mut left = keystroke("left");
+        left.modifiers.alt = true;
+        assert_eq!(encode(&left, &TermMode::empty()), Some(b"\x1b[1;3D".to_vec()));
+        let mut backspace = keystroke("backspace");
+        backspace.modifiers.alt = true;
+        assert_eq!(encode(&backspace, &TermMode::empty()), Some(vec![0x1b, 0x7f]));
     }
 
     #[test]
