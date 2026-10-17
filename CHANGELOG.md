@@ -1,25 +1,5 @@
 # Changelog
 
-## Próxima versión
-
-### 🇪🇸 Español
-
-Mejoras para Mac.
-
-- **Barra de menús en castellano:** PoxiTerminal, Archivo, Edición, Visualización y Ventana, con «Salir», «Ocultar», «Minimizar» y los atajos con ⌘ al lado de cada opción.
-- **«Abrir en PoxiTerminal» desde el Finder:** el `.dmg` trae una acción rápida; doble clic para instalarla y aparece al hacer clic derecho en una carpeta.
-- **⌘F busca en el historial**, igual que Ctrl+F.
-- **Consume menos en reposo:** con la ventana abierta y sin hacer nada pasa de ~2 % a ~1 % de CPU, y a ~0,3 % con la ventana tapada. El socket de las IA y el atajo del terminal rápido ya no se despiertan decenas de veces por segundo para nada.
-
-### 🇬🇧 English
-
-Mac improvements.
-
-- **Menu bar** (PoxiTerminal, File, Edit, View, Window) with Quit, Hide, Minimize and the ⌘ shortcut next to each item.
-- **"Abrir en PoxiTerminal" from Finder:** the `.dmg` includes a Quick Action; double-click to install it.
-- **⌘F searches the scrollback**, like Ctrl+F.
-- **Lighter at idle:** ~2 % → ~1 % CPU with the window visible, ~0.3 % when covered. The AI socket and the quick-terminal hotkey no longer wake up dozens of times per second.
-
 ## 0.4.1
 
 ### 🇪🇸 Español
@@ -39,6 +19,10 @@ Mac improvements.
 - **Icono propio para Mac**, con el margen y las esquinas del resto de apps de macOS.
 - **Teclado español de Mac:** `~ @ # | \ [ ] { }` se escriben con ⌥ como en cualquier app.
 - **Tab como en Windows:** `cd desk` + Tab completa a `Desktop` sin distinguir mayúsculas (si no tienes tu propio completado de zsh).
+- **Barra de menús en castellano** (PoxiTerminal, Archivo, Edición, Visualización y Ventana), con «Salir», «Ocultar», «Minimizar» y el atajo con ⌘ de cada opción.
+- **«Abrir en PoxiTerminal» desde el Finder:** el `.dmg` trae una acción rápida; doble clic para instalarla y aparece al hacer clic derecho en una carpeta.
+- **⌘F busca en el historial**, igual que Ctrl+F.
+- **Ligero en reposo:** ~1 % de CPU con la ventana a la vista y ~0,3 % con la ventana tapada.
 - **Actualizaciones automáticas también en Mac:** busca el `.dmg` nuevo en las releases y se instala sola cuando tú le dices.
 - Convive con pebrel también en Mac: su propia carpeta de ajustes (`~/Library/Application Support/PoxiTerminal`) y su propio identificador.
 - Para compilar en Mac basta con Rust y las Command Line Tools: `./build-mac.sh`.
@@ -62,6 +46,10 @@ Mac improvements.
 - **Mac-specific icon**, with the margin and corners of other macOS apps.
 - **Spanish Mac keyboard:** `~ @ # | \ [ ] { }` are typed with ⌥ as in any other app.
 - **Tab like on Windows:** `cd desk` + Tab completes to `Desktop` regardless of case (unless you have your own zsh completion).
+- **Menu bar** (PoxiTerminal, File, Edit, View, Window) with Quit, Hide, Minimize and each item's ⌘ shortcut.
+- **"Abrir en PoxiTerminal" from Finder:** the `.dmg` includes a Quick Action; double-click to install it.
+- **⌘F searches the scrollback**, like Ctrl+F.
+- **Light at idle:** ~1 % CPU with the window visible, ~0.3 % when covered.
 - **Automatic updates on Mac too:** it looks for the new `.dmg` in releases and installs it when you say so.
 - Runs side by side with pebrel on Mac too: its own settings folder and bundle identifier.
 - Building on a Mac only needs Rust and the Command Line Tools: `./build-mac.sh`.
