@@ -4,7 +4,7 @@
 
 <br />
 
-![Versión](https://img.shields.io/badge/versión-0.5.0-4fd1ff?style=flat-square)
+![Versión](https://img.shields.io/badge/versión-0.4.1-4fd1ff?style=flat-square)
 ![Plataforma](https://img.shields.io/badge/Windows%2010%20%7C%2011%20·%20macOS%2014+-a06bff?style=flat-square)
 ![Instalador](https://img.shields.io/badge/instalador-32%20MB-34e0a1?style=flat-square)
 ![Idioma](https://img.shields.io/badge/idioma-castellano-ffb454?style=flat-square)
@@ -40,9 +40,9 @@ Busca la última versión en **[Releases](../../releases/latest)**:
 
 | Archivo | Para qué |
 |---|---|
-| `PoxiTerminal-v0.5.0-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
-| `PoxiTerminal-v0.5.0-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
-| `PoxiTerminal-v0.5.0-macos-arm64.dmg` | **Mac con Apple Silicon** (M1 o posterior, macOS 14+). Abre el `.dmg` y arrastra PoxiTerminal a **Aplicaciones** |
+| `PoxiTerminal-v0.4.1-windows-x64-setup.exe` | **Instalador.** Accesos directos, «Abrir en PoxiTerminal» en el menú contextual y actualizaciones automáticas |
+| `PoxiTerminal-v0.4.1-windows-x64.zip` | **Portable.** Descomprime y ejecuta `poxiterminal.exe` |
+| `PoxiTerminal-v0.4.1-macos-arm64.dmg` | **Mac con Apple Silicon** (M1 o posterior, macOS 14+). Abre el `.dmg` y arrastra PoxiTerminal a **Aplicaciones** |
 
 > 🍎 **En Mac:** como la app aún no está firmada por Apple, macOS la bloquea la primera vez.
 > Ábrela, cierra el aviso y ve a **Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente**.
